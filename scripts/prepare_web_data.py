@@ -75,9 +75,15 @@ def main():
     records.sort(key=lambda x: x['date'], reverse=True)
     print(f"Total records parsed: {len(records)}")
 
-    # Ensure web/js directory exists
+    # Ensure web/js, web/css, web/data directories exist
     os.makedirs(os.path.join('web', 'js'), exist_ok=True)
     os.makedirs(os.path.join('web', 'css'), exist_ok=True)
+    os.makedirs(os.path.join('web', 'data'), exist_ok=True)
+
+    # Copy CSV to web/data/xsmb.csv for client-side direct access
+    import shutil
+    web_csv_path = os.path.join('web', 'data', 'xsmb.csv')
+    shutil.copyfile(csv_path, web_csv_path)
 
     # We take the latest 1,000 records (~3 years of history) for instant client-side performance
     recent_records = records[:1000]
@@ -89,7 +95,18 @@ def main():
         json.dump(recent_records, f, ensure_ascii=False)
         f.write(';\n')
 
+    # Also save web/data/latest.json
+    latest_json_path = os.path.join('web', 'data', 'latest.json')
+    with open(latest_json_path, 'w', encoding='utf-8') as f:
+        json.dump({
+            'success': True,
+            'latest_date': recent_records[0]['date'] if recent_records else None,
+            'latest_record': recent_records[0] if recent_records else None,
+            'total_records': len(records)
+        }, f, ensure_ascii=False, indent=2)
+
     print(f"Generated {out_file} with {len(recent_records)} records. Size: {os.path.getsize(out_file) / 1024:.1f} KB")
+    print(f"Copied CSV to {web_csv_path} and wrote {latest_json_path}")
 
 if __name__ == '__main__':
     main()

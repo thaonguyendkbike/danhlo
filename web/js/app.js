@@ -276,12 +276,17 @@ function onDataLoaded() {
   renderHistoryTable();
   updateLiveBannerStatus();
 
-  // Periodically check live status and sync every 30 seconds
+  // Trigger immediate background sync check on startup
+  setTimeout(() => {
+    syncDataWithServer(false);
+  }, 500);
+
+  // Periodically check live status and sync every 20 seconds
   if (!window._syncInterval) {
     window._syncInterval = setInterval(() => {
       updateLiveBannerStatus();
       syncDataWithServer(false);
-    }, 30000);
+    }, 20000);
   }
 }
 
@@ -943,11 +948,14 @@ function initClockAndCountdown() {
     if (dom.clockTime) dom.clockTime.textContent = timeStr;
     if (dom.clockDate) dom.clockDate.textContent = dateStr;
 
-    // Countdown to 18:15 (XSMB draw time)
-    const drawHour = 18;
-    const drawMin = 15;
+    // Draw time status
+    const hour = vnTime.getHours();
+    const min = vnTime.getMinutes();
+    const isDrawingNow = (hour === 18 && min >= 14 && min <= 35);
+
+    // Target 18:15
     const target = new Date(vnTime);
-    target.setHours(drawHour, drawMin, 0, 0);
+    target.setHours(18, 15, 0, 0);
 
     if (vnTime.getTime() > target.getTime()) {
       target.setDate(target.getDate() + 1); // Next day's draw
@@ -959,7 +967,11 @@ function initClockAndCountdown() {
     const s = Math.floor((diff % 60000) / 1000);
 
     if (dom.countdownTimer) {
-      dom.countdownTimer.textContent = `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
+      if (isDrawingNow) {
+        dom.countdownTimer.textContent = '🔴 ĐANG MỞ THƯỞNG!';
+      } else {
+        dom.countdownTimer.textContent = `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
+      }
     }
   }
 
@@ -1150,29 +1162,87 @@ function bindEvents() {
 async function syncDataWithServer(isManual = false) {
   if (dom.syncIconSpin) dom.syncIconSpin.classList.add('rotating');
   try {
-    const res = await fetch('/api/sync');
-    if (!res.ok) throw new Error('Sync status ' + res.status);
-    const data = await res.json();
-    if (data.success) {
+    let data = null;
+    // 1. Try local server API
+    try {
+      const res = await fetch('/api/sync?t=' + Date.now());
+      if (res.ok) {
+        data = await res.json();
+      }
+    } catch (apiErr) {
+      // 2. Fallback to latest.json
+      try {
+        const fbRes = await fetch('data/latest.json?t=' + Date.now());
+        if (fbRes.ok) data = await fbRes.json();
+      } catch (fbErr) {}
+    }
+
+    if (data && (data.success || data.latest_record)) {
+      const serverRecord = data.latest_record;
+      const serverDate = data.latest_date || (serverRecord && serverRecord.date);
+      const currentLatestDate = (state.records && state.records.length > 0) ? state.records[0].date : '';
+
+      let didUpdate = false;
+
+      // Check if server date is newer than client's latest date
+      if (serverDate && (!currentLatestDate || serverDate > currentLatestDate)) {
+        if (serverRecord) {
+          state.records.unshift(serverRecord);
+          didUpdate = true;
+        }
+      } else if (serverDate && serverDate === currentLatestDate && serverRecord) {
+        // Compare and update if special prize differs
+        if (state.records[0].special !== serverRecord.special) {
+          state.records[0] = serverRecord;
+          didUpdate = true;
+        }
+      }
+
+      // If server explicitly added rows or we need fresh CSV
       if (data.added && data.added.length > 0) {
-        // Reload data from CSV
-        const csvRes = await fetch('data/xsmb.csv');
-        const csvText = await csvRes.text();
-        parseCSVData(csvText);
-        onDataLoaded();
+        try {
+          const csvRes = await fetch('data/xsmb.csv?t=' + Date.now());
+          if (csvRes.ok) {
+            const csvText = await csvRes.text();
+            parseCSVData(csvText);
+            didUpdate = true;
+          }
+        } catch (csvErr) {
+          console.warn('Could not fetch updated CSV:', csvErr);
+        }
+      }
+
+      if (didUpdate) {
+        state.currentIndex = 0;
+        if (dom.datePicker) {
+          dom.datePicker.max = state.records[0].date;
+          dom.datePicker.value = state.records[0].date;
+        }
+        renderCurrentRecord();
+        renderStatistics();
+        renderHistoryTable();
+        if (window.soundManager) window.soundManager.playFanfare();
+        if (window.confetti) window.confetti.fire(60);
+
         if (isManual) {
-          alert(`🎉 Đã cập nhật thành công kết quả mới nhất ngày ${formatDateVN(data.latest_date)}!`);
+          alert(`🎉 Cập nhật thành công! Đã có kết quả mới nhất ngày ${formatDateVN(state.records[0].date)} (Giải Đặc Biệt: ${state.records[0].special}).`);
         }
       } else {
         if (isManual) {
-          alert(`ℹ️ Dữ liệu đã là mới nhất (Kỳ quay ngày ${formatDateVN(state.records[0].date)}). Kỳ quay hôm nay 06/10/2026 sẽ mở thưởng lúc 18h15!`);
+          const curDateStr = state.records[0] ? formatDateVN(state.records[0].date) : 'hôm nay';
+          const curSpecial = state.records[0] ? state.records[0].special : '--';
+          alert(`✅ Dữ liệu hiện tại đã là mới nhất: Kỳ quay ngày ${curDateStr} (Giải Đặc Biệt: ${curSpecial}). Hệ thống luôn tự động kiểm tra mỗi 20 giây!`);
         }
+      }
+    } else {
+      if (isManual) {
+        alert('ℹ️ Đang hoạt động ở chế độ trực tuyến. Dữ liệu trên bảng đã là kết quả gần nhất.');
       }
     }
   } catch (err) {
     console.warn('Auto-sync check (local/offline):', err);
     if (isManual) {
-      alert('Không thể kết nối đến máy chủ cập nhật (đang chạy offline hoặc server chưa bật API).');
+      alert('Không thể kết nối đến máy chủ cập nhật. Vui lòng kiểm tra lại kết nối mạng hoặc máy chủ.');
     }
   } finally {
     if (dom.syncIconSpin) {
@@ -1190,18 +1260,25 @@ async function updateLiveBannerStatus() {
   const hour = vnTime.getHours();
   const min = vnTime.getMinutes();
 
+  const y = vnTime.getFullYear();
+  const m = String(vnTime.getMonth() + 1).padStart(2, '0');
+  const d = String(vnTime.getDate()).padStart(2, '0');
+  const todayVnStr = `${y}-${m}-${d}`;
+
   let liveApi = null;
   try {
-    const res = await fetch('/api/live');
+    const res = await fetch('/api/live?t=' + Date.now());
     if (res.ok) liveApi = await res.json();
   } catch (e) {}
 
-  const latestRec = state.records[0];
-  const isTodayDrawn = latestRec && latestRec.date === '2026-10-06';
+  const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
+  const isTodayDrawn = latestRec && latestRec.date === todayVnStr;
   const isDrawingTime = (hour === 18 && min >= 14 && min <= 35);
 
   if (isDrawingTime || (liveApi && liveApi.status === 'drawing')) {
     dom.liveStatusBanner.className = 'live-banner';
+    dom.liveStatusBanner.style.background = '';
+    dom.liveStatusBanner.style.borderColor = '';
     if (dom.liveBadgeText) dom.liveBadgeText.textContent = '🔴 ĐANG TRỰC TIẾP';
     if (dom.liveBannerMessage) {
       const count = liveApi ? liveApi.prizes_count : 0;
@@ -1209,20 +1286,22 @@ async function updateLiveBannerStatus() {
     }
   } else if (isTodayDrawn || (liveApi && liveApi.status === 'completed')) {
     dom.liveStatusBanner.className = 'live-banner';
-    dom.liveStatusBanner.style.background = 'linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(245, 158, 11, 0.12) 100%)';
-    dom.liveStatusBanner.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-    if (dom.liveBadgeText) dom.liveBadgeText.textContent = '✅ ĐÃ MỞ THƯỞNG';
+    dom.liveStatusBanner.style.background = 'linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(245, 158, 11, 0.15) 100%)';
+    dom.liveStatusBanner.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+    if (dom.liveBadgeText) dom.liveBadgeText.textContent = '✅ ĐÃ CÓ KẾT QUẢ HÔM NAY';
     if (dom.liveBannerMessage) {
-      dom.liveBannerMessage.innerHTML = `Đã có đầy đủ kết quả kỳ quay hôm nay <strong>06/10/2026</strong>. Giải Đặc Biệt: <strong style="color:var(--ruby-400)">${latestRec.special}</strong>`;
+      const specialNum = latestRec ? latestRec.special : (liveApi && liveApi.special ? liveApi.special : '--');
+      const loto2D = specialNum !== '--' ? specialNum.slice(-2) : '--';
+      dom.liveBannerMessage.innerHTML = `Đã có đầy đủ kết quả kỳ quay hôm nay <strong>${formatDateVN(todayVnStr)}</strong>. Giải Đặc Biệt: <strong style="color:var(--ruby-400)">${specialNum}</strong> (Lô 2 số: <strong style="color:var(--amber-400)">${loto2D}</strong>). Chúc anh em đại thắng!`;
     }
   } else {
-    // Before 18:15
+    // Before 18:15 or waiting
     dom.liveStatusBanner.className = 'live-banner idle';
     dom.liveStatusBanner.style.background = '';
     dom.liveStatusBanner.style.borderColor = '';
     if (dom.liveBadgeText) dom.liveBadgeText.textContent = '⏰ CHỜ QUAY (18:15)';
     if (dom.liveBannerMessage) {
-      dom.liveBannerMessage.innerHTML = `Hôm nay là <strong>06/10/2026</strong> (mở thưởng lúc <strong>18h15</strong>). Kết quả mới nhất đã quay là ngày <strong>${latestRec ? formatDateVN(latestRec.date) : '--'}</strong> (GĐB: <strong style="color:var(--ruby-400)">${latestRec ? latestRec.special : '--'}</strong>).`;
+      dom.liveBannerMessage.innerHTML = `Hôm nay là <strong>${formatDateVN(todayVnStr)}</strong> (mở thưởng lúc <strong>18h15</strong>). Kết quả gần nhất là ngày <strong>${latestRec ? formatDateVN(latestRec.date) : '--'}</strong> (GĐB: <strong style="color:var(--ruby-400)">${latestRec ? latestRec.special : '--'}</strong>).`;
     }
   }
 }

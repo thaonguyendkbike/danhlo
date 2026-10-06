@@ -79,6 +79,35 @@ def get_last_csv_date():
             return datetime.strptime(last_row[0], '%Y-%m-%d').date()
     return None
 
+def get_latest_record():
+    if not os.path.exists(CSV_PATH):
+        return None
+    with open(CSV_PATH, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        header = next(reader, None)
+        last_row = None
+        for row in reader:
+            if row:
+                last_row = row
+        if last_row and len(last_row) >= 28:
+            pad = lambda v, l: str(v).strip().zfill(l)
+            sp = pad(last_row[1], 5)
+            p1 = pad(last_row[2], 5)
+            p2 = [pad(last_row[3], 5), pad(last_row[4], 5)]
+            p3 = [pad(last_row[5], 5), pad(last_row[6], 5), pad(last_row[7], 5), pad(last_row[8], 5), pad(last_row[9], 5), pad(last_row[10], 5)]
+            p4 = [pad(last_row[11], 4), pad(last_row[12], 4), pad(last_row[13], 4), pad(last_row[14], 4)]
+            p5 = [pad(last_row[15], 4), pad(last_row[16], 4), pad(last_row[17], 4), pad(last_row[18], 4), pad(last_row[19], 4), pad(last_row[20], 4)]
+            p6 = [pad(last_row[21], 3), pad(last_row[22], 3), pad(last_row[23], 3)]
+            p7 = [pad(last_row[24], 2), pad(last_row[25], 2), pad(last_row[26], 2), pad(last_row[27], 2)]
+            all_nums = [sp, p1] + p2 + p3 + p4 + p5 + p6 + p7
+            return {
+                'date': last_row[0],
+                'special': sp,
+                'p1': p1, 'p2': p2, 'p3': p3, 'p4': p4, 'p5': p5, 'p6': p6, 'p7': p7,
+                'loto': [n[-2:] for n in all_nums]
+            }
+    return None
+
 def append_to_csv(rec):
     row = [
         rec['date'],
@@ -113,9 +142,9 @@ def sync_all():
     now = datetime.now(tz)
     today = now.date()
 
-    # Target end date
+    # Target end date: if after 18:15, try to sync today if complete
     end_date = today
-    if now.time() < time(18, 35):
+    if now.time() < time(18, 15):
         end_date = today - timedelta(days=1)
 
     print(f"Current DB last date: {last_d}, Target date: {end_date}")
