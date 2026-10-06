@@ -179,6 +179,14 @@ body {
   gap: 1rem;
 }
 
+.header-top-row {
+  display: contents;
+}
+
+.mobile-bottom-nav {
+  display: none;
+}
+
 .brand-wrapper {
   display: flex;
   align-items: center;
@@ -1573,6 +1581,573 @@ body {
   color: #fff !important;
   animation: rollNumbers 0.1s infinite linear, pulseSpecial 1.5s infinite;
   box-shadow: 0 0 25px var(--ruby-glow);
+}
+
+/* ===================================================================
+   Mobile Optimization & Smartphone Touch Experience (@media <= 768px and <= 380px)
+   =================================================================== */
+
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button, a, input, select {
+    touch-action: manipulation;
+  }
+
+  .app-container {
+    padding: 0 0.65rem calc(5.2rem + env(safe-area-inset-bottom)) 0.65rem;
+  }
+
+  /* Header Mobile Layout */
+  .site-header {
+    margin-bottom: 0.75rem;
+    padding: 0;
+  }
+
+  .header-inner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.55rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .header-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .brand-wrapper {
+    gap: 0.55rem;
+  }
+
+  .brand-logo-ball {
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
+  }
+
+  .brand-text h1 {
+    font-size: 1.05rem;
+    gap: 0.3rem;
+  }
+
+  .brand-subtext {
+    display: none;
+  }
+
+  .brand-badge {
+    font-size: 0.58rem;
+    padding: 0.1rem 0.35rem;
+  }
+
+  .header-actions {
+    gap: 0.35rem;
+  }
+
+  .btn-sync {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+    border-radius: var(--radius-full);
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 0.95rem;
+    border-radius: var(--radius-sm);
+  }
+
+  #btn-quick-sim {
+    display: none;
+  }
+
+  .header-status {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+  }
+
+  .live-clock-card,
+  .countdown-badge {
+    flex: 1;
+    justify-content: center;
+    padding: 0.32rem 0.45rem;
+    font-size: 0.74rem;
+    border-radius: var(--radius-full);
+  }
+
+  /* Navigation Tabs on Mobile */
+  .nav-tabs-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.35rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .nav-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+    width: 100%;
+  }
+
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tab-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .quick-search-box {
+    width: 100%;
+    padding: 0.4rem 0.75rem;
+    justify-content: space-between;
+  }
+
+  .quick-search-box input {
+    flex: 1;
+    width: auto;
+    font-size: 1rem;
+  }
+
+  /* Live Banner on Mobile */
+  .live-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.82rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .live-banner .btn-live-stream {
+    width: 100%;
+    justify-content: center;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  /* Date Bar on Mobile */
+  .date-bar {
+    padding: 0.65rem 0.75rem;
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+    border-radius: var(--radius-md);
+  }
+
+  .date-selector-group {
+    width: 100%;
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .date-nav-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.45rem 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .date-picker-input {
+    flex: 2;
+    min-width: 0;
+    text-align: center;
+    padding: 0.45rem 0.3rem;
+    font-size: 0.88rem;
+  }
+
+  .date-shortcuts {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .date-shortcuts::-webkit-scrollbar {
+    display: none;
+  }
+
+  .date-chip {
+    flex-shrink: 0;
+    padding: 0.32rem 0.65rem;
+    font-size: 0.74rem;
+    white-space: nowrap;
+  }
+
+  .board-action-group {
+    width: 100%;
+  }
+
+  .board-action-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.55rem;
+    font-size: 0.82rem;
+  }
+
+  #btn-print-result {
+    display: none;
+  }
+
+  /* Main Prize Board */
+  .prize-board-card {
+    border-radius: var(--radius-md);
+  }
+
+  .board-header {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .board-title-group h2 {
+    font-size: 1.05rem;
+  }
+
+  .board-date-label {
+    font-size: 0.78rem;
+  }
+
+  .prize-name-col {
+    width: 72px;
+    padding: 0.45rem 0.25rem;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .prize-numbers-col {
+    padding: 0.45rem 0.35rem;
+  }
+
+  /* Special Prize Hero on Mobile */
+  .special-number-container {
+    gap: 0.3rem;
+    padding: 0.3rem 0;
+    justify-content: center;
+  }
+
+  .special-digit-ball {
+    width: 38px;
+    height: 46px;
+    font-size: 1.55rem;
+    border-radius: 8px;
+  }
+
+  .special-meta {
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+  }
+
+  .special-tag {
+    padding: 0.15rem 0.45rem;
+    font-size: 0.74rem;
+  }
+
+  /* Numbers Grid in Prizes */
+  .numbers-flex-wrap {
+    gap: 0.3rem;
+    justify-content: center;
+  }
+
+  .lottery-num {
+    padding: 0.22rem 0.35rem;
+    border-radius: 4px;
+  }
+
+  .prize-1-num {
+    font-size: 1.25rem;
+    font-weight: 900;
+  }
+
+  .prize-2-num {
+    font-size: 1.05rem;
+  }
+
+  .prize-3-num {
+    font-size: 0.92rem;
+    letter-spacing: 0.02em;
+  }
+
+  .prize-4-num,
+  .prize-5-num {
+    font-size: 0.88rem;
+    letter-spacing: 0.02em;
+  }
+
+  .prize-6-num {
+    font-size: 0.94rem;
+  }
+
+  .prize-7-num {
+    font-size: 1.15rem;
+    font-weight: 900;
+  }
+
+  /* Loto Board on Mobile */
+  .loto-board-card {
+    border-radius: var(--radius-md);
+  }
+
+  .loto-header {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .loto-table-wrapper {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .loto-head-col {
+    width: 44px;
+    padding: 0.35rem 0.2rem;
+    font-size: 0.95rem;
+  }
+
+  .loto-numbers-col {
+    padding: 0.35rem 0.4rem;
+  }
+
+  .loto-chip {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.45rem;
+    margin: 2px;
+  }
+
+  /* Ticket Checker on Mobile */
+  .card-section {
+    padding: 1rem 0.85rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.15rem;
+  }
+
+  .checker-form-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .form-input {
+    font-size: 1.35rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .btn-check-ticket {
+    width: 100%;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  /* Simulator on Mobile */
+  .rolling-cage {
+    gap: 0.35rem;
+    padding: 1.25rem 0.5rem;
+  }
+
+  .sim-ball {
+    width: 44px;
+    height: 44px;
+    font-size: 1.35rem;
+  }
+
+  .sim-controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .sim-speed-selector {
+    justify-content: center;
+  }
+
+  .sim-stage-badge {
+    text-align: center;
+  }
+
+  /* Statistics on Mobile */
+  .stats-grid-2col {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat-box {
+    padding: 1rem 0.85rem;
+    border-radius: var(--radius-md);
+  }
+
+  .stat-table th,
+  .stat-table td {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  /* History Table on Mobile */
+  .history-table th,
+  .history-table td {
+    padding: 0.5rem 0.45rem;
+    font-size: 0.78rem;
+  }
+
+  .pagination-bar {
+    flex-direction: column;
+    gap: 0.65rem;
+    align-items: center;
+  }
+
+  .pagination-btns {
+    width: 100%;
+  }
+
+  .pagination-btns button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Footer on Mobile */
+  .site-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    font-size: 0.76rem;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* Fixed Mobile Bottom Navigation Bar */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(2, 7, 31, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-highlight);
+    padding: 0.35rem 0.35rem calc(0.35rem + env(safe-area-inset-bottom)) 0.35rem;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.45);
+  }
+
+  [data-theme="light"] .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.96);
+    border-top-color: rgba(2, 19, 176, 0.2);
+    box-shadow: 0 -4px 15px rgba(2, 19, 176, 0.08);
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-family);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.25rem 0.35rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    flex: 1;
+    touch-action: manipulation;
+  }
+
+  .mobile-nav-icon {
+    font-size: 1.25rem;
+    margin-bottom: 2px;
+    transition: var(--transition-fast);
+  }
+
+  .mobile-nav-item.active {
+    color: var(--gold-400);
+  }
+
+  [data-theme="light"] .mobile-nav-item.active {
+    color: #0213b0;
+  }
+
+  .mobile-nav-item.active .mobile-nav-icon {
+    transform: scale(1.15) translateY(-2px);
+    filter: drop-shadow(0 0 6px var(--gold-glow));
+  }
+}
+
+/* Extra small mobile screens (iPhone SE, Galaxy Fold <= 380px) */
+@media (max-width: 380px) {
+  html {
+    font-size: 14px;
+  }
+
+  .prize-name-col {
+    width: 62px;
+    font-size: 0.72rem;
+    padding: 0.4rem 0.15rem;
+  }
+
+  .special-digit-ball {
+    width: 33px;
+    height: 42px;
+    font-size: 1.35rem;
+    border-radius: 6px;
+  }
+
+  .special-number-container {
+    gap: 0.2rem;
+  }
+
+  .prize-1-num {
+    font-size: 1.15rem;
+  }
+
+  .prize-2-num,
+  .prize-3-num,
+  .prize-4-num,
+  .prize-5-num {
+    font-size: 0.85rem;
+  }
+
+  .sim-ball {
+    width: 38px;
+    height: 38px;
+    font-size: 1.15rem;
+  }
+
+  .matrix-grid-100 {
+    gap: 2px;
+  }
+
+  .matrix-cell .cell-num {
+    font-size: 0.65rem;
+  }
 }
 
 /* ===================================================================

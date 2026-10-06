@@ -906,13 +906,16 @@ function jumpToDate(dateStr) {
 
 function switchTab(tabId) {
   state.activeTab = tabId;
-  document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+  document.querySelectorAll('.nav-tab-btn, .mobile-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
   });
 
   document.querySelectorAll('.tab-content-panel').forEach(panel => {
     panel.style.display = panel.id === `tab-${tabId}` ? 'block' : 'none';
   });
+
+  if (window.soundManager) window.soundManager.playTick();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function initTheme() {
