@@ -437,10 +437,37 @@
          =================================================================== -->
     <div class="tab-content-panel" id="tab-history" style="display:none;" role="tabpanel">
       <section class="card-section" id="section-history">
-        <h2 class="section-title">📜 Tra Cứu Lịch Sử Kết Quả XSMB</h2>
-        <p class="section-desc">Danh sách chi tiết kết quả xổ số miền Bắc qua các kỳ quay trong dữ liệu lưu trữ.</p>
+        <div class="history-header-flex">
+          <div>
+            <h2 class="section-title">📜 Tra Cứu Lịch Sử Kết Quả XSMB</h2>
+            <p class="section-desc">Danh sách chi tiết kết quả xổ số miền Bắc qua các kỳ quay.</p>
+          </div>
 
-        <div class="history-table-wrapper">
+          <!-- History Controls Toolbar -->
+          <div class="history-controls-toolbar">
+            <div class="history-search-input-wrap">
+              <span>🔎</span>
+              <input type="text" id="history-filter-input" placeholder="Lọc ngày hoặc số lô (VD: 54)..." autocomplete="off">
+              <button id="history-filter-clear" class="btn-clear-search" style="display:none;" title="Xóa bộ lọc">✕</button>
+            </div>
+
+            <div class="history-view-mode-toggle" id="history-view-toggle">
+              <button class="mode-toggle-btn active" id="btn-view-cards" data-mode="cards" title="Xem dạng thẻ (tối ưu cho điện thoại)">🗂️ Thẻ</button>
+              <button class="mode-toggle-btn" id="btn-view-table" data-mode="table" title="Xem dạng bảng đầy đủ">📊 Bảng</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- History Filter Status Banner -->
+        <div id="history-filter-status" class="search-alert-bar" style="margin: 0 0 1rem 0;"></div>
+
+        <!-- History Cards Container (Mobile Default & Clean Card View) -->
+        <div class="history-cards-container" id="history-cards-container">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- History Table Wrapper (Desktop Table View) -->
+        <div class="history-table-wrapper" id="history-table-wrapper" style="display:none;">
           <table class="history-table" aria-label="Lịch sử các kỳ quay">
             <thead>
               <tr>
@@ -459,8 +486,8 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-bar">
-          <div id="history-page-info">Trang 1 / 100</div>
+        <div class="pagination-bar" id="history-pagination-bar">
+          <div id="history-page-info">Trang 1 / 100 (1000 kỳ quay)</div>
           <div class="pagination-btns">
             <button class="date-chip" id="history-prev-page">◀ Trang trước</button>
             <button class="date-chip" id="history-next-page">Trang sau ▶</button>
@@ -511,8 +538,8 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="js/sound.js?v=20261006_2105"></script>
-  <script src="js/lottery-data.js?v=20261006_2105"></script>
-  <script src="js/app.js?v=20261006_2105"></script>
+  <script src="js/sound.js?v=20261006_2125"></script>
+  <script src="js/lottery-data.js?v=20261006_2125"></script>
+  <script src="js/app.js?v=20261006_2125"></script>
 </body>
 </html>

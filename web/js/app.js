@@ -88,6 +88,8 @@ const state = {
   activeTab: 'board', // 'board' | 'checker' | 'simulator' | 'stats' | 'history'
   historyPage: 1,
   historyPageSize: 10,
+  historyViewMode: 'cards', // 'cards' | 'table'
+  historyFilter: '',
   simSpeed: 150, // ms per tick in simulator
   isSimulating: false,
 };
@@ -168,6 +170,13 @@ function cacheDOM() {
 
   // History
   dom.historyTableBody = document.getElementById('history-table-body');
+  dom.historyCardsContainer = document.getElementById('history-cards-container');
+  dom.historyTableWrapper = document.getElementById('history-table-wrapper');
+  dom.btnViewCards = document.getElementById('btn-view-cards');
+  dom.btnViewTable = document.getElementById('btn-view-table');
+  dom.historyFilterInput = document.getElementById('history-filter-input');
+  dom.historyFilterClear = document.getElementById('history-filter-clear');
+  dom.historyFilterStatus = document.getElementById('history-filter-status');
   dom.historyPrevPage = document.getElementById('history-prev-page');
   dom.historyNextPage = document.getElementById('history-next-page');
   dom.historyPageInfo = document.getElementById('history-page-info');
@@ -858,35 +867,167 @@ function renderStatistics() {
    =================================================================== */
 
 function renderHistoryTable() {
-  if (!dom.historyTableBody) return;
-  const total = state.records.length;
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!dom.historyTableBody && !dom.historyCardsContainer) return;
+
+  // 1. Filter dataset by search keyword (date or 2-digit loto)
+  let filtered = state.records || [];
+  const filterVal = (state.historyFilter || '').trim().toLowerCase();
+
+  if (filterVal) {
+    filtered = state.records.filter(rec => {
+      if (rec.date.toLowerCase().includes(filterVal)) return true;
+      const vnDate = formatDateVN(rec.date).toLowerCase();
+      if (vnDate.includes(filterVal)) return true;
+      if (rec.special.includes(filterVal)) return true;
+      if (rec.loto && rec.loto.some(n => n === filterVal)) return true;
+      return false;
+    });
+  }
+
+  // Update filter status alert banner
+  if (dom.historyFilterStatus) {
+    if (filterVal) {
+      dom.historyFilterStatus.style.display = 'flex';
+      dom.historyFilterStatus.innerHTML = `<span>🎯 Đang lọc theo: <strong>"${filterVal}"</strong> — Tìm thấy <strong>${filtered.length}</strong> kỳ quay phù hợp.</span><button onclick="clearHistoryFilter()" style="background:none;border:none;color:var(--gold-400);cursor:pointer;font-weight:700;margin-left:0.5rem;">✕ Xóa lọc</button>`;
+    } else {
+      dom.historyFilterStatus.style.display = 'none';
+    }
+  }
+
+  const total = filtered.length;
+  const maxPages = Math.max(1, Math.ceil(total / state.historyPageSize));
+  if (state.historyPage > maxPages) state.historyPage = maxPages;
+  if (state.historyPage < 1) state.historyPage = 1;
+
   const startIdx = (state.historyPage - 1) * state.historyPageSize;
-  const pageRecords = state.records.slice(startIdx, startIdx + state.historyPageSize);
+  const pageRecords = filtered.slice(startIdx, startIdx + state.historyPageSize);
 
-  dom.historyTableBody.innerHTML = pageRecords.map(rec => `
-    <tr>
-      <td><strong>${formatDateVN(rec.date)}</strong></td>
-      <td><span class="lottery-num" style="color:var(--ruby-400);font-weight:800">${rec.special}</span></td>
-      <td><span class="lottery-num" style="color:var(--gold-400)">${rec.p1}</span></td>
-      <td><span class="lottery-num" style="background:var(--ruby-gradient);color:#fff;font-weight:900">${rec.special.slice(-2)}</span></td>
-      <td>
-        <div style="display:flex; flex-wrap:wrap; gap:3px; max-width:450px;">
-          ${(rec.loto || []).slice(0, 14).map(n => `<span style="font-size:0.75rem;padding:1px 4px;background:var(--bg-tertiary);border-radius:3px">${n}</span>`).join('')}
-          <span style="font-size:0.75rem;color:var(--text-muted)">+${(rec.loto || []).length - 14} số</span>
-        </div>
-      </td>
-      <td>
-        <button class="date-chip" onclick="jumpToDate('${rec.date}')">Xem bảng</button>
-      </td>
-    </tr>
-  `).join('');
+  // View Mode: Cards vs Table
+  const isCards = state.historyViewMode === 'cards';
+  if (dom.btnViewCards) dom.btnViewCards.classList.toggle('active', isCards);
+  if (dom.btnViewTable) dom.btnViewTable.classList.toggle('active', !isCards);
+  if (dom.historyCardsContainer) dom.historyCardsContainer.style.display = isCards ? 'grid' : 'none';
+  if (dom.historyTableWrapper) dom.historyTableWrapper.style.display = !isCards ? 'block' : 'none';
 
-  const maxPages = Math.ceil(total / state.historyPageSize);
+  if (isCards && dom.historyCardsContainer) {
+    if (pageRecords.length === 0) {
+      dom.historyCardsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); background: var(--bg-secondary); border-radius: var(--radius-md);">Không tìm thấy kỳ quay nào khớp với từ khóa <strong>"${filterVal}"</strong>.<br><button class="date-chip" onclick="clearHistoryFilter()" style="margin-top:0.75rem;">Xóa bộ lọc</button></div>`;
+    } else {
+      dom.historyCardsContainer.innerHTML = pageRecords.map(rec => renderHistoryCard(rec, filterVal)).join('');
+    }
+  } else if (dom.historyTableBody) {
+    if (pageRecords.length === 0) {
+      dom.historyTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">Không tìm thấy kỳ quay nào khớp với <strong>"${filterVal}"</strong>.</td></tr>`;
+    } else {
+      dom.historyTableBody.innerHTML = pageRecords.map(rec => `
+        <tr>
+          <td><strong>${formatDateVN(rec.date)}</strong></td>
+          <td><span class="lottery-num" style="color:var(--ruby-400);font-weight:800">${rec.special}</span></td>
+          <td><span class="lottery-num" style="color:var(--gold-400)">${rec.p1}</span></td>
+          <td><span class="lottery-num" style="background:var(--ruby-gradient);color:#fff;font-weight:900">${rec.special.slice(-2)}</span></td>
+          <td>
+            <div style="display:flex; flex-wrap:wrap; gap:3px; max-width:450px;">
+              ${(rec.loto || []).slice(0, 14).map(n => `<span class="loto-pill ${n === rec.special.slice(-2) ? 'is-special' : (n === filterVal ? 'is-match' : '')}" onclick="highlightLotoNumber('${n}')">${n}</span>`).join('')}
+              ${(rec.loto || []).length > 14 ? `<span style="font-size:0.75rem;color:var(--text-muted);align-self:center;">+${(rec.loto || []).length - 14} số</span>` : ''}
+            </div>
+          </td>
+          <td>
+            <button class="date-chip" onclick="jumpToDate('${rec.date}')">Xem bảng</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // Update Pagination Controls
   if (dom.historyPageInfo) {
     dom.historyPageInfo.textContent = `Trang ${state.historyPage} / ${maxPages} (${total} kỳ quay)`;
   }
   if (dom.historyPrevPage) dom.historyPrevPage.disabled = state.historyPage <= 1;
   if (dom.historyNextPage) dom.historyNextPage.disabled = state.historyPage >= maxPages;
+}
+
+function renderHistoryCard(rec, filterVal) {
+  const dObj = new Date(rec.date);
+  const dayOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'][dObj.getDay()];
+  const formattedDate = formatDateVN(rec.date);
+  const sp2D = rec.special.slice(-2);
+  const lotoList = rec.loto || [];
+
+  return `
+    <div class="history-card" data-date="${rec.date}">
+      <div class="history-card-header">
+        <div class="history-card-date">
+          <span class="history-card-day">${dayOfWeek}</span>
+          <span class="history-card-date-str">${formattedDate}</span>
+        </div>
+        <button class="history-card-action-btn" onclick="jumpToDate('${rec.date}')" title="Mở bảng kết quả 27 giải đầy đủ">
+          🎯 Mở bảng
+        </button>
+      </div>
+
+      <div class="history-card-prizes">
+        <div class="history-prize-item special">
+          <div class="history-prize-label">Đặc Biệt</div>
+          <div class="history-prize-value">${rec.special}</div>
+          <div class="history-loto-tag">Lô: <strong>${sp2D}</strong></div>
+        </div>
+        <div class="history-prize-item p1">
+          <div class="history-prize-label">Giải Nhất</div>
+          <div class="history-prize-value">${rec.p1}</div>
+        </div>
+        <div class="history-prize-item head-tail">
+          <div class="history-prize-label">Đầu / Đuôi</div>
+          <div class="history-prize-value">${sp2D[0]} / ${sp2D[1]}</div>
+        </div>
+      </div>
+
+      <div class="history-card-loto-section">
+        <div class="history-loto-label">Lô tô 2 số (${lotoList.length} giải về):</div>
+        <div class="history-loto-badges">
+          ${lotoList.map(num => {
+            const isSpecial = (num === sp2D);
+            const isMatch = filterVal && (num === filterVal);
+            const isDouble = (num[0] === num[1]);
+            let badgeClass = 'loto-pill';
+            if (isSpecial) badgeClass += ' is-special';
+            else if (isMatch) badgeClass += ' is-match';
+            else if (isDouble) badgeClass += ' is-double';
+            return `<span class="${badgeClass}" onclick="highlightLotoNumber('${num}')">${num}</span>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="history-card-footer">
+        <span class="history-card-hint">Chạm số lô để soi cầu</span>
+        <button class="history-card-copy-btn" onclick="copySingleDateResult('${rec.date}')" title="Sao chép kết quả ngày này">📋 Sao chép</button>
+      </div>
+    </div>
+  `;
+}
+
+function copySingleDateResult(dateStr) {
+  const rec = state.records.find(r => r.date === dateStr);
+  if (!rec) return;
+  const sp2D = rec.special.slice(-2);
+  const text = `🎯 KẾT QUẢ XSMB - ${formatDateVN(rec.date)}\n👑 Giải Đặc Biệt: ${rec.special} (Lô 2 số: ${sp2D})\n🥇 Giải Nhất: ${rec.p1}\n⭐ Lô tô về: ${(rec.loto || []).join(', ')}\nXem chi tiết tại Hội đam mê số học DK!`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert(`📋 Đã sao chép kết quả kỳ quay ngày ${formatDateVN(rec.date)}!`);
+  }).catch(() => {
+    alert(`Kỳ quay ${formatDateVN(rec.date)}: GĐB ${rec.special}`);
+  });
+}
+
+function clearHistoryFilter() {
+  state.historyFilter = '';
+  if (dom.historyFilterInput) dom.historyFilterInput.value = '';
+  if (dom.historyFilterClear) dom.historyFilterClear.style.display = 'none';
+  state.historyPage = 1;
+  renderHistory();
 }
 
 function jumpToDate(dateStr) {
@@ -1137,22 +1278,63 @@ function bindEvents() {
     dom.btnToggleLiveDemo.addEventListener('click', toggleLiveDemo);
   }
 
+  // History view mode toggle (Cards vs Table)
+  if (dom.btnViewCards) {
+    dom.btnViewCards.addEventListener('click', () => {
+      state.historyViewMode = 'cards';
+      if (window.soundManager) window.soundManager.playTick();
+      renderHistory();
+    });
+  }
+
+  if (dom.btnViewTable) {
+    dom.btnViewTable.addEventListener('click', () => {
+      state.historyViewMode = 'table';
+      if (window.soundManager) window.soundManager.playTick();
+      renderHistory();
+    });
+  }
+
+  // History search & filter input
+  if (dom.historyFilterInput) {
+    dom.historyFilterInput.addEventListener('input', e => {
+      state.historyFilter = e.target.value.trim();
+      state.historyPage = 1;
+      if (dom.historyFilterClear) {
+        dom.historyFilterClear.style.display = state.historyFilter ? 'inline-block' : 'none';
+      }
+      renderHistory();
+    });
+  }
+
+  if (dom.historyFilterClear) {
+    dom.historyFilterClear.addEventListener('click', clearHistoryFilter);
+  }
+
   // History pagination
   if (dom.historyPrevPage) {
     dom.historyPrevPage.addEventListener('click', () => {
       if (state.historyPage > 1) {
         state.historyPage--;
-        renderHistoryTable();
+        if (window.soundManager) window.soundManager.playTick();
+        renderHistory();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
 
   if (dom.historyNextPage) {
     dom.historyNextPage.addEventListener('click', () => {
-      const maxPages = Math.ceil(state.records.length / state.historyPageSize);
+      const filteredCount = state.historyFilter ? (state.records || []).filter(rec => {
+        const f = state.historyFilter.toLowerCase();
+        return rec.date.includes(f) || rec.special.includes(f) || (rec.loto && rec.loto.some(n => n === f));
+      }).length : state.records.length;
+      const maxPages = Math.ceil(filteredCount / state.historyPageSize);
       if (state.historyPage < maxPages) {
         state.historyPage++;
-        renderHistoryTable();
+        if (window.soundManager) window.soundManager.playTick();
+        renderHistory();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
