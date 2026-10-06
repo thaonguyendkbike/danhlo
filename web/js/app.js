@@ -120,7 +120,6 @@ function cacheDOM() {
   dom.liveBadge = document.getElementById('live-badge');
   dom.liveBadgeText = document.getElementById('live-badge-text');
   dom.liveBannerMessage = document.getElementById('live-banner-message');
-  dom.btnToggleLiveDemo = document.getElementById('btn-toggle-live-demo');
   dom.liveProgressWrap = document.getElementById('live-progress-wrap');
   dom.liveProgressFill = document.getElementById('live-progress-fill');
   dom.livePrizeCounter = document.getElementById('live-prize-counter');
@@ -1030,12 +1029,9 @@ function bindEvents() {
 
 
 
-  // Sync & Live Stream Demo Buttons
+  // Sync Button
   if (dom.btnSyncHeader) {
     dom.btnSyncHeader.addEventListener('click', () => syncDataWithServer(true));
-  }
-  if (dom.btnToggleLiveDemo) {
-    dom.btnToggleLiveDemo.addEventListener('click', toggleLiveDemo);
   }
 
   // History view mode toggle (Cards vs Table)
@@ -1212,7 +1208,6 @@ async function syncDataWithServer(isManual = false) {
 
 async function updateLiveBannerStatus() {
   if (!dom.liveStatusBanner) return false;
-  if (isLiveDemoRunning) return false; // Do not interrupt running live demo
 
   const now = new Date();
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -1405,231 +1400,6 @@ function renderLiveDrawingBoard(liveData, isNewArrival = false) {
   });
 }
 
-// ===================================================================
-// Interactive Live Draw Simulation Runner (Xem Thử Quay Trực Tiếp)
-// ===================================================================
 
-let isLiveDemoRunning = false;
-let liveDemoTimer = null;
-
-function toggleLiveDemo() {
-  if (isLiveDemoRunning) {
-    stopLiveDemo();
-  } else {
-    startLiveDemo();
-  }
-}
-
-function stopLiveDemo() {
-  isLiveDemoRunning = false;
-  if (liveDemoTimer) clearTimeout(liveDemoTimer);
-  if (dom.btnToggleLiveDemo) {
-    dom.btnToggleLiveDemo.innerHTML = '<span>🔴 Xem Thử Quay Trực Tiếp</span>';
-    dom.btnToggleLiveDemo.style.background = 'var(--ruby-gradient)';
-  }
-  renderCurrentRecord();
-  updateLiveBannerStatus();
-}
-
-function clearBoardForLive() {
-  if (dom.specialDigits) {
-    dom.specialDigits.innerHTML = `
-      <div class="special-digit-ball">-</div>
-      <div class="special-digit-ball">-</div>
-      <div class="special-digit-ball">-</div>
-      <div class="special-digit-ball last-two">-</div>
-      <div class="special-digit-ball last-two">-</div>
-    `;
-  }
-  if (dom.specialLotoTag) dom.specialLotoTag.innerHTML = '2 số cuối: -- (Đang chờ quay)';
-
-  const emptyPlaceholders = (count, len) => Array(count).fill('•'.repeat(len));
-  renderPrizeRow(dom.prize1Container, emptyPlaceholders(1, 5), 'prize-1-num');
-  renderPrizeRow(dom.prize2Container, emptyPlaceholders(2, 5), 'prize-2-num');
-  renderPrizeRow(dom.prize3Container, emptyPlaceholders(6, 5), 'prize-3-num');
-  renderPrizeRow(dom.prize4Container, emptyPlaceholders(4, 4), 'prize-4-num');
-  renderPrizeRow(dom.prize5Container, emptyPlaceholders(6, 4), 'prize-5-num');
-  renderPrizeRow(dom.prize6Container, emptyPlaceholders(3, 3), 'prize-6-num');
-  renderPrizeRow(dom.prize7Container, emptyPlaceholders(4, 2), 'prize-7-num');
-
-  // Clear Loto board
-  if (dom.lotoTableBody) {
-    renderLotoBoard({ special: '00000', loto: [] });
-  }
-}
-
-function startLiveDemo() {
-  if (!state.records || state.records.length === 0) return;
-  isLiveDemoRunning = true;
-  window.soundEngine.init();
-
-  if (dom.btnToggleLiveDemo) {
-    dom.btnToggleLiveDemo.innerHTML = '<span>⏹ Dừng Trực Tiếp</span>';
-    dom.btnToggleLiveDemo.style.background = 'var(--bg-tertiary)';
-  }
-
-  if (dom.liveStatusBanner) {
-    dom.liveStatusBanner.className = 'live-banner';
-    dom.liveStatusBanner.style.background = '';
-  }
-  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '🔴 TRỰC TIẾP DEMO';
-
-  const sampleRec = state.records[0];
-  clearBoardForLive();
-
-  // Official XSMB draw sequence: G1 -> G2 -> G3 -> G4 -> G5 -> G6 -> G7 -> Special Prize
-  const drawSequence = [
-    // 1. Giải Nhất (1 giải)
-    { containerId: 'prize-1-container', index: 0, digits: 5, value: sampleRec.p1, name: 'Giải Nhất (🥇)' },
-
-    // 2. Giải Nhì (2 giải)
-    { containerId: 'prize-2-container', index: 0, digits: 5, value: sampleRec.p2[0], name: 'Giải Nhì (1)' },
-    { containerId: 'prize-2-container', index: 1, digits: 5, value: sampleRec.p2[1], name: 'Giải Nhì (2)' },
-
-    // 3. Giải Ba (6 giải)
-    { containerId: 'prize-3-container', index: 0, digits: 5, value: sampleRec.p3[0], name: 'Giải Ba (1)' },
-    { containerId: 'prize-3-container', index: 1, digits: 5, value: sampleRec.p3[1], name: 'Giải Ba (2)' },
-    { containerId: 'prize-3-container', index: 2, digits: 5, value: sampleRec.p3[2], name: 'Giải Ba (3)' },
-    { containerId: 'prize-3-container', index: 3, digits: 5, value: sampleRec.p3[3], name: 'Giải Ba (4)' },
-    { containerId: 'prize-3-container', index: 4, digits: 5, value: sampleRec.p3[4], name: 'Giải Ba (5)' },
-    { containerId: 'prize-3-container', index: 5, digits: 5, value: sampleRec.p3[5], name: 'Giải Ba (6)' },
-
-    // 4. Giải Tư (4 giải)
-    { containerId: 'prize-4-container', index: 0, digits: 4, value: sampleRec.p4[0], name: 'Giải Tư (1)' },
-    { containerId: 'prize-4-container', index: 1, digits: 4, value: sampleRec.p4[1], name: 'Giải Tư (2)' },
-    { containerId: 'prize-4-container', index: 2, digits: 4, value: sampleRec.p4[2], name: 'Giải Tư (3)' },
-    { containerId: 'prize-4-container', index: 3, digits: 4, value: sampleRec.p4[3], name: 'Giải Tư (4)' },
-
-    // 5. Giải Năm (6 giải)
-    { containerId: 'prize-5-container', index: 0, digits: 4, value: sampleRec.p5[0], name: 'Giải Năm (1)' },
-    { containerId: 'prize-5-container', index: 1, digits: 4, value: sampleRec.p5[1], name: 'Giải Năm (2)' },
-    { containerId: 'prize-5-container', index: 2, digits: 4, value: sampleRec.p5[2], name: 'Giải Năm (3)' },
-    { containerId: 'prize-5-container', index: 3, digits: 4, value: sampleRec.p5[3], name: 'Giải Năm (4)' },
-    { containerId: 'prize-5-container', index: 4, digits: 4, value: sampleRec.p5[4], name: 'Giải Năm (5)' },
-    { containerId: 'prize-5-container', index: 5, digits: 4, value: sampleRec.p5[5], name: 'Giải Năm (6)' },
-
-    // 6. Giải Sáu (3 giải)
-    { containerId: 'prize-6-container', index: 0, digits: 3, value: sampleRec.p6[0], name: 'Giải Sáu (1)' },
-    { containerId: 'prize-6-container', index: 1, digits: 3, value: sampleRec.p6[1], name: 'Giải Sáu (2)' },
-    { containerId: 'prize-6-container', index: 2, digits: 3, value: sampleRec.p6[2], name: 'Giải Sáu (3)' },
-
-    // 7. Giải Bảy (4 giải)
-    { containerId: 'prize-7-container', index: 0, digits: 2, value: sampleRec.p7[0], name: 'Giải Bảy (1)' },
-    { containerId: 'prize-7-container', index: 1, digits: 2, value: sampleRec.p7[1], name: 'Giải Bảy (2)' },
-    { containerId: 'prize-7-container', index: 2, digits: 2, value: sampleRec.p7[2], name: 'Giải Bảy (3)' },
-    { containerId: 'prize-7-container', index: 3, digits: 2, value: sampleRec.p7[3], name: 'Giải Bảy (4)' },
-
-    // 8. Giải Đặc Biệt (1 giải)
-    { isSpecial: true, digits: 5, value: sampleRec.special, name: 'GIẢI ĐẶC BIỆT 👑' },
-  ];
-
-  let seqIdx = 0;
-  const currentLotoList = [];
-
-  function runSequenceStep() {
-    if (!isLiveDemoRunning) return;
-    if (seqIdx >= drawSequence.length) {
-      if (window.soundEngine) window.soundEngine.playJackpot();
-      if (window.confetti) window.confetti.fire(180);
-      if (dom.liveBannerMessage) {
-        dom.liveBannerMessage.innerHTML = `🎉 HOÀN TẤT KỲ QUAY TRỰC TIẾP! Giải Đặc Biệt: <strong style="color:var(--ruby-400);font-size:1.15rem">${sampleRec.special}</strong> (Lô 2 số: <strong style="color:var(--gold-400)">${sampleRec.special.slice(-2)}</strong>)`;
-      }
-      if (dom.liveProgressFill) dom.liveProgressFill.style.width = '100%';
-      if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = '27/27 giải (100% Hoàn tất)';
-      return;
-    }
-
-    const item = drawSequence[seqIdx];
-    const currentCount = seqIdx + 1;
-    const pct = Math.round((currentCount / 27) * 100);
-
-    if (dom.liveProgressFill) dom.liveProgressFill.style.width = `${pct}%`;
-    if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = `Tiến độ: ${currentCount}/27 giải (${pct}%)`;
-    if (dom.liveStatusClock) dom.liveStatusClock.textContent = `Đang quay: ${item.name}`;
-
-    if (dom.liveBannerMessage) {
-      dom.liveBannerMessage.innerHTML = `Đang mở thưởng trực tiếp: <strong>${item.name}</strong> (${currentCount}/27)...`;
-    }
-
-    // Spin animation on target slot
-    let ticks = 0;
-    const maxTicks = 6;
-    const rollInterval = setInterval(() => {
-      ticks++;
-      if (window.soundEngine) window.soundEngine.playTick();
-      const randStr = String(Math.floor(Math.random() * Math.pow(10, item.digits))).padStart(item.digits, '0');
-
-      if (item.isSpecial) {
-        if (dom.specialDigits) {
-          const balls = dom.specialDigits.querySelectorAll('.special-digit-ball');
-          balls.forEach((b, i) => {
-            b.textContent = randStr[i] || '-';
-            b.classList.add('rolling-now');
-          });
-        }
-      } else {
-        const parent = document.getElementById(item.containerId);
-        if (parent) {
-          const els = parent.querySelectorAll('.lottery-num');
-          if (els[item.index]) {
-            els[item.index].textContent = randStr;
-            els[item.index].classList.add('rolling-now');
-          }
-        }
-      }
-
-      if (ticks >= maxTicks) {
-        clearInterval(rollInterval);
-        if (window.soundEngine) window.soundEngine.playReveal();
-
-        // Lock final value
-        if (item.isSpecial) {
-          if (dom.specialDigits) {
-            const balls = dom.specialDigits.querySelectorAll('.special-digit-ball');
-            balls.forEach((b, i) => {
-              b.textContent = item.value[i];
-              b.classList.remove('rolling-now');
-              b.classList.add('reveal-bounce', 'newly-revealed');
-            });
-          }
-          if (dom.specialLotoTag) {
-            const s2d = item.value.slice(-2);
-            dom.specialLotoTag.innerHTML = `2 số cuối: <strong>${s2d}</strong> (Đầu ${s2d[0]} - Đuôi ${s2d[1]})`;
-          }
-        } else {
-          const parent = document.getElementById(item.containerId);
-          if (parent) {
-            const els = parent.querySelectorAll('.lottery-num');
-            if (els[item.index]) {
-              els[item.index].textContent = item.value;
-              els[item.index].setAttribute('data-num', item.value);
-              els[item.index].setAttribute('data-loto', item.value.slice(-2));
-              els[item.index].classList.remove('rolling-now');
-              els[item.index].classList.add('reveal-bounce', 'newly-revealed');
-            }
-          }
-        }
-
-        // Add 2-digit number to Loto Head/Tail table in real time
-        currentLotoList.push(item.value.slice(-2));
-        renderLotoBoard({
-          special: item.isSpecial ? item.value : '00000',
-          loto: currentLotoList
-        });
-
-        // Update daily pairs in real time
-        renderDailyPairs({
-          special: item.isSpecial ? item.value : '00000',
-          loto: currentLotoList
-        });
-
-        seqIdx++;
-        liveDemoTimer = setTimeout(runSequenceStep, 380);
-      }
-    }, 65);
-  }
-
-  runSequenceStep();
-}
 
 
