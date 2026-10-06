@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hội đam mê số học DK - Kết Quả Xổ Số Miền Bắc & Thống Kê Phân Tích Chuyên Sâu</title>
+  <meta name="description" content="Trang web tra cứu kết quả xổ số miền Bắc (XSMB) trực tiếp, thống kê lô tô đầu đuôi, soi cầu lô gan, dò vé số tự động - Hội đam mê số học DK.">
+  <meta name="keywords" content="hoi dam me so hoc dk, xsmb, xo so mien bac, ket qua xo so, lo to, lo gan, do ve so">
+  <meta name="author" content="Hội đam mê số học DK">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Fullscreen Confetti Canvas -->
+  <canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999"></canvas>
+
+  <!-- Site Header -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a href="#" class="brand-wrapper" id="brand-link">
+        <div class="brand-logo-ball">DK</div>
+        <div class="brand-text">
+          <h1>Hội đam mê số học DK <span class="brand-badge">Trực Tiếp</span></h1>
+          <div class="brand-subtext">Cộng Đồng Số Học & Phân Tích XSMB Trực Tiếp</div>
+        </div>
+      </a>
+
+      <!-- Status & Clock -->
+      <div class="header-status" id="header-status-group">
+        <div class="live-clock-card" id="clock-card" title="Giờ chuẩn Việt Nam (GMT+7)">
+          <span class="pulse-dot"></span>
+          <span id="clock-time">--:--:--</span>
+          <span id="clock-date" style="opacity:0.75">--/--/----</span>
+        </div>
+
+        <div class="countdown-badge" id="countdown-card" title="Đếm ngược tới giờ mở thưởng 18:15">
+          <span>⏰ Mở thưởng:</span>
+          <span class="countdown-value" id="countdown-timer">--:--:--</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <button class="btn-sync" id="btn-sync-header" title="Kiểm tra và cập nhật kết quả mới nhất từ nhà đài">
+          <span id="sync-icon-spin">🔄</span> Cập nhật mới
+        </button>
+        <button class="icon-btn" id="sound-toggle-btn" title="Bật/Tắt âm thanh hiệu ứng" aria-label="Toggle Sound">🔔</button>
+        <button class="icon-btn" id="theme-toggle-btn" title="Đổi giao diện sáng/tối" aria-label="Toggle Theme">☀️</button>
+        <button class="btn-primary" id="btn-quick-sim" onclick="switchTab('simulator'); startSimulator();">
+          <span>🎰 Quay Thử</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container" id="main-content">
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs-wrapper" id="main-navigation" aria-label="Main Navigation">
+      <ul class="nav-tabs" role="tablist">
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn active" id="tab-btn-board" data-tab="board" role="tab" aria-selected="true">
+            🎯 Bảng Kết Quả & Lô Tô
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn" id="tab-btn-checker" data-tab="checker" role="tab" aria-selected="false">
+            🔍 Dò Vé Số Nhanh
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn" id="tab-btn-simulator" data-tab="simulator" role="tab" aria-selected="false">
+            🎰 Quay Thử XSMB
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn" id="tab-btn-stats" data-tab="stats" role="tab" aria-selected="false">
+            📊 Thống Kê & Lô Gan
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn" id="tab-btn-history" data-tab="history" role="tab" aria-selected="false">
+            📜 Lịch Sử Kỳ Quay
+          </button>
+        </li>
+      </ul>
+
+      <!-- Quick 2-digit Finder -->
+      <div class="quick-search-box" id="quick-search-container" title="Gõ 2 số để kiểm tra ngay trên bảng kết quả">
+        <span>🔎 Tìm lô:</span>
+        <input type="text" id="quick-search-input" maxlength="2" placeholder="Ví dụ: 51" autocomplete="off">
+      </div>
+    </nav>
+
+    <!-- Search / Match Alert Bar -->
+    <div id="search-alert" class="search-alert-bar" role="status"></div>
+
+    <!-- ===================================================================
+         TAB 1: BẢNG KẾT QUẢ & LÔ TÔ (MAIN BOARD)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-board" role="tabpanel">
+      
+      <!-- Realtime Live Status Banner -->
+      <div class="live-banner" id="live-status-banner">
+        <div class="live-badge-group">
+          <span class="live-radar-badge" id="live-badge">
+            <span class="radar-dot"></span>
+            <span id="live-badge-text">TRỰC TIẾP</span>
+          </span>
+          <span id="live-banner-message">Đang kiểm tra trạng thái kỳ quay...</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <button class="btn-live-stream" id="btn-toggle-live-demo" title="Mô phỏng trải nghiệm quay trực tiếp các giải trong thời gian thực">
+            <span>🔴 Xem Thử Quay Trực Tiếp</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Date Control Bar -->
+      <div class="date-bar" id="date-navigation-bar">
+        <div class="date-selector-group">
+          <button class="date-nav-btn" id="btn-next-day" title="Xem kỳ quay mới hơn">◀ Mới hơn</button>
+          <input type="date" id="date-picker" class="date-picker-input" title="Chọn ngày xem kết quả">
+          <button class="date-nav-btn" id="btn-prev-day" title="Xem kỳ quay cũ hơn">Cũ hơn ▶</button>
+        </div>
+
+        <div class="date-shortcuts">
+          <button class="date-chip" data-jump="latest">Hôm nay / Mới nhất</button>
+          <button class="date-chip" data-jump="yesterday">Hôm qua</button>
+          <button class="date-chip" data-jump="7days">7 ngày trước</button>
+          <button class="date-chip" data-jump="30days">30 ngày trước</button>
+        </div>
+
+        <div class="board-action-group">
+          <button class="board-action-btn" id="btn-copy-result" onclick="copyResultFormatted()" title="Sao chép kết quả gửi Zalo/Telegram">
+            📋 Sao chép text
+          </button>
+          <button class="board-action-btn" id="btn-print-result" onclick="window.print()" title="In bảng kết quả">
+            🖨️ In bảng
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Layout: Prize Table + Loto Head/Tail Grid -->
+      <div class="lottery-grid-layout" id="lottery-display-grid">
+        
+        <!-- Left Column: Official Prize Table -->
+        <section class="prize-board-card" id="section-board">
+          <header class="board-header">
+            <div class="board-title-group">
+              <h2>🏆 Kết Quả Xổ Số Miền Bắc</h2>
+              <div class="board-date-label" id="board-date-label">Kỳ quay: Đang tải...</div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">
+              Mở thưởng: 18h15
+            </div>
+          </header>
+
+          <table class="board-table" id="board-table" aria-label="Bảng kết quả xổ số miền bắc">
+            <tbody>
+              <!-- Giải Đặc Biệt -->
+              <tr class="board-row special-row">
+                <td class="prize-name-col">ĐẶC BIỆT</td>
+                <td class="prize-numbers-col">
+                  <div class="special-number-container" id="special-digits">
+                    <div class="special-digit-ball">-</div>
+                    <div class="special-digit-ball">-</div>
+                    <div class="special-digit-ball">-</div>
+                    <div class="special-digit-ball last-two">-</div>
+                    <div class="special-digit-ball last-two">-</div>
+                  </div>
+                  <div class="special-meta">
+                    <span class="special-tag" id="special-loto-tag">2 số cuối: --</span>
+                    <span>1 giải × 1.000.000.000 đ</span>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Nhất -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Nhất</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-1-container">
+                    <span class="lottery-num prize-1-num">-----</span>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Nhì -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Nhì</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-2-container">
+                    <span class="lottery-num prize-2-num">-----</span>
+                    <span class="lottery-num prize-2-num">-----</span>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Ba -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Ba</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-3-container">
+                    <!-- 6 numbers -->
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Tư -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Tư</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-4-container">
+                    <!-- 4 numbers -->
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Năm -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Năm</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-5-container">
+                    <!-- 6 numbers -->
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Sáu -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Sáu</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-6-container">
+                    <!-- 3 numbers -->
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Giải Bảy -->
+              <tr class="board-row">
+                <td class="prize-name-col">Giải Bảy</td>
+                <td class="prize-numbers-col">
+                  <div class="numbers-flex-wrap" id="prize-7-container">
+                    <!-- 4 numbers -->
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Daily Pairs & Double loto info -->
+          <div style="padding: 1rem 1.5rem; background: var(--bg-tertiary); border-top: 1px solid var(--border-subtle);" id="pairs-container">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+        <!-- Right Column: Loto 2-Digits (Đầu - Đuôi) Board -->
+        <aside class="loto-board-card" id="section-loto">
+          <header class="loto-header">
+            <div>
+              <h2 style="font-size:1.15rem; font-weight:800; color:#fff;">📊 Bảng Đầu - Đuôi Lô Tô</h2>
+              <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">Bấm số để tô sáng trên toàn bộ bảng kết quả</div>
+            </div>
+
+            <div class="loto-mode-toggle" id="loto-mode-toggle">
+              <button class="mode-toggle-btn active" id="btn-loto-mode-head">Đầu Lô</button>
+              <button class="mode-toggle-btn" id="btn-loto-mode-tail">Đuôi Lô</button>
+            </div>
+          </header>
+
+          <div class="loto-table-wrapper">
+            <table class="loto-table" aria-label="Bảng đầu đuôi lô tô">
+              <thead>
+                <tr style="font-size:0.8rem; color:var(--text-muted); text-align:left;">
+                  <th style="padding:0.4rem 0.85rem; text-align:center;" id="loto-col-head-title">Đầu</th>
+                  <th style="padding:0.4rem 1rem;" id="loto-col-tail-title">Đuôi (Số về)</th>
+                </tr>
+              </thead>
+              <tbody id="loto-table-body">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         TAB 2: DÒ VÉ SỐ TRỰC TUYẾN (SMART TICKET CHECKER)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-checker" style="display:none;" role="tabpanel">
+      <section class="card-section" id="section-ticket-checker">
+        <h2 class="section-title">🔍 Dò Vé Số Kiến Thiết Miền Bắc Tự Động</h2>
+        <p class="section-desc">Nhập 5 số vé số của bạn và chọn ngày quay thưởng. Hệ thống sẽ so khớp toàn bộ 27 giải và thông báo bạn có trúng thưởng hay không!</p>
+
+        <div class="checker-form-grid">
+          <div class="form-field">
+            <label for="checker-input">Dãy số trên vé (2 đến 5 chữ số):</label>
+            <div class="form-input-wrapper">
+              <input type="text" id="checker-input" class="form-input" placeholder="Ví dụ: 82951" maxlength="5" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="checker-date">Ngày mở thưởng:</label>
+            <input type="date" id="checker-date" class="form-input">
+          </div>
+
+          <button class="btn-check-ticket" id="btn-check-ticket">
+            <span>🎯 Dò Ngay</span>
+          </button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="check-result" class="check-result-container"></div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         TAB 3: QUAY THỬ XSMB (LIVE DRAW SIMULATOR)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-simulator" style="display:none;" role="tabpanel">
+      <section class="card-section simulator-container" id="section-simulator">
+        <h2 class="section-title">🎰 Quay Thử Xổ Số Miền Bắc</h2>
+        <p class="section-desc">Mô phỏng trường quay xổ số mở thưởng chân thực từ Giải Bảy lên đến Giải Đặc Biệt với hiệu ứng âm thanh sống động.</p>
+
+        <div class="sim-controls-bar">
+          <div class="sim-stage-badge" id="sim-stage-text">Sẵn sàng quay thử</div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn-primary" id="btn-start-sim">▶ Bắt Đầu Quay Thử</button>
+            <button class="date-chip" id="btn-stop-sim" style="display:none;">⏹ Dừng</button>
+          </div>
+        </div>
+
+        <!-- Animated Rolling Balls Cage -->
+        <div class="rolling-cage" id="sim-cage">
+          <div class="sim-ball">?</div>
+          <div class="sim-ball">?</div>
+          <div class="sim-ball">?</div>
+          <div class="sim-ball">?</div>
+          <div class="sim-ball">?</div>
+        </div>
+
+        <!-- Display Log -->
+        <div style="margin-top:1.5rem;">
+          <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.6rem; color:var(--text-secondary)">Nhật ký kết quả quay thử:</h3>
+          <div id="sim-result-display" style="display:flex; flex-wrap:wrap; gap:0.5rem; max-height:220px; overflow-y:auto; padding:0.5rem; background:rgba(0,0,0,0.15); border-radius:var(--radius-md);">
+            <div style="color:var(--text-muted); font-size:0.85rem;">Bấm "Bắt Đầu Quay Thử" để khởi chạy máy quay lồng cầu.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         TAB 4: THỐNG KÊ & LÔ GAN (ANALYTICS & HEATMAP)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-stats" style="display:none;" role="tabpanel">
+      <!-- 2 Columns: Lô Gan & Top Lô Về Nhiều -->
+      <div class="stats-grid-2col">
+        
+        <!-- Top 10 Lô Gan (Lâu Chưa Về) -->
+        <section class="stat-box" id="box-lo-gan">
+          <div class="stat-box-title">
+            <span>🔥 Top 10 Lô Gan (Lâu Chưa Về)</span>
+            <span style="font-size:0.75rem; color:var(--ruby-400); font-weight:600;">Tính đến kỳ đang chọn</span>
+          </div>
+          <table class="stat-table" aria-label="Bảng top 10 lô gan">
+            <thead>
+              <tr>
+                <th>Hạng</th>
+                <th>Cặp Số</th>
+                <th>Số Ngày Gan</th>
+                <th>Tiến độ</th>
+              </tr>
+            </thead>
+            <tbody id="lo-gan-table-body">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Top 10 Lô Về Nhiều (Tần suất 30 ngày) -->
+        <section class="stat-box" id="box-lo-top">
+          <div class="stat-box-title">
+            <span>⭐ Top 10 Lô Về Nhiều Nhất</span>
+            <span style="font-size:0.75rem; color:var(--gold-400); font-weight:600;">30 kỳ gần nhất</span>
+          </div>
+          <table class="stat-table" aria-label="Bảng top 10 lô về nhiều">
+            <thead>
+              <tr>
+                <th>Hạng</th>
+                <th>Cặp Số</th>
+                <th>Số Lần Về</th>
+                <th>Tiến độ</th>
+              </tr>
+            </thead>
+            <tbody id="lo-top-table-body">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <!-- 10x10 Matrix Heatmap Grid -->
+      <section class="card-section" id="box-matrix-heatmap">
+        <div class="stat-box-title">
+          <div>
+            <h2 style="font-size:1.15rem; font-weight:800;">🌐 Ma Trận 100 Số (00 - 99 Heatmap)</h2>
+            <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">
+              Màu sắc thể hiện tần suất xuất hiện trong 30 kỳ gần nhất. Ô viền vàng là số đã về trong kỳ này. Ô đỏ là 2 số cuối Giải Đặc Biệt.
+            </div>
+          </div>
+        </div>
+
+        <div class="matrix-grid-100" id="matrix-grid-100">
+          <!-- 100 cells generated by JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         TAB 5: LỊCH SỬ KỲ QUAY (HISTORICAL BROWSER)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-history" style="display:none;" role="tabpanel">
+      <section class="card-section" id="section-history">
+        <h2 class="section-title">📜 Tra Cứu Lịch Sử Kết Quả XSMB</h2>
+        <p class="section-desc">Danh sách chi tiết kết quả xổ số miền Bắc qua các kỳ quay trong dữ liệu lưu trữ.</p>
+
+        <div class="history-table-wrapper">
+          <table class="history-table" aria-label="Lịch sử các kỳ quay">
+            <thead>
+              <tr>
+                <th>Ngày quay</th>
+                <th>Giải Đặc Biệt</th>
+                <th>Giải Nhất</th>
+                <th>2 Số Cuối ĐB</th>
+                <th>Lô tô 2 số cuối (27 giải)</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-bar">
+          <div id="history-page-info">Trang 1 / 100</div>
+          <div class="pagination-btns">
+            <button class="date-chip" id="history-prev-page">◀ Trang trước</button>
+            <button class="date-chip" id="history-next-page">Trang sau ▶</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer" id="site-footer">
+    <div class="app-container">
+      <p><strong>Hội đam mê số học DK</strong> — Hệ thống tra cứu & phân tích kết quả xổ số kiến thiết miền Bắc chuyên sâu.</p>
+      <p style="margin-top:0.35rem;">Dữ liệu được cập nhật tự động hàng ngày. Chúc anh em số học luôn may mắn và phát tài!</p>
+      <div class="footer-links">
+        <a href="https://github.com/khiemdoan/vietnam-lottery-xsmb-analysis" target="_blank" rel="noopener">GitHub Repository</a>
+        <span>•</span>
+        <a href="#" onclick="switchTab('board'); window.scrollTo({top:0, behavior:'smooth'})">Về đầu trang</a>
+        <span>•</span>
+        <a href="#" onclick="copyResultFormatted()">Chia sẻ kết quả</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/sound.js"></script>
+  <script src="js/lottery-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

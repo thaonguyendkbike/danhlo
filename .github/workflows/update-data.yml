@@ -7,7 +7,7 @@ on:
 
 jobs:
   update-data:
-    if: github.repository_owner == 'khiemdoan'
+    if: github.repository_owner == 'thaonguyendkbike' || github.repository_owner == 'khiemdoan'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo content
@@ -24,6 +24,9 @@ jobs:
 
       - name: Analyze data
         run: uv run src/analyze.py
+
+      - name: Update web data
+        run: python scripts/prepare_web_data.py
 
       - name: Commit changes
         run: |
