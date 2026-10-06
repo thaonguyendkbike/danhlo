@@ -104,6 +104,11 @@ class SoundEngine {
       console.warn('Audio play error', e);
     }
   }
+
+  playFanfare() {
+    this.playJackpot();
+  }
 }
 
 window.soundEngine = new SoundEngine();
+window.soundManager = window.soundEngine;

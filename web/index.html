@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#02071f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Hội đam mê số học DK - Kết Quả Xổ Số Miền Bắc & Thống Kê Phân Tích Chuyên Sâu</title>
-  <meta name="description" content="Trang web tra cứu kết quả xổ số miền Bắc (XSMB) trực tiếp, thống kê lô tô đầu đuôi, soi cầu lô gan, dò vé số tự động - Hội đam mê số học DK.">
-  <meta name="keywords" content="hoi dam me so hoc dk, xsmb, xo so mien bac, ket qua xo so, lo to, lo gan, do ve so">
+  <title>Hội đam mê số học DK - Kết Quả Xổ Số Miền Bắc & Quay Thưởng Trực Tiếp Thời Gian Thực</title>
+  <meta name="description" content="Trang web xem kết quả xổ số miền Bắc (XSMB) trực tiếp theo thời gian thực, quay thưởng 27 giải, bảng đầu đuôi lô tô, soi cầu lô gan 100 số - Hội đam mê số học DK.">
+  <meta name="keywords" content="hoi dam me so hoc dk, xsmb truc tiep, quay thuong thoi gian thuc, xo so mien bac, ket qua xo so, lo to dau duoi, lo gan">
   <meta name="author" content="Hội đam mê số học DK">
 
   <!-- Google Fonts -->
@@ -43,9 +43,6 @@
           </button>
           <button class="icon-btn" id="sound-toggle-btn" title="Bật/Tắt âm thanh hiệu ứng" aria-label="Toggle Sound">🔔</button>
           <button class="icon-btn" id="theme-toggle-btn" title="Đổi giao diện sáng/tối" aria-label="Toggle Theme">☀️</button>
-          <button class="btn-primary" id="btn-quick-sim" onclick="switchTab('simulator'); startSimulator();">
-            <span>🎰 Quay Thử</span>
-          </button>
         </div>
       </div>
 
@@ -68,22 +65,12 @@
   <!-- Main Container -->
   <main class="app-container" id="main-content">
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation Tabs (Clean 3-Tab Focused Navigation) -->
     <nav class="nav-tabs-wrapper" id="main-navigation" aria-label="Main Navigation">
       <ul class="nav-tabs" role="tablist">
         <li class="nav-tab-item" role="presentation">
           <button class="nav-tab-btn active" id="tab-btn-board" data-tab="board" role="tab" aria-selected="true">
-            🎯 Bảng Kết Quả & Lô Tô
-          </button>
-        </li>
-        <li class="nav-tab-item" role="presentation">
-          <button class="nav-tab-btn" id="tab-btn-checker" data-tab="checker" role="tab" aria-selected="false">
-            🔍 Dò Vé Số Nhanh
-          </button>
-        </li>
-        <li class="nav-tab-item" role="presentation">
-          <button class="nav-tab-btn" id="tab-btn-simulator" data-tab="simulator" role="tab" aria-selected="false">
-            🎰 Quay Thử XSMB
+            🎯 Bảng Kết Quả & Trực Tiếp
           </button>
         </li>
         <li class="nav-tab-item" role="presentation">
@@ -113,17 +100,31 @@
          =================================================================== -->
     <div class="tab-content-panel" id="tab-board" role="tabpanel">
       
-      <!-- Realtime Live Status Banner -->
+      <!-- Realtime Live Status Banner & Progressive Progress Bar -->
       <div class="live-banner" id="live-status-banner">
-        <div class="live-badge-group">
-          <span class="live-radar-badge" id="live-badge">
-            <span class="radar-dot"></span>
-            <span id="live-badge-text">TRỰC TIẾP</span>
-          </span>
-          <span id="live-banner-message">Đang kiểm tra trạng thái kỳ quay...</span>
+        <div class="live-banner-content">
+          <div class="live-badge-group">
+            <span class="live-radar-badge" id="live-badge">
+              <span class="radar-dot"></span>
+              <span id="live-badge-text">TRỰC TIẾP</span>
+            </span>
+            <span id="live-banner-message">Đang kết nối trạng thái quay thưởng thời gian thực...</span>
+          </div>
+
+          <!-- Live Draw Progressive Bar (Active during 18:14 - 18:35 or Live Demo) -->
+          <div class="live-draw-progress-wrap" id="live-progress-wrap">
+            <div class="live-progress-bar-bg">
+              <div class="live-progress-bar-fill" id="live-progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="live-progress-info">
+              <span id="live-prize-counter" class="live-prize-counter">27/27 giải (100%)</span>
+              <span id="live-status-clock" class="live-status-clock">Tự động đồng bộ theo thời gian thực</span>
+            </div>
+          </div>
         </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <button class="btn-live-stream" id="btn-toggle-live-demo" title="Mô phỏng trải nghiệm quay trực tiếp các giải trong thời gian thực">
+
+        <div class="live-banner-actions">
+          <button class="btn-live-stream" id="btn-toggle-live-demo" title="Bấm để kiểm tra và xem mô phỏng từng giải số quay trong thời gian thực">
             <span>🔴 Xem Thử Quay Trực Tiếp</span>
           </button>
         </div>
@@ -299,71 +300,7 @@
       </div>
     </div>
 
-    <!-- ===================================================================
-         TAB 2: DÒ VÉ SỐ TRỰC TUYẾN (SMART TICKET CHECKER)
-         =================================================================== -->
-    <div class="tab-content-panel" id="tab-checker" style="display:none;" role="tabpanel">
-      <section class="card-section" id="section-ticket-checker">
-        <h2 class="section-title">🔍 Dò Vé Số Kiến Thiết Miền Bắc Tự Động</h2>
-        <p class="section-desc">Nhập 5 số vé số của bạn và chọn ngày quay thưởng. Hệ thống sẽ so khớp toàn bộ 27 giải và thông báo bạn có trúng thưởng hay không!</p>
 
-        <div class="checker-form-grid">
-          <div class="form-field">
-            <label for="checker-input">Dãy số trên vé (2 đến 5 chữ số):</label>
-            <div class="form-input-wrapper">
-              <input type="text" id="checker-input" class="form-input" placeholder="Ví dụ: 82951" maxlength="5" autocomplete="off">
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="checker-date">Ngày mở thưởng:</label>
-            <input type="date" id="checker-date" class="form-input">
-          </div>
-
-          <button class="btn-check-ticket" id="btn-check-ticket">
-            <span>🎯 Dò Ngay</span>
-          </button>
-        </div>
-
-        <!-- Result Box -->
-        <div id="check-result" class="check-result-container"></div>
-      </section>
-    </div>
-
-    <!-- ===================================================================
-         TAB 3: QUAY THỬ XSMB (LIVE DRAW SIMULATOR)
-         =================================================================== -->
-    <div class="tab-content-panel" id="tab-simulator" style="display:none;" role="tabpanel">
-      <section class="card-section simulator-container" id="section-simulator">
-        <h2 class="section-title">🎰 Quay Thử Xổ Số Miền Bắc</h2>
-        <p class="section-desc">Mô phỏng trường quay xổ số mở thưởng chân thực từ Giải Bảy lên đến Giải Đặc Biệt với hiệu ứng âm thanh sống động.</p>
-
-        <div class="sim-controls-bar">
-          <div class="sim-stage-badge" id="sim-stage-text">Sẵn sàng quay thử</div>
-          <div style="display:flex; gap:0.5rem;">
-            <button class="btn-primary" id="btn-start-sim">▶ Bắt Đầu Quay Thử</button>
-            <button class="date-chip" id="btn-stop-sim" style="display:none;">⏹ Dừng</button>
-          </div>
-        </div>
-
-        <!-- Animated Rolling Balls Cage -->
-        <div class="rolling-cage" id="sim-cage">
-          <div class="sim-ball">?</div>
-          <div class="sim-ball">?</div>
-          <div class="sim-ball">?</div>
-          <div class="sim-ball">?</div>
-          <div class="sim-ball">?</div>
-        </div>
-
-        <!-- Display Log -->
-        <div style="margin-top:1.5rem;">
-          <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:0.6rem; color:var(--text-secondary)">Nhật ký kết quả quay thử:</h3>
-          <div id="sim-result-display" style="display:flex; flex-wrap:wrap; gap:0.5rem; max-height:220px; overflow-y:auto; padding:0.5rem; background:rgba(0,0,0,0.15); border-radius:var(--radius-md);">
-            <div style="color:var(--text-muted); font-size:0.85rem;">Bấm "Bắt Đầu Quay Thử" để khởi chạy máy quay lồng cầu.</div>
-          </div>
-        </div>
-      </section>
-    </div>
 
     <!-- ===================================================================
          TAB 4: THỐNG KÊ & LÔ GAN (ANALYTICS & HEATMAP)
@@ -513,19 +450,11 @@
     </div>
   </footer>
 
-  <!-- Fixed Mobile Bottom Navigation Bar -->
+  <!-- Fixed Mobile Bottom Navigation Bar (Streamlined 3 Core Tabs) -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Navigation">
     <button class="mobile-nav-item active" data-tab="board" onclick="switchTab('board')">
       <span class="mobile-nav-icon">🎯</span>
-      <span class="mobile-nav-label">Kết Quả</span>
-    </button>
-    <button class="mobile-nav-item" data-tab="checker" onclick="switchTab('checker')">
-      <span class="mobile-nav-icon">🔍</span>
-      <span class="mobile-nav-label">Dò Vé</span>
-    </button>
-    <button class="mobile-nav-item" data-tab="simulator" onclick="switchTab('simulator')">
-      <span class="mobile-nav-icon">🎰</span>
-      <span class="mobile-nav-label">Quay Thử</span>
+      <span class="mobile-nav-label">Kết Quả & Trực Tiếp</span>
     </button>
     <button class="mobile-nav-item" data-tab="stats" onclick="switchTab('stats')">
       <span class="mobile-nav-icon">📊</span>

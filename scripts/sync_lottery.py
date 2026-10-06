@@ -58,10 +58,17 @@ def fetch_date_results(target_date: date):
         'p7': p7
     }
 
-    if status == 'completed':
-        # calculate loto
-        all_nums = [res_obj['special'], res_obj['p1']] + res_obj['p2'] + res_obj['p3'] + res_obj['p4'] + res_obj['p5'] + res_obj['p6'] + res_obj['p7']
-        res_obj['loto'] = [n[-2:] for n in all_nums]
+    # Always calculate loto for whatever numbers have been revealed so far
+    all_nums = []
+    if res_obj['special']:
+        all_nums.append(res_obj['special'])
+    if res_obj['p1']:
+        all_nums.append(res_obj['p1'])
+    for sub in [res_obj['p2'], res_obj['p3'], res_obj['p4'], res_obj['p5'], res_obj['p6'], res_obj['p7']]:
+        for n in sub:
+            if n:
+                all_nums.append(n)
+    res_obj['loto'] = [n[-2:] for n in all_nums]
 
     return res_obj
 

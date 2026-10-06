@@ -1009,182 +1009,84 @@ body {
   margin-bottom: 1.5rem;
 }
 
-.checker-form-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr auto;
-  gap: 1rem;
-  align-items: flex-end;
-}
-
-@media (max-width: 768px) {
-  .checker-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.form-field label {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin-bottom: 0.4rem;
-}
-
-.form-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  font-family: var(--font-mono);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  outline: none;
-  transition: var(--transition-fast);
-}
-
-.form-input:focus {
-  border-color: var(--gold-500);
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
-}
-
-.btn-check-ticket {
-  height: 48px;
-  padding: 0 1.5rem;
-  background: var(--gold-gradient);
-  border: none;
-  border-radius: var(--radius-md);
-  color: #000;
-  font-weight: 800;
-  font-size: 1rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: var(--transition-fast);
-  box-shadow: var(--shadow-gold);
-}
-
-.btn-check-ticket:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
-}
-
-/* Check Result Display */
-.check-result-container {
-  margin-top: 1.5rem;
-  padding: 1.25rem;
-  border-radius: var(--radius-md);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  display: none;
-  animation: fadeInUp 0.4s ease;
-}
-
-.check-result-container.win {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.check-result-container.lose {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.25);
-}
-
 /* ===================================================================
-   Live Draw Simulator (Quay Thử XSMB)
+   Live Draw Realtime Highlighting & Keyframes
    =================================================================== */
 
-.simulator-container {
-  background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.12) 0%, transparent 70%), var(--bg-card);
-  border: 1px solid var(--border-highlight);
+.live-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex: 1;
 }
 
-.sim-controls-bar {
+.live-draw-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-width: 580px;
+}
+
+.live-progress-bar-bg {
+  width: 100%;
+  height: 9px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+}
+
+.live-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.live-progress-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  font-size: 0.78rem;
+  font-weight: 700;
   gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
 }
 
-.sim-speed-selector {
+.live-prize-counter {
+  color: var(--gold-400);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.live-status-clock {
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  opacity: 0.85;
+}
+
+.live-banner-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
-.sim-speed-btn {
-  padding: 0.35rem 0.75rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition: var(--transition-fast);
+@keyframes revealBounce {
+  0% { transform: scale(0.7); opacity: 0.5; }
+  50% { transform: scale(1.18); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-.sim-speed-btn.active {
-  background: var(--gold-gradient);
-  color: #000;
-  font-weight: 700;
+.reveal-bounce {
+  animation: revealBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }
 
-.sim-stage-badge {
-  padding: 0.4rem 1rem;
-  border-radius: var(--radius-full);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--gold-400);
-}
-
-/* Rolling animation balls */
-.rolling-cage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem 1rem;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: var(--radius-lg);
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border-subtle);
-}
-
-.sim-ball {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--gold-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 1.8rem;
-  font-weight: 900;
-  color: #000;
-  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.7);
-  transition: var(--transition-fast);
-}
-
-.sim-ball.rolling {
-  animation: rollNumbers 0.12s infinite linear;
+.newly-revealed {
+  border-color: var(--gold-400) !important;
+  box-shadow: 0 0 18px var(--gold-glow), inset 0 0 8px rgba(245, 158, 11, 0.3) !important;
+  color: #fff !important;
 }
 
 /* ===================================================================
@@ -1905,6 +1807,41 @@ body {
     padding: 0 0.65rem calc(5.2rem + env(safe-area-inset-bottom)) 0.65rem;
   }
 
+  /* Live Banner Mobile Layout */
+  .live-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+
+  .live-badge-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+
+  .live-radar-badge {
+    white-space: nowrap;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .live-draw-progress-wrap {
+    max-width: 100%;
+  }
+
+  .live-banner-actions {
+    width: 100%;
+  }
+
+  .btn-live-stream {
+    width: 100%;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    font-size: 0.88rem;
+  }
+
   /* Header Mobile Layout */
   .site-header {
     margin-bottom: 0.75rem;
@@ -2231,60 +2168,7 @@ body {
     margin: 2px;
   }
 
-  /* Ticket Checker on Mobile */
-  .card-section {
-    padding: 1rem 0.85rem;
-    border-radius: var(--radius-md);
-    margin-bottom: 1.25rem;
-  }
 
-  .section-title {
-    font-size: 1.15rem;
-  }
-
-  .checker-form-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .form-input {
-    font-size: 1.35rem;
-    text-align: center;
-    letter-spacing: 0.1em;
-    padding: 0.65rem 0.85rem;
-  }
-
-  .btn-check-ticket {
-    width: 100%;
-    height: 48px;
-    font-size: 1rem;
-  }
-
-  /* Simulator on Mobile */
-  .rolling-cage {
-    gap: 0.35rem;
-    padding: 1.25rem 0.5rem;
-  }
-
-  .sim-ball {
-    width: 44px;
-    height: 44px;
-    font-size: 1.35rem;
-  }
-
-  .sim-controls-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .sim-speed-selector {
-    justify-content: center;
-  }
-
-  .sim-stage-badge {
-    text-align: center;
-  }
 
   /* Statistics on Mobile */
   .stats-grid-2col {

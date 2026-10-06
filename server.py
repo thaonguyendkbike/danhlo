@@ -100,6 +100,14 @@ class LotteryHttpHandler(http.server.SimpleHTTPRequestHandler):
                 sync_lottery.update_web_lottery_data()
                 live_data['auto_saved'] = True
 
+            # Also cache latest live data in data/latest.json
+            try:
+                latest_path = os.path.join(os.path.dirname(__file__), 'data', 'latest.json')
+                with open(latest_path, 'w', encoding='utf-8') as lf:
+                    json.dump(live_data, lf, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
+
             self.send_json(live_data)
         except Exception as e:
             self.send_json({'error': str(e)}, status=500)
