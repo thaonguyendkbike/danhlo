@@ -80,27 +80,56 @@ class LotteryHttpHandler(http.server.SimpleHTTPRequestHandler):
             now = datetime.now(tz)
             today = now.date()
 
-            # Check live draw for today
+            # Check live draw window (18:14 to 18:35 VN time)
+            is_draw_time = time(18, 14) <= now.time() <= time(18, 35)
+
+            last_date = sync_lottery.get_last_csv_date()
+            latest_rec = sync_lottery.get_latest_record()
+
+            # 1. If today already recorded in CSV: return immediately from local data (no external scraping)
+            if last_date and last_date >= today and latest_rec:
+                resp = {
+                    'date': today.strftime('%Y-%m-%d'),
+                    'status': 'completed',
+                    'prizes_count': 27,
+                    'is_draw_time': False,
+                    'current_time_vn': now.strftime('%H:%M:%S'),
+                    **latest_rec
+                }
+                self.send_json(resp)
+                return
+
+            # 2. If before live draw window (before 18:14): return waiting status (no external scraping)
+            if now.time() < time(18, 14):
+                resp = {
+                    'date': today.strftime('%Y-%m-%d'),
+                    'status': 'waiting',
+                    'prizes_count': 0,
+                    'is_draw_time': False,
+                    'current_time_vn': now.strftime('%H:%M:%S')
+                }
+                self.send_json(resp)
+                return
+
+            # 3. In live draw window (18:14 - 18:35) or after 18:35 if today is not yet recorded:
             live_data = sync_lottery.fetch_date_results(today)
             if not live_data:
                 live_data = {
                     'date': today.strftime('%Y-%m-%d'),
-                    'status': 'waiting',
+                    'status': 'waiting' if now.time() < time(18, 14) else 'drawing',
                     'prizes_count': 0
                 }
 
-            is_draw_time = time(18, 14) <= now.time() <= time(18, 35)
             live_data['is_draw_time'] = is_draw_time
             live_data['current_time_vn'] = now.strftime('%H:%M:%S')
 
             # If completed and not yet in CSV, sync automatically
-            last_date = sync_lottery.get_last_csv_date()
-            if live_data.get('status') == 'completed' and last_date and last_date < today:
+            if live_data.get('status') == 'completed' and (not last_date or last_date < today):
                 sync_lottery.append_to_csv(live_data)
                 sync_lottery.update_web_lottery_data()
                 live_data['auto_saved'] = True
 
-            # Also cache latest live data in data/latest.json
+            # Cache latest live data in data/latest.json
             try:
                 latest_path = os.path.join(os.path.dirname(__file__), 'data', 'latest.json')
                 with open(latest_path, 'w', encoding='utf-8') as lf:

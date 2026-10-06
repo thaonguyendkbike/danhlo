@@ -270,13 +270,15 @@ function onDataLoaded() {
   renderHistoryTable();
   updateLiveBannerStatus();
 
-  // Trigger immediate background sync check on startup
-  setTimeout(() => {
-    syncDataWithServer(false);
-  }, 400);
-
-  // Start intelligent adaptive live polling (2.5s when live, 25s idle)
-  scheduleLivePoll(2000);
+  // Chỉ quét NẾU ĐANG TRONG KHUNG GIỜ QUAY THƯỞNG (18:14 - 18:35) và chưa có kết quả hôm nay
+  // Ngoài khung giờ: KHÔNG QUÉT (Zero network traffic)
+  const todayStr = getTodayVnStr();
+  const isTodayCompleted = latestRec && latestRec.date === todayStr;
+  if (isLiveDrawTimeWindow() && !isTodayCompleted) {
+    startLivePolling();
+  } else {
+    stopLivePolling();
+  }
 }
 
 /* ===================================================================
@@ -888,6 +890,22 @@ function initClockAndCountdown() {
         dom.countdownTimer.textContent = `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
       }
     }
+
+    // Tự động kích hoạt quét đúng lúc 18:14 và dừng hẳn khi hết giờ hoặc đã có kết quả
+    const inDrawWindow = isLiveDrawTimeWindow();
+    const todayStr = getTodayVnStr();
+    const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
+    const isTodayCompleted = latestRec && latestRec.date === todayStr;
+
+    if (inDrawWindow && !isTodayCompleted) {
+      if (!isLivePollingRunning) {
+        startLivePolling();
+      }
+    } else {
+      if (isLivePollingRunning) {
+        stopLivePolling();
+      }
+    }
   }
 
   updateTime();
@@ -1101,18 +1119,208 @@ function bindEvents() {
    =================================================================== */
 
 let livePollTimeoutId = null;
+let isLivePollingRunning = false;
 
-function scheduleLivePoll(delayMs = 20000) {
-  if (livePollTimeoutId) clearTimeout(livePollTimeoutId);
-  livePollTimeoutId = setTimeout(async () => {
-    try {
-      const isDrawingFast = await updateLiveBannerStatus();
-      // If live drawing is happening or in draw window (18:14 - 18:35), poll fast (2.5s)
-      scheduleLivePoll(isDrawingFast ? 2500 : 25000);
-    } catch (err) {
-      scheduleLivePoll(25000);
+// Vietnam Timezone Helper (UTC+7)
+function getVnNow() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + 7 * 3600000);
+}
+
+function getTodayVnStr() {
+  const vnTime = getVnNow();
+  const y = vnTime.getFullYear();
+  const m = String(vnTime.getMonth() + 1).padStart(2, '0');
+  const d = String(vnTime.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// Khung giờ quay thưởng trực tiếp: 18:14 đến 18:35 hàng ngày (giờ Việt Nam)
+function isLiveDrawTimeWindow() {
+  const vnTime = getVnNow();
+  const hour = vnTime.getHours();
+  const min = vnTime.getMinutes();
+  return (hour === 18 && min >= 14 && min <= 35);
+}
+
+// Bắt đầu quét trực tiếp (CHỈ KÍCH HOẠT TRONG KHUNG GIỜ 18:14 - 18:35)
+function startLivePolling() {
+  if (isLivePollingRunning) return;
+  isLivePollingRunning = true;
+  console.log('🔴 [Live Engine] Khung giờ quay thưởng (18:14 - 18:35). Bắt đầu quét kết quả trực tiếp!');
+  runLivePollStep();
+}
+
+// Dừng quét hoàn toàn (Ngoài khung giờ hoặc khi đã có đủ 27/27 giải)
+function stopLivePolling() {
+  isLivePollingRunning = false;
+  if (livePollTimeoutId) {
+    clearTimeout(livePollTimeoutId);
+    livePollTimeoutId = null;
+  }
+}
+
+// Vòng lặp quét thời gian thực: chỉ chạy khi isLivePollingRunning = true và trong khung giờ 18:14 - 18:35
+async function runLivePollStep() {
+  if (!isLivePollingRunning) return;
+
+  // Nếu đã ngoài khung giờ quay (sau 18:35 hoặc trước 18:14): dừng quét ngay lập tức
+  if (!isLiveDrawTimeWindow()) {
+    stopLivePolling();
+    updateLiveBannerStatus();
+    return;
+  }
+
+  try {
+    const isStillDrawing = await checkAndUpdateLiveDraw();
+    // Nếu kết quả đã đủ 27/27 giải hoặc đã hoàn tất: DỪNG QUÉT NGAY!
+    if (!isStillDrawing) {
+      stopLivePolling();
+      return;
     }
-  }, delayMs);
+  } catch (err) {
+    console.warn('[Live Engine] Lỗi khi quét:', err);
+  }
+
+  // Nếu vẫn đang quay dở trong khung giờ 18:14 - 18:35: tiếp tục quét sau 2.5s
+  if (isLivePollingRunning && isLiveDrawTimeWindow()) {
+    livePollTimeoutId = setTimeout(runLivePollStep, 2500);
+  } else {
+    stopLivePolling();
+  }
+}
+
+// Hàm lấy dữ liệu trực tiếp và cập nhật bảng giải (CHỈ GỌI KHI ĐANG TRONG KHUNG GIỜ QUAY)
+async function checkAndUpdateLiveDraw() {
+  let liveApi = null;
+  try {
+    const res = await fetch('/api/live?t=' + Date.now());
+    if (res.ok) liveApi = await res.json();
+  } catch (e) {
+    try {
+      const fbRes = await fetch('data/latest.json?t=' + Date.now());
+      if (fbRes.ok) liveApi = await fbRes.json();
+    } catch (fbErr) {}
+  }
+
+  if (!liveApi) return true;
+
+  const count = liveApi.prizes_count || 0;
+  const isCompleted = (liveApi.status === 'completed' || count >= 27);
+  const todayVnStr = getTodayVnStr();
+
+  // 1. KỲ QUAY ĐÃ HOÀN TẤT ĐỦ 27 GIẢI
+  if (isCompleted) {
+    if (state.lastLivePrizesCount > 0 && state.lastLivePrizesCount < 27) {
+      if (window.soundEngine) window.soundEngine.playJackpot();
+      if (window.confetti) window.confetti.fire(150);
+    }
+    state.lastLivePrizesCount = 27;
+
+    const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
+    if (!latestRec || latestRec.date !== liveApi.date) {
+      state.records.unshift(liveApi);
+      state.currentIndex = 0;
+      renderCurrentRecord();
+      renderStatistics();
+      renderHistoryTable();
+    }
+
+    renderCompletedBanner(liveApi, todayVnStr);
+    return false; // Báo hiệu đã xong -> dừng quét
+  }
+
+  // 2. ĐANG QUAY DỞ TRỰC TIẾP (0 < count < 27)
+  dom.liveStatusBanner.className = 'live-banner';
+  dom.liveStatusBanner.style.background = '';
+  dom.liveStatusBanner.style.borderColor = '';
+
+  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '🔴 ĐANG QUAY TRỰC TIẾP';
+
+  const pct = Math.min(100, Math.round((count / 27) * 100));
+
+  if (dom.liveProgressFill) dom.liveProgressFill.style.width = `${pct}%`;
+  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = `Tiến độ: ${count}/27 giải (${pct}%)`;
+  if (dom.liveStatusClock) {
+    dom.liveStatusClock.textContent = `Trực tiếp lúc ${getVnNow().toLocaleTimeString('vi-VN')} (Tự động 2.5s/lần)`;
+  }
+
+  if (dom.liveBannerMessage) {
+    dom.liveBannerMessage.innerHTML = `Đang mở thưởng trực tiếp XSMB hôm nay <strong>${formatDateVN(todayVnStr)}</strong>! Đã mở <strong style="color:var(--gold-400)">${count}/27</strong> giải. Các giải đang tiếp tục quay số thời gian thực...`;
+  }
+
+  if (state.activeTab === 'board' && (state.currentIndex === 0 || dom.datePicker?.value === todayVnStr)) {
+    const isNewArrival = count > state.lastLivePrizesCount;
+    renderLiveDrawingBoard(liveApi, isNewArrival);
+    if (isNewArrival) {
+      if (window.soundEngine) window.soundEngine.playReveal();
+      state.lastLivePrizesCount = count;
+    }
+  }
+
+  return true; // Vẫn đang quay tiếp
+}
+
+// Cập nhật trạng thái Banner giao diện (KHÔNG GỌI QUÉT NGẦM NGOÀI GIỜ)
+function updateLiveBannerStatus() {
+  if (!dom.liveStatusBanner) return;
+
+  const vnTime = getVnNow();
+  const todayVnStr = getTodayVnStr();
+  const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
+  const isTodayDrawn = latestRec && latestRec.date === todayVnStr;
+
+  // Trường hợp 1: Đã có kết quả ngày hôm nay
+  if (isTodayDrawn) {
+    stopLivePolling();
+    renderCompletedBanner(latestRec, todayVnStr);
+    return;
+  }
+
+  // Trường hợp 2: Đang đúng khung giờ quay trực tiếp (18:14 - 18:35)
+  if (isLiveDrawTimeWindow()) {
+    if (!isLivePollingRunning) {
+      startLivePolling();
+    }
+    return;
+  }
+
+  // Trường hợp 3: Ngoài khung giờ trực tiếp -> KHÔNG QUÉT, hiển thị giao diện chờ
+  stopLivePolling();
+
+  dom.liveStatusBanner.className = 'live-banner idle';
+  dom.liveStatusBanner.style.background = '';
+  dom.liveStatusBanner.style.borderColor = '';
+
+  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '⏰ CHỜ QUAY (18:15)';
+  if (dom.liveProgressFill) dom.liveProgressFill.style.width = '0%';
+  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = 'Chờ mở thưởng: 0/27 giải';
+  if (dom.liveStatusClock) dom.liveStatusClock.textContent = 'Mở thưởng lúc 18h15 hàng ngày';
+
+  if (dom.liveBannerMessage) {
+    dom.liveBannerMessage.innerHTML = `Hôm nay là <strong>${formatDateVN(todayVnStr)}</strong> (mở thưởng lúc <strong>18h15</strong>). Kết quả gần nhất là ngày <strong>${latestRec ? formatDateVN(latestRec.date) : '--'}</strong> (GĐB: <strong style="color:var(--ruby-400)">${latestRec ? latestRec.special : '--'}</strong>).`;
+  }
+}
+
+// Render banner hoàn tất khi đã có đủ kết quả
+function renderCompletedBanner(record, todayVnStr) {
+  if (!dom.liveStatusBanner) return;
+  dom.liveStatusBanner.className = 'live-banner';
+  dom.liveStatusBanner.style.background = 'linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(245, 158, 11, 0.15) 100%)';
+  dom.liveStatusBanner.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+
+  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '✅ ĐÃ CÓ KẾT QUẢ';
+  if (dom.liveProgressFill) dom.liveProgressFill.style.width = '100%';
+  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = '27/27 giải (100% Hoàn tất)';
+  if (dom.liveStatusClock) dom.liveStatusClock.textContent = 'Kỳ quay hôm nay đã kết thúc';
+
+  const specialNum = record ? record.special : '--';
+  const loto2D = (specialNum && specialNum !== '--') ? specialNum.slice(-2) : '--';
+
+  if (dom.liveBannerMessage) {
+    dom.liveBannerMessage.innerHTML = `Đã có đầy đủ kết quả kỳ quay hôm nay <strong>${formatDateVN(todayVnStr)}</strong>. Giải Đặc Biệt: <strong style="color:var(--ruby-400)">${specialNum}</strong> (Lô 2 số: <strong style="color:var(--amber-400)">${loto2D}</strong>). Chúc anh em số học đại thắng!`;
+  }
 }
 
 async function syncDataWithServer(isManual = false) {
@@ -1204,125 +1412,6 @@ async function syncDataWithServer(isManual = false) {
     }
     updateLiveBannerStatus();
   }
-}
-
-async function updateLiveBannerStatus() {
-  if (!dom.liveStatusBanner) return false;
-
-  const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  const vnTime = new Date(utc + 7 * 3600000);
-  const hour = vnTime.getHours();
-  const min = vnTime.getMinutes();
-
-  const y = vnTime.getFullYear();
-  const m = String(vnTime.getMonth() + 1).padStart(2, '0');
-  const d = String(vnTime.getDate()).padStart(2, '0');
-  const todayVnStr = `${y}-${m}-${d}`;
-
-  let liveApi = null;
-  try {
-    const res = await fetch('/api/live?t=' + Date.now());
-    if (res.ok) liveApi = await res.json();
-  } catch (e) {
-    try {
-      const fbRes = await fetch('data/latest.json?t=' + Date.now());
-      if (fbRes.ok) liveApi = await fbRes.json();
-    } catch (fbErr) {}
-  }
-
-  const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
-  const isTodayDrawn = latestRec && latestRec.date === todayVnStr;
-  const isDrawingTime = (hour === 18 && min >= 14 && min <= 35);
-  const prizesCount = liveApi ? (liveApi.prizes_count || 0) : 0;
-  const isDrawingStatus = liveApi && liveApi.status === 'drawing';
-
-  // 1. CASE: ACTIVE LIVE DRAW (18:14 - 18:35 OR API status = 'drawing')
-  if ((isDrawingTime && (!liveApi || liveApi.status !== 'completed' || prizesCount < 27)) || isDrawingStatus) {
-    dom.liveStatusBanner.className = 'live-banner';
-    dom.liveStatusBanner.style.background = '';
-    dom.liveStatusBanner.style.borderColor = '';
-
-    if (dom.liveBadgeText) dom.liveBadgeText.textContent = '🔴 ĐANG QUAY TRỰC TIẾP';
-
-    const count = prizesCount;
-    const pct = Math.min(100, Math.round((count / 27) * 100));
-
-    if (dom.liveProgressFill) dom.liveProgressFill.style.width = `${pct}%`;
-    if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = `Tiến độ: ${count}/27 giải (${pct}%)`;
-    if (dom.liveStatusClock) {
-      dom.liveStatusClock.textContent = `Trực tiếp lúc ${vnTime.toLocaleTimeString('vi-VN')} (Tự động 2s/lần)`;
-    }
-
-    if (dom.liveBannerMessage) {
-      dom.liveBannerMessage.innerHTML = `Đang mở thưởng trực tiếp XSMB hôm nay <strong>${formatDateVN(todayVnStr)}</strong>! Đã mở <strong style="color:var(--gold-400)">${count}/27</strong> giải. Các giải đang tiếp tục quay số thời gian thực...`;
-    }
-
-    // Render partial board if viewing today's date or on main board
-    if (liveApi && state.activeTab === 'board' && (state.currentIndex === 0 || dom.datePicker?.value === todayVnStr)) {
-      const isNewArrival = count > state.lastLivePrizesCount;
-      renderLiveDrawingBoard(liveApi, isNewArrival);
-      if (isNewArrival) {
-        if (window.soundEngine) window.soundEngine.playReveal();
-        state.lastLivePrizesCount = count;
-      }
-    }
-
-    return true; // Fast polling requested (every 2.5s)
-  }
-
-  // 2. CASE: TODAY'S DRAW IS COMPLETED
-  if (isTodayDrawn || (liveApi && liveApi.status === 'completed')) {
-    // If just finished live draw
-    if (state.lastLivePrizesCount > 0 && state.lastLivePrizesCount < 27) {
-      if (window.soundEngine) window.soundEngine.playJackpot();
-      if (window.confetti) window.confetti.fire(150);
-    }
-    state.lastLivePrizesCount = 27;
-
-    dom.liveStatusBanner.className = 'live-banner';
-    dom.liveStatusBanner.style.background = 'linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(245, 158, 11, 0.15) 100%)';
-    dom.liveStatusBanner.style.borderColor = 'rgba(16, 185, 129, 0.5)';
-
-    if (dom.liveBadgeText) dom.liveBadgeText.textContent = '✅ ĐÃ CÓ KẾT QUẢ';
-    if (dom.liveProgressFill) dom.liveProgressFill.style.width = '100%';
-    if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = '27/27 giải (100% Hoàn tất)';
-    if (dom.liveStatusClock) dom.liveStatusClock.textContent = 'Kỳ quay hôm nay đã kết thúc';
-
-    const specialNum = latestRec ? latestRec.special : (liveApi && liveApi.special ? liveApi.special : '--');
-    const loto2D = (specialNum && specialNum !== '--') ? specialNum.slice(-2) : '--';
-
-    if (dom.liveBannerMessage) {
-      dom.liveBannerMessage.innerHTML = `Đã có đầy đủ kết quả kỳ quay hôm nay <strong>${formatDateVN(todayVnStr)}</strong>. Giải Đặc Biệt: <strong style="color:var(--ruby-400)">${specialNum}</strong> (Lô 2 số: <strong style="color:var(--amber-400)">${loto2D}</strong>). Chúc anh em số học đại thắng!`;
-    }
-
-    // Auto update state records if server has today and client doesn't
-    if (liveApi && liveApi.status === 'completed' && (!latestRec || latestRec.date !== liveApi.date)) {
-      state.records.unshift(liveApi);
-      state.currentIndex = 0;
-      renderCurrentRecord();
-      renderStatistics();
-      renderHistoryTable();
-    }
-
-    return false;
-  }
-
-  // 3. CASE: WAITING BEFORE 18:15 (IDLE / COUNTDOWN)
-  dom.liveStatusBanner.className = 'live-banner idle';
-  dom.liveStatusBanner.style.background = '';
-  dom.liveStatusBanner.style.borderColor = '';
-
-  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '⏰ CHỜ QUAY (18:15)';
-  if (dom.liveProgressFill) dom.liveProgressFill.style.width = '0%';
-  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = 'Chờ mở thưởng: 0/27 giải';
-  if (dom.liveStatusClock) dom.liveStatusClock.textContent = 'Mở thưởng lúc 18h15 hàng ngày';
-
-  if (dom.liveBannerMessage) {
-    dom.liveBannerMessage.innerHTML = `Hôm nay là <strong>${formatDateVN(todayVnStr)}</strong> (mở thưởng lúc <strong>18h15</strong>). Kết quả gần nhất là ngày <strong>${latestRec ? formatDateVN(latestRec.date) : '--'}</strong> (GĐB: <strong style="color:var(--ruby-400)">${latestRec ? latestRec.special : '--'}</strong>).`;
-  }
-
-  return false;
 }
 
 // Render progressive draw state directly onto the main lottery board
