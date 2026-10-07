@@ -490,11 +490,20 @@
                 </div>
               </div>
 
+              <div class="metric-card metric-potential">
+                <div class="metric-icon">🎯</div>
+                <div class="metric-info">
+                  <span class="metric-label">Tạm Tính (Nếu Trúng)</span>
+                  <strong class="metric-value text-primary" id="metric-potential-win">0 đ</strong>
+                  <span class="metric-sub" id="metric-potential-sub">Nếu tất cả đều về</span>
+                </div>
+              </div>
+
               <div class="metric-card metric-win">
                 <div class="metric-icon">🏆</div>
                 <div class="metric-info">
-                  <span class="metric-label">Tiền Trúng Tạm Tính</span>
-                  <strong class="metric-value" id="metric-total-win">0 đ</strong>
+                  <span class="metric-label">Thực Tế Thu Về</span>
+                  <strong class="metric-value text-success" id="metric-total-win">0 đ</strong>
                   <span class="metric-sub" id="metric-win-hits">0 nháy / 0 lượt</span>
                 </div>
               </div>
@@ -502,7 +511,7 @@
               <div class="metric-card metric-pnl">
                 <div class="metric-icon">📈</div>
                 <div class="metric-info">
-                  <span class="metric-label">Lợi Nhuận (Thắng - Thua)</span>
+                  <span class="metric-label">Lợi Nhuận Thực Tế</span>
                   <strong class="metric-value" id="metric-pnl">0 đ</strong>
                   <span class="metric-sub" id="metric-win-rate">Tỷ lệ thắng: 0%</span>
                 </div>
@@ -574,14 +583,15 @@
                 <table class="notes-table" id="notes-table">
                   <thead>
                     <tr>
-                      <th style="width: 110px;">Ngày</th>
-                      <th style="width: 95px;">Thể loại</th>
+                      <th style="width: 105px;">Ngày</th>
+                      <th style="width: 85px;">Thể loại</th>
                       <th>Con số</th>
-                      <th style="width: 120px; text-align:right;">Tiền / Điểm</th>
-                      <th style="min-width: 170px;">Kết quả đối chiếu</th>
-                      <th style="width: 130px; text-align:right;">Tạm tính</th>
+                      <th style="width: 110px; text-align:right;">Tiền vào</th>
+                      <th style="min-width: 160px;">Kết quả đối chiếu</th>
+                      <th style="width: 125px; text-align:right;" title="Tiền trúng tạm tính theo tỷ lệ nếu con số đều về">Tạm tính</th>
+                      <th style="width: 130px; text-align:right;" title="Tiền thực nhận/thua sau khi có kết quả xổ số">Thực tế</th>
                       <th>Ghi chú</th>
-                      <th style="width: 80px; text-align:center;">Thao tác</th>
+                      <th style="width: 75px; text-align:center;">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody id="notes-table-body">

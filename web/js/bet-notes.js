@@ -168,6 +168,7 @@
         // Metrics
         metricTotalCost: document.getElementById('metric-total-cost'),
         metricTotalPoints: document.getElementById('metric-total-points'),
+        metricPotentialWin: document.getElementById('metric-potential-win'),
         metricTotalWin: document.getElementById('metric-total-win'),
         metricWinHits: document.getElementById('metric-win-hits'),
         metricPnl: document.getElementById('metric-pnl'),
@@ -723,6 +724,8 @@
         winNumbers: [],
         details: '',
         totalCost: 0,
+        potentialWin: 0,
+        potentialWinPerNum: 0,
         totalWin: 0,
         pnl: 0,
         recordFound: false,
@@ -741,6 +744,34 @@
         } else {
           result.totalCost = note.amount * countNums;
         }
+      }
+
+      // Calculate Potential Win (Số tiền tạm tính theo kết quả trúng)
+      if (note.type === 'lo') {
+        if (note.unit === 'diem') {
+          result.potentialWinPerNum = note.amount * (this.settings.loWinPerPoint || 80000);
+        } else {
+          const pointEquiv = note.amount / (this.settings.loCostPerPoint || 23000);
+          result.potentialWinPerNum = Math.round(pointEquiv * (this.settings.loWinPerPoint || 80000));
+        }
+        result.potentialWin = result.potentialWinPerNum * countNums;
+      } else if (note.type === 'de') {
+        const multi = this.settings.deMultiplier || 70;
+        result.potentialWin = note.amount * multi;
+        result.potentialWinPerNum = result.potentialWin;
+      } else if (note.type === 'cang3') {
+        const multi = this.settings.cang3Multiplier || 400;
+        result.potentialWin = note.amount * multi;
+        result.potentialWinPerNum = result.potentialWin;
+      } else if (note.type.startsWith('xien')) {
+        let multi = this.settings.xien2Multiplier || 10;
+        if (note.numbers.length === 3) multi = this.settings.xien3Multiplier || 40;
+        if (note.numbers.length >= 4) multi = this.settings.xien4Multiplier || 100;
+        result.potentialWin = note.amount * multi;
+        result.potentialWinPerNum = result.potentialWin;
+      } else {
+        result.potentialWin = note.amount;
+        result.potentialWinPerNum = result.potentialWin;
       }
 
       // 2. Find Lottery Record for Note's Date
@@ -920,6 +951,7 @@
 
       // Compute aggregates
       let totalCost = 0;
+      let totalPotentialWin = 0;
       let totalWin = 0;
       let totalHits = 0;
       let winCount = 0;
@@ -930,6 +962,7 @@
         const check = this.checkNoteResult(note);
 
         totalCost += check.totalCost;
+        totalPotentialWin += check.potentialWin;
         totalWin += check.totalWin;
         if (check.status === 'win') {
           winCount++;
@@ -960,6 +993,7 @@
       const netPnl = totalWin - totalCost;
       if (this.dom.metricTotalCost) this.dom.metricTotalCost.textContent = this.formatCurrency(totalCost);
       if (this.dom.metricTotalPoints) this.dom.metricTotalPoints.textContent = totalPoints > 0 ? `${totalPoints} điểm lô` : '0 điểm';
+      if (this.dom.metricPotentialWin) this.dom.metricPotentialWin.textContent = this.formatCurrency(totalPotentialWin);
       if (this.dom.metricTotalWin) this.dom.metricTotalWin.textContent = this.formatCurrency(totalWin);
       if (this.dom.metricWinHits) this.dom.metricWinHits.textContent = `${totalHits} nháy / ${winCount} mục trúng`;
 
@@ -1009,17 +1043,28 @@
         }
       }
 
-      // Format PnL
-      let pnlDisplay = '';
+      // Format Tạm Tính Display (Tiền trúng theo tỷ lệ nếu các con số đều về)
+      let potentialDisplay = `<strong class="potential-win-val">${this.formatCurrency(check.potentialWin)}</strong>`;
+      if (note.type === 'lo' && note.numbers && note.numbers.length > 1) {
+        potentialDisplay += `<div class="sub-cost">${this.formatCurrency(check.potentialWinPerNum)}/con</div>`;
+      }
+
+      // Format Thực Tế Display (Số tiền thực nhận hoặc mất sau khi có kết quả)
+      let actualDisplay = '';
       if (check.status === 'win') {
-        pnlDisplay = `<span class="pnl-win">+${this.formatCurrency(check.totalWin)}</span>`;
-        if (check.pnl !== check.totalWin) {
-          pnlDisplay += `<div class="pnl-net text-success">Lãi: +${this.formatCurrency(check.pnl)}</div>`;
-        }
+        actualDisplay = `
+          <span class="pnl-win">+${this.formatCurrency(check.totalWin)}</span>
+          <div class="pnl-net text-success">Lãi: +${this.formatCurrency(check.pnl)}</div>
+        `;
       } else if (check.status === 'lose') {
-        pnlDisplay = `<span class="pnl-lose">-${this.formatCurrency(check.totalCost)}</span>`;
+        actualDisplay = `
+          <span class="pnl-lose">-${this.formatCurrency(check.totalCost)}</span>
+          <div class="pnl-net text-danger">Thua</div>
+        `;
+      } else if (check.status === 'pending') {
+        actualDisplay = `<span class="pnl-pending">Chờ KQ ⏳</span>`;
       } else {
-        pnlDisplay = `<span class="pnl-pending">Chờ KQ</span>`;
+        actualDisplay = `<span class="pnl-pending" style="color:var(--text-muted);">Chưa có KQ</span>`;
       }
 
       return `
@@ -1045,7 +1090,10 @@
             </div>
           </td>
           <td style="text-align: right;">
-            ${pnlDisplay}
+            ${potentialDisplay}
+          </td>
+          <td style="text-align: right;">
+            ${actualDisplay}
           </td>
           <td>
             <span class="note-desc-text" title="${note.note || ''}">${note.note || '—'}</span>
@@ -1129,6 +1177,7 @@
       }
 
       let totalCost = 0;
+      let totalPotentialWin = 0;
       let totalWin = 0;
       let text = `📝 SỔ GHI SỐ & KẾT QUẢ XSMB\n`;
       text += `📅 Ngày xuất: ${this.formatDateVN(this.getTodayDateStr())}\n`;
@@ -1137,6 +1186,7 @@
       filtered.forEach((n, idx) => {
         const check = this.checkNoteResult(n);
         totalCost += check.totalCost;
+        totalPotentialWin += check.potentialWin;
         totalWin += check.totalWin;
 
         const typeMap = { lo: 'Lô', de: 'Đề', xien2: 'Xiên 2', xien3: 'Xiên 3', cang3: '3 Càng', khac: 'Khác' };
@@ -1146,22 +1196,23 @@
 
         let resStr = '';
         if (check.status === 'win') {
-          resStr = `🏆 ${check.statusLabel} (+${this.formatCurrency(check.totalWin)})`;
+          resStr = `🏆 ${check.statusLabel} (+${this.formatCurrency(check.totalWin)} | Lãi: +${this.formatCurrency(check.pnl)})`;
         } else if (check.status === 'lose') {
-          resStr = `❌ ${check.statusLabel}`;
+          resStr = `❌ ${check.statusLabel} (-${this.formatCurrency(check.totalCost)})`;
         } else {
           resStr = `⏳ ${check.statusLabel}`;
         }
 
-        text += `${idx + 1}. [${this.formatDateVN(n.date)}] ${typeStr}: ${numStr} (${amtStr}) ➔ ${resStr}\n`;
+        text += `${idx + 1}. [${this.formatDateVN(n.date)}] ${typeStr}: ${numStr} (${amtStr})\n   ➔ Tạm tính nếu trúng: ${this.formatCurrency(check.potentialWin)}\n   ➔ Thực tế: ${resStr}\n`;
       });
 
       const netPnl = totalWin - totalCost;
       const sign = netPnl >= 0 ? '+' : '';
       text += `------------------------------------\n`;
       text += `💳 Tổng tiền vào: ${this.formatCurrency(totalCost)}\n`;
-      text += `🏆 Tổng tiền trúng: ${this.formatCurrency(totalWin)}\n`;
-      text += `💰 Lợi nhuận: ${sign}${this.formatCurrency(netPnl)}\n`;
+      text += `🎯 Tổng tạm tính (nếu trúng hết): ${this.formatCurrency(totalPotentialWin)}\n`;
+      text += `🏆 Tổng thực tế thu về: ${this.formatCurrency(totalWin)}\n`;
+      text += `💰 Lợi nhuận thực tế: ${sign}${this.formatCurrency(netPnl)}\n`;
       text += `Hội Đam Mê Số Học DK - Chúc Bạn May Mắn! 🍀`;
 
       navigator.clipboard.writeText(text).then(() => {
@@ -1187,7 +1238,7 @@
         alert('Chưa có ghi chú nào để xuất file!');
         return;
       }
-      let csv = '\uFEFFNgày,Thể loại,Con số,Tiền/Điểm,Đơn vị,Trạng thái,Tiền vào,Tiền trúng,Ghi chú\n';
+      let csv = '\uFEFFNgày,Thể loại,Con số,Tiền/Điểm,Đơn vị,Tiền vào,Tạm tính trúng,Kết quả đối chiếu,Thực tế thu về,Lãi/Lỗ thực tế,Ghi chú\n';
       this.notes.forEach(n => {
         const check = this.checkNoteResult(n);
         const row = [
@@ -1196,9 +1247,11 @@
           `"${(n.numbers || []).join(' ')}"`,
           n.amount,
           n.unit,
-          `"${check.statusLabel}"`,
           check.totalCost,
+          check.potentialWin,
+          `"${check.statusLabel}"`,
           check.totalWin,
+          check.pnl,
           `"${(n.note || '').replace(/"/g, '""')}"`
         ];
         csv += row.join(',') + '\n';
