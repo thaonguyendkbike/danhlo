@@ -138,8 +138,30 @@
       return `${d}/${m}/${y}`;
     }
 
+    formatDateShort(dateStr) {
+      if (!dateStr || !dateStr.includes('-')) return dateStr;
+      const [y, m, d] = dateStr.split('-');
+      return `${d}/${m}`;
+    }
+
     formatCurrency(num) {
       return Number(num || 0).toLocaleString('vi-VN') + ' đ';
+    }
+
+    formatCurrencyCompact(val) {
+      if (val === undefined || val === null || isNaN(val)) return '0đ';
+      const num = Math.round(Number(val));
+      const abs = Math.abs(num);
+      const sign = num < 0 ? '-' : '';
+      if (abs >= 1000000) {
+        const tr = (abs / 1000000).toFixed(1).replace(/\.0$/, '');
+        return `${sign}${tr}tr`;
+      }
+      if (abs >= 1000) {
+        const k = (abs / 1000).toFixed(0);
+        return `${sign}${k}k`;
+      }
+      return `${num}đ`;
     }
 
     cacheDOM() {
@@ -645,12 +667,12 @@
     resetForm() {
       this.editingId = null;
       if (this.dom.noteEditId) this.dom.noteEditId.value = '';
-      if (this.dom.formCardTitle) this.dom.formCardTitle.textContent = '➕ Ghi Số & Vào Tiền';
+      if (this.dom.formCardTitle) this.dom.formCardTitle.textContent = '➕ Ghi Số';
       if (this.dom.formModeBadge) {
         this.dom.formModeBadge.textContent = 'Thêm mới';
         this.dom.formModeBadge.className = 'header-badge';
       }
-      if (this.dom.btnSaveNote) this.dom.btnSaveNote.textContent = '💾 Lưu Vào Sổ Ghi';
+      if (this.dom.btnSaveNote) this.dom.btnSaveNote.textContent = '💾 Lưu Sổ';
       if (this.dom.btnCancelEdit) this.dom.btnCancelEdit.style.display = 'none';
 
       if (this.dom.inputNumbers) this.dom.inputNumbers.value = '';
@@ -683,12 +705,12 @@
       this.updateNumbersPreview();
       this.updateAmountVerbal();
 
-      if (this.dom.formCardTitle) this.dom.formCardTitle.textContent = '✏️ Chỉnh Sửa Ghi Chú';
+      if (this.dom.formCardTitle) this.dom.formCardTitle.textContent = '✏️ Sửa Ghi Chú';
       if (this.dom.formModeBadge) {
         this.dom.formModeBadge.textContent = 'Đang sửa';
         this.dom.formModeBadge.className = 'header-badge badge-warning';
       }
-      if (this.dom.btnSaveNote) this.dom.btnSaveNote.textContent = '💾 Cập Nhật Ghi Chú';
+      if (this.dom.btnSaveNote) this.dom.btnSaveNote.textContent = '💾 Cập Nhật';
       if (this.dom.btnCancelEdit) this.dom.btnCancelEdit.style.display = 'inline-flex';
 
       window.scrollTo({ top: 120, behavior: 'smooth' });
@@ -1015,12 +1037,12 @@
 
     renderNoteRow(note, check) {
       const typeLabels = {
-        lo: { label: 'Bao Lô', class: 'type-badge-lo' },
-        de: { label: 'Đề ĐB', class: 'type-badge-de' },
-        xien2: { label: 'Xiên 2', class: 'type-badge-xien' },
-        xien3: { label: 'Xiên 3', class: 'type-badge-xien' },
-        cang3: { label: '3 Càng', class: 'type-badge-cang' },
-        khac: { label: 'Khác', class: 'type-badge-khac' }
+        lo: { label: 'LÔ', class: 'type-badge-lo' },
+        de: { label: 'ĐỀ', class: 'type-badge-de' },
+        xien2: { label: 'XIÊN 2', class: 'type-badge-xien' },
+        xien3: { label: 'XIÊN 3', class: 'type-badge-xien' },
+        cang3: { label: '3 CÀNG', class: 'type-badge-cang' },
+        khac: { label: 'KHÁC', class: 'type-badge-khac' }
       };
 
       const typeMeta = typeLabels[note.type] || typeLabels.khac;
@@ -1031,7 +1053,7 @@
         return `<span class="note-num-ball ${isWin ? 'num-ball-winner' : ''}">${num}</span>`;
       }).join(' ');
 
-      // Format Amount Display
+      // Format Amount Display (Desktop)
       let amountDisplay = '';
       if (note.unit === 'diem') {
         amountDisplay = `<strong class="amount-val">${note.amount}</strong> <span class="unit-tag">điểm</span>`;
@@ -1043,18 +1065,18 @@
         }
       }
 
-      // Format Tạm Tính Display (Tiền trúng theo tỷ lệ nếu các con số đều về)
+      // Format Tạm Tính Display (Desktop)
       let potentialDisplay = `<strong class="potential-win-val">${this.formatCurrency(check.potentialWin)}</strong>`;
       if (note.type === 'lo' && note.numbers && note.numbers.length > 1) {
         potentialDisplay += `<div class="sub-cost">${this.formatCurrency(check.potentialWinPerNum)}/con</div>`;
       }
 
-      // Format Thực Tế Display (Số tiền thực nhận hoặc mất sau khi có kết quả)
+      // Format Thực Tế Display (Desktop)
       let actualDisplay = '';
       if (check.status === 'win') {
         actualDisplay = `
           <span class="pnl-win">+${this.formatCurrency(check.totalWin)}</span>
-          <div class="pnl-net text-success">Lãi: +${this.formatCurrency(check.pnl)}</div>
+          <div class="pnl-net text-success">+${this.formatCurrency(check.pnl)}</div>
         `;
       } else if (check.status === 'lose') {
         actualDisplay = `
@@ -1067,41 +1089,106 @@
         actualDisplay = `<span class="pnl-pending" style="color:var(--text-muted);">Chưa có KQ</span>`;
       }
 
+      // Mobile Compact Formats
+      let mAmount = '';
+      if (note.unit === 'diem') {
+        mAmount = `<strong>${note.amount}đ</strong> <small class="text-muted">(${this.formatCurrencyCompact(check.totalCost)})</small>`;
+      } else {
+        mAmount = `<strong>${this.formatCurrencyCompact(check.totalCost)}</strong>`;
+      }
+
+      let mActual = '';
+      if (check.status === 'win') {
+        mActual = `<span class="pnl-win">+${this.formatCurrencyCompact(check.totalWin)}</span> <small class="text-success">(+${this.formatCurrencyCompact(check.pnl)})</small>`;
+      } else if (check.status === 'lose') {
+        mActual = `<span class="pnl-lose">-${this.formatCurrencyCompact(check.totalCost)}</span>`;
+      } else if (check.status === 'pending') {
+        mActual = `<span class="pnl-pending">Chờ KQ</span>`;
+      } else {
+        mActual = `<span class="pnl-pending" style="color:var(--text-muted);">Chưa KQ</span>`;
+      }
+
       return `
         <tr class="note-table-row status-${check.status}">
-          <td>
-            <a href="javascript:void(0)" onclick="window.betNotesManager.jumpToBoardDate('${note.date}')" class="date-link" title="Bấm để xem Bảng kết quả 27 giải ngày này">
+          <!-- Desktop Columns -->
+          <td class="col-desktop">
+            <a href="javascript:void(0)" onclick="window.betNotesManager.jumpToBoardDate('${note.date}')" class="date-link" title="Xem bảng KQ ngày này">
               📅 ${this.formatDateVN(note.date)}
             </a>
           </td>
-          <td>
+          <td class="col-desktop">
             <span class="type-badge ${typeMeta.class}">${typeMeta.label}</span>
           </td>
-          <td>
+          <td class="col-desktop">
             <div class="note-numbers-list">${numbersHtml}</div>
           </td>
-          <td style="text-align: right;">
+          <td class="col-desktop" style="text-align: right;">
             ${amountDisplay}
           </td>
-          <td>
+          <td class="col-desktop">
             <div class="result-cell-flex">
               <span class="result-badge ${check.badgeClass}">${check.statusLabel}</span>
               ${check.details ? `<span class="result-detail-text">${check.details}</span>` : ''}
             </div>
           </td>
-          <td style="text-align: right;">
+          <td class="col-desktop" style="text-align: right;">
             ${potentialDisplay}
           </td>
-          <td style="text-align: right;">
+          <td class="col-desktop" style="text-align: right;">
             ${actualDisplay}
           </td>
-          <td>
+          <td class="col-desktop">
             <span class="note-desc-text" title="${note.note || ''}">${note.note || '—'}</span>
           </td>
-          <td style="text-align: center;">
+          <td class="col-desktop" style="text-align: center;">
             <div class="action-btn-group">
-              <button class="btn-action-icon" onclick="window.betNotesManager.editNote('${note.id}')" title="Sửa ghi chú">✏️</button>
-              <button class="btn-action-icon btn-action-delete" onclick="window.betNotesManager.deleteNote('${note.id}')" title="Xóa ghi chú">🗑️</button>
+              <button class="btn-action-icon" onclick="window.betNotesManager.editNote('${note.id}')" title="Sửa">✏️</button>
+              <button class="btn-action-icon btn-action-delete" onclick="window.betNotesManager.deleteNote('${note.id}')" title="Xóa">🗑️</button>
+            </div>
+          </td>
+
+          <!-- Mobile Compact Card Column -->
+          <td class="col-mobile-card">
+            <div class="m-card-inner">
+              <div class="m-card-top-row">
+                <div class="m-card-tag-date">
+                  <span class="type-badge ${typeMeta.class}">${typeMeta.label}</span>
+                  <a href="javascript:void(0)" onclick="window.betNotesManager.jumpToBoardDate('${note.date}')" class="m-card-date">
+                    📅 ${this.formatDateShort(note.date)}
+                  </a>
+                </div>
+                <div class="action-btn-group">
+                  <button class="btn-action-icon" onclick="window.betNotesManager.editNote('${note.id}')" title="Sửa">✏️</button>
+                  <button class="btn-action-icon btn-action-delete" onclick="window.betNotesManager.deleteNote('${note.id}')" title="Xóa">🗑️</button>
+                </div>
+              </div>
+
+              <div class="m-card-numbers">
+                ${numbersHtml}
+              </div>
+
+              <div class="m-card-stats-strip">
+                <div class="m-stat-item">
+                  <span class="m-stat-lbl">Vào tiền</span>
+                  <span class="m-stat-val">${mAmount}</span>
+                </div>
+                <div class="m-stat-item">
+                  <span class="m-stat-lbl">Tạm tính</span>
+                  <span class="m-stat-val text-primary">${this.formatCurrencyCompact(check.potentialWin)}</span>
+                </div>
+                <div class="m-stat-item m-stat-right">
+                  <span class="m-stat-lbl">Thực tế</span>
+                  <span class="m-stat-val">${mActual}</span>
+                </div>
+              </div>
+
+              <div class="m-card-footer">
+                <div class="m-card-result">
+                  <span class="result-badge ${check.badgeClass}">${check.statusLabel}</span>
+                  ${check.details ? `<span class="result-detail-text">${check.details}</span>` : ''}
+                </div>
+                ${note.note ? `<div class="m-card-note">📌 ${note.note}</div>` : ''}
+              </div>
             </div>
           </td>
         </tr>

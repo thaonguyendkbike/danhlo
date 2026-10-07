@@ -17,8 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/style.css?v=20261007_v5">
-  <link rel="stylesheet" href="css/bet-notes.css?v=20261007_v5">
+  <link rel="stylesheet" href="css/style.css?v=20261007_v6">
+  <link rel="stylesheet" href="css/bet-notes.css?v=20261007_v6">
 </head>
 <body>
 
@@ -279,30 +279,30 @@
         <div class="notes-header-card">
           <div class="notes-title-area">
             <div class="notes-title-group">
-              <h2>📝 Sổ Ghi Số & Tiền Theo Ngày</h2>
-              <span class="notes-badge">Tự Động So Kết Quả XSMB</span>
+              <h2>📝 Sổ Ghi Số & Tiền</h2>
+              <span class="notes-badge">Tự Động So KQ</span>
             </div>
-            <p class="notes-subtitle">Ghi chép lại các con số, số tiền/điểm cược hàng ngày. Hệ thống sẽ tự động đối chiếu với kết quả XSMB 27 giải và báo cáo trúng/trượt chuẩn xác.</p>
+            <p class="notes-subtitle">Ghi chép số cược mỗi ngày, tự đối chiếu 27 giải XSMB và tính lãi/lỗ chuẩn xác.</p>
           </div>
 
           <div class="notes-top-actions">
-            <button class="notes-btn btn-primary-gradient" id="btn-notes-auto-check" title="Tự động kiểm tra tất cả các con số với bảng KQ XSMB">
-              🔄 Dò kết quả tự động
+            <button class="notes-btn btn-primary-gradient" id="btn-notes-auto-check" title="Dò tự động với bảng kết quả">
+              🔄 Dò KQ
             </button>
-            <button class="notes-btn btn-secondary-outline" id="btn-notes-copy-report" title="Sao chép báo cáo chi tiết để gửi qua Zalo / Tin nhắn">
-              📋 Báo cáo Zalo
+            <button class="notes-btn btn-secondary-outline" id="btn-notes-copy-report" title="Sao chép báo cáo gửi Zalo">
+              📋 Zalo
             </button>
-            <button class="notes-btn btn-secondary-outline" id="btn-notes-settings-toggle" title="Cài đặt tỷ lệ cược (giá điểm lô, ăn đề, xiên, 3 càng)">
-              ⚙️ Tỷ lệ cược
+            <button class="notes-btn btn-secondary-outline" id="btn-notes-settings-toggle" title="Cài đặt tỷ lệ cược">
+              ⚙️ Tỷ lệ
             </button>
             <div class="notes-dropdown-wrapper">
               <button class="notes-btn btn-secondary-outline" id="btn-notes-more" title="Thao tác khác">
-                ⋯ Thao tác
+                ⋯ Khác
               </button>
               <div class="notes-dropdown-menu" id="notes-dropdown-menu">
-                <button class="dropdown-item" id="btn-export-json">💾 Xuất dữ liệu (Backup)</button>
-                <button class="dropdown-item" id="btn-import-json">📥 Nhập dữ liệu (Restore)</button>
-                <button class="dropdown-item" id="btn-export-csv">📊 Xuất file Excel (CSV)</button>
+                <button class="dropdown-item" id="btn-export-json">💾 Sao lưu (Backup)</button>
+                <button class="dropdown-item" id="btn-import-json">📥 Khôi phục (Restore)</button>
+                <button class="dropdown-item" id="btn-export-csv">📊 Xuất file Excel</button>
                 <div class="dropdown-divider"></div>
                 <button class="dropdown-item text-danger" id="btn-clear-all-notes">🗑️ Xóa toàn bộ ghi chú</button>
               </div>
@@ -359,7 +359,7 @@
           <!-- Left Column: Add / Edit Note Form -->
           <aside class="notes-form-card">
             <div class="card-header-styled">
-              <h3 id="form-card-title">➕ Ghi Số & Vào Tiền</h3>
+              <h3 id="form-card-title">➕ Ghi Số</h3>
               <span class="header-badge" id="form-mode-badge">Thêm mới</span>
             </div>
 
@@ -369,7 +369,7 @@
               <!-- Date Picker with Quick Date Chips -->
               <div class="form-group">
                 <label for="note-input-date" class="form-label">
-                  📅 Ngày chơi / Ghi chú <span class="required">*</span>
+                  📅 Ngày chơi <span class="required">*</span>
                 </label>
                 <div class="date-input-row">
                   <input type="date" id="note-input-date" class="form-input" required>
@@ -378,37 +378,37 @@
                   <button type="button" class="quick-chip active" data-date-chip="today">Hôm nay</button>
                   <button type="button" class="quick-chip" data-date-chip="yesterday">Hôm qua</button>
                   <button type="button" class="quick-chip" data-date-chip="tomorrow">Ngày mai</button>
-                  <button type="button" class="quick-chip" data-date-chip="current-board" title="Lấy ngày đang mở trên Bảng kết quả">Theo bảng KQ</button>
+                  <button type="button" class="quick-chip" data-date-chip="current-board" title="Lấy ngày đang mở trên Bảng kết quả">Theo KQ</button>
                 </div>
               </div>
 
               <!-- Bet Type (Radio / Button Pills) -->
               <div class="form-group">
-                <label class="form-label">🎯 Loại hình cược <span class="required">*</span></label>
+                <label class="form-label">🎯 Loại cược <span class="required">*</span></label>
                 <div class="type-selector-grid">
                   <label class="type-pill">
                     <input type="radio" name="bet-type" value="lo" checked>
-                    <span class="pill-content"><strong class="type-code">LÔ</strong> Bao lô 27 giải</span>
+                    <span class="pill-content"><strong class="type-code">LÔ</strong><span class="pill-sub"> Bao 27 giải</span></span>
                   </label>
                   <label class="type-pill">
                     <input type="radio" name="bet-type" value="de">
-                    <span class="pill-content"><strong class="type-code">ĐỀ</strong> Đặc biệt (2 số)</span>
+                    <span class="pill-content"><strong class="type-code">ĐỀ</strong><span class="pill-sub"> 2 số ĐB</span></span>
                   </label>
                   <label class="type-pill">
                     <input type="radio" name="bet-type" value="xien2">
-                    <span class="pill-content"><strong class="type-code">XIÊN 2</strong> Cặp 2 số về cùng</span>
+                    <span class="pill-content"><strong class="type-code">XIÊN 2</strong><span class="pill-sub"> 2 số</span></span>
                   </label>
                   <label class="type-pill">
                     <input type="radio" name="bet-type" value="xien3">
-                    <span class="pill-content"><strong class="type-code">XIÊN 3</strong> Bộ 3 số về cùng</span>
+                    <span class="pill-content"><strong class="type-code">XIÊN 3</strong><span class="pill-sub"> 3 số</span></span>
                   </label>
                   <label class="type-pill">
                     <input type="radio" name="bet-type" value="cang3">
-                    <span class="pill-content"><strong class="type-code">3 CÀNG</strong> 3 số cuối ĐB</span>
+                    <span class="pill-content"><strong class="type-code">3 CÀNG</strong><span class="pill-sub"> 3 số ĐB</span></span>
                   </label>
                   <label class="type-pill">
                     <input type="radio" name="bet-type" value="khac">
-                    <span class="pill-content"><strong class="type-code">KHÁC</strong> Ghi chú tùy chọn</span>
+                    <span class="pill-content"><strong class="type-code">KHÁC</strong><span class="pill-sub"> Tùy chọn</span></span>
                   </label>
                 </div>
               </div>
@@ -416,19 +416,19 @@
               <!-- Numbers Input -->
               <div class="form-group">
                 <label for="note-input-numbers" class="form-label">
-                  🔢 Các con số <span class="required">*</span>
-                  <span class="form-hint" id="numbers-format-hint">Gõ các số 2 chữ số (vd: 68, 86 hoặc 52)</span>
+                  🔢 Con số <span class="required">*</span>
+                  <span class="form-hint" id="numbers-format-hint">vd: 68, 86</span>
                 </label>
                 <div class="number-input-wrapper">
-                  <input type="text" id="note-input-numbers" class="form-input number-input-box" placeholder="Ví dụ: 68, 86 hoặc 52" autocomplete="off" required>
+                  <input type="text" id="note-input-numbers" class="form-input number-input-box" placeholder="Ví dụ: 68, 86" autocomplete="off" required>
                 </div>
                 
                 <!-- Quick Number Helper Chips -->
                 <div class="number-helpers-row">
-                  <span class="helper-label">Gợi ý nhanh:</span>
-                  <button type="button" class="mini-chip" id="btn-helper-reverse" title="Đảo lộn các số đang nhập (ví dụ: 68 -> 68, 86)">🔄 Lộn cặp</button>
-                  <button type="button" class="mini-chip" id="btn-helper-kep" title="Thêm dàn kép bằng (00, 11, 22...)">🎯 Dàn Kép</button>
-                  <button type="button" class="mini-chip" id="btn-helper-clear">Xóa số</button>
+                  <span class="helper-label">Gợi ý:</span>
+                  <button type="button" class="mini-chip" id="btn-helper-reverse" title="Đảo lộn cặp">🔄 Lộn cặp</button>
+                  <button type="button" class="mini-chip" id="btn-helper-kep" title="Thêm dàn kép bằng">🎯 Dàn kép</button>
+                  <button type="button" class="mini-chip" id="btn-helper-clear">✕ Xóa</button>
                 </div>
 
                 <!-- Number preview tag badges -->
@@ -439,7 +439,7 @@
               <div class="form-group">
                 <div class="form-label-row">
                   <label for="note-input-amount" class="form-label">
-                    💰 Số tiền / Điểm cược <span class="required">*</span>
+                    💰 Tiền / Điểm cược <span class="required">*</span>
                   </label>
                   <div class="unit-toggle-group">
                     <button type="button" class="unit-btn active" data-unit="vnd">VNĐ</button>
@@ -460,15 +460,15 @@
               <!-- Note / Tag description -->
               <div class="form-group">
                 <label for="note-input-desc" class="form-label">
-                  📌 Ghi chú thêm <span class="form-hint">(Tùy chọn)</span>
+                  📌 Ghi chú <span class="form-hint">(Tùy chọn)</span>
                 </label>
-                <input type="text" id="note-input-desc" class="form-input" placeholder="Ví dụ: Nuôi ngày 2/3, Cầu giải 7, Đánh theo giấc mơ...">
+                <input type="text" id="note-input-desc" class="form-input" placeholder="Ví dụ: Nuôi 2/3, Cầu G7...">
               </div>
 
               <!-- Submit & Cancel Buttons -->
               <div class="form-actions-row">
                 <button type="button" class="btn-submit-note" id="btn-save-note">
-                  💾 Lưu Vào Sổ Ghi
+                  💾 Lưu Sổ
                 </button>
                 <button type="button" class="btn-cancel-edit" id="btn-cancel-edit" style="display:none;">
                   Hủy sửa
@@ -480,12 +480,12 @@
           <!-- Right Column: Dashboard Metrics + Filter Bar + Notes List -->
           <section class="notes-content-area">
 
-            <!-- Summary Dashboard (4 Metric Cards) -->
+            <!-- Summary Dashboard (5 Metric Cards) -->
             <div class="notes-metrics-grid">
               <div class="metric-card metric-cost">
                 <div class="metric-icon">💳</div>
                 <div class="metric-info">
-                  <span class="metric-label">Tổng Tiền Đã Vào</span>
+                  <span class="metric-label">Tiền vào</span>
                   <strong class="metric-value" id="metric-total-cost">0 đ</strong>
                   <span class="metric-sub" id="metric-total-points">0 điểm lô</span>
                 </div>
@@ -494,16 +494,16 @@
               <div class="metric-card metric-potential">
                 <div class="metric-icon">🎯</div>
                 <div class="metric-info">
-                  <span class="metric-label">Tạm Tính (Nếu Trúng)</span>
+                  <span class="metric-label">Tạm tính</span>
                   <strong class="metric-value text-primary" id="metric-potential-win">0 đ</strong>
-                  <span class="metric-sub" id="metric-potential-sub">Nếu tất cả đều về</span>
+                  <span class="metric-sub" id="metric-potential-sub">Nếu trúng</span>
                 </div>
               </div>
 
               <div class="metric-card metric-win">
                 <div class="metric-icon">🏆</div>
                 <div class="metric-info">
-                  <span class="metric-label">Thực Tế Thu Về</span>
+                  <span class="metric-label">Thực tế</span>
                   <strong class="metric-value text-success" id="metric-total-win">0 đ</strong>
                   <span class="metric-sub" id="metric-win-hits">0 nháy / 0 lượt</span>
                 </div>
@@ -512,18 +512,18 @@
               <div class="metric-card metric-pnl">
                 <div class="metric-icon">📈</div>
                 <div class="metric-info">
-                  <span class="metric-label">Lợi Nhuận Thực Tế</span>
+                  <span class="metric-label">Lợi nhuận</span>
                   <strong class="metric-value" id="metric-pnl">0 đ</strong>
-                  <span class="metric-sub" id="metric-win-rate">Tỷ lệ thắng: 0%</span>
+                  <span class="metric-sub" id="metric-win-rate">Thắng: 0%</span>
                 </div>
               </div>
 
               <div class="metric-card metric-count">
                 <div class="metric-icon">📝</div>
                 <div class="metric-info">
-                  <span class="metric-label">Số Lượt Ghi</span>
+                  <span class="metric-label">Số lượt</span>
                   <strong class="metric-value" id="metric-total-entries">0 mục</strong>
-                  <span class="metric-sub" id="metric-pending-count">0 mục chờ quay</span>
+                  <span class="metric-sub" id="metric-pending-count">0 chờ quay</span>
                 </div>
               </div>
             </div>
@@ -533,9 +533,9 @@
               <div class="toolbar-left">
                 <!-- Date Filter -->
                 <div class="filter-control">
-                  <label for="filter-date-select">📅 Lọc ngày:</label>
+                  <label for="filter-date-select">📅 Ngày:</label>
                   <select id="filter-date-select" class="toolbar-select">
-                    <option value="all">Tất cả các ngày</option>
+                    <option value="all">Tất cả ngày</option>
                     <option value="today">Hôm nay</option>
                     <option value="yesterday">Hôm qua</option>
                     <option value="this-week">7 ngày qua</option>
@@ -547,12 +547,12 @@
 
                 <!-- Type Filter -->
                 <div class="filter-control">
-                  <label for="filter-type-select">🎯 Thể loại:</label>
+                  <label for="filter-type-select">🎯 Loại:</label>
                   <select id="filter-type-select" class="toolbar-select">
-                    <option value="all">Tất cả thể loại</option>
+                    <option value="all">Tất cả loại</option>
                     <option value="lo">Lô</option>
                     <option value="de">Đề</option>
-                    <option value="xien">Xiên (2/3/4)</option>
+                    <option value="xien">Xiên</option>
                     <option value="cang3">3 Càng</option>
                     <option value="khac">Khác</option>
                   </select>
@@ -560,12 +560,12 @@
 
                 <!-- Result Filter -->
                 <div class="filter-control">
-                  <label for="filter-result-select">🏆 Kết quả:</label>
+                  <label for="filter-result-select">🏆 KQ:</label>
                   <select id="filter-result-select" class="toolbar-select">
-                    <option value="all">Tất cả kết quả</option>
-                    <option value="win">Trúng thưởng 🌟</option>
-                    <option value="lose">Không về ❌</option>
-                    <option value="pending">Chờ mở thưởng ⏳</option>
+                    <option value="all">Tất cả KQ</option>
+                    <option value="win">Trúng 🌟</option>
+                    <option value="lose">Trượt ❌</option>
+                    <option value="pending">Chờ quay ⏳</option>
                   </select>
                 </div>
               </div>
@@ -573,7 +573,7 @@
               <div class="toolbar-right">
                 <!-- Search by number or note -->
                 <div class="notes-search-box">
-                  <input type="text" id="notes-search-input" placeholder="🔍 Tìm con số / ghi chú..." autocomplete="off">
+                  <input type="text" id="notes-search-input" placeholder="🔍 Tìm số / ghi chú..." autocomplete="off">
                 </div>
               </div>
             </div>
@@ -584,15 +584,15 @@
                 <table class="notes-table" id="notes-table">
                   <thead>
                     <tr>
-                      <th style="width: 105px;">Ngày</th>
-                      <th style="width: 85px;">Thể loại</th>
-                      <th>Con số</th>
-                      <th style="width: 110px; text-align:right;">Tiền vào</th>
-                      <th style="min-width: 160px;">Kết quả đối chiếu</th>
-                      <th style="width: 125px; text-align:right;" title="Tiền trúng tạm tính theo tỷ lệ nếu con số đều về">Tạm tính</th>
-                      <th style="width: 130px; text-align:right;" title="Tiền thực nhận/thua sau khi có kết quả xổ số">Thực tế</th>
-                      <th>Ghi chú</th>
-                      <th style="width: 75px; text-align:center;">Thao tác</th>
+                      <th class="col-desktop" style="width: 100px;">Ngày</th>
+                      <th class="col-desktop" style="width: 75px;">Loại</th>
+                      <th class="col-desktop">Con số</th>
+                      <th class="col-desktop" style="width: 105px; text-align:right;">Tiền vào</th>
+                      <th class="col-desktop" style="min-width: 140px;">Kết quả</th>
+                      <th class="col-desktop" style="width: 115px; text-align:right;">Tạm tính</th>
+                      <th class="col-desktop" style="width: 120px; text-align:right;">Thực tế</th>
+                      <th class="col-desktop">Ghi chú</th>
+                      <th class="col-desktop" style="width: 70px; text-align:center;">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody id="notes-table-body">
@@ -994,9 +994,9 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="js/sound.js?v=20261007_v5"></script>
-  <script src="js/lottery-data.js?v=20261007_v5"></script>
-  <script src="js/app.js?v=20261007_v5"></script>
-  <script src="js/bet-notes.js?v=20261007_v5"></script>
+  <script src="js/sound.js?v=20261007_v6"></script>
+  <script src="js/lottery-data.js?v=20261007_v6"></script>
+  <script src="js/app.js?v=20261007_v6"></script>
+  <script src="js/bet-notes.js?v=20261007_v6"></script>
 </body>
 </html>
