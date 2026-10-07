@@ -275,6 +275,9 @@ function onDataLoaded() {
   renderStatistics();
   renderHistoryTable();
   initSimulator();
+  if (window.betNotesManager) {
+    window.betNotesManager.render();
+  }
 }
 
 /* ===================================================================
@@ -841,6 +844,10 @@ function switchTab(tabId) {
 
   if (window.soundManager) window.soundManager.playTick();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (tabId === 'notes' && window.betNotesManager) {
+    window.betNotesManager.render();
+  }
 }
 
 function initTheme() {

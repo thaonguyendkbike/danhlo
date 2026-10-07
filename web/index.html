@@ -60,6 +60,11 @@
           </button>
         </li>
         <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn" id="tab-btn-notes" data-tab="notes" role="tab" aria-selected="false">
+            📝 Sổ Ghi Số & Tiền
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
           <button class="nav-tab-btn" id="tab-btn-simulator" data-tab="simulator" role="tab" aria-selected="false">
             🎰 Quay Mô Phỏng
           </button>
@@ -107,6 +112,9 @@
         </div>
 
         <div class="board-action-group">
+          <button class="board-action-btn" id="btn-quick-note" onclick="jumpToNotesForDate()" title="Ghi chú số/tiền cho ngày này vào Sổ Ghi">
+            📝 Ghi số ngày này
+          </button>
           <button class="board-action-btn" id="btn-quick-sim" onclick="switchTab('simulator')" title="Mở tính năng quay mô phỏng lồng cầu XSMB">
             🎰 Quay mô phỏng
           </button>
@@ -257,6 +265,342 @@
             </table>
           </div>
         </aside>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         TAB: SỔ GHI SỐ & TIỀN THEO NGÀY (BET NOTES & EXPENSE NOTEBOOK)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-notes" style="display:none;" role="tabpanel">
+      <div class="notes-page-container">
+
+        <!-- Top Header Card -->
+        <div class="notes-header-card">
+          <div class="notes-title-area">
+            <div class="notes-title-group">
+              <h2>📝 Sổ Ghi Số & Tiền Theo Ngày</h2>
+              <span class="notes-badge">Tự Động So Kết Quả XSMB</span>
+            </div>
+            <p class="notes-subtitle">Ghi chép lại các con số, số tiền/điểm cược hàng ngày. Hệ thống sẽ tự động đối chiếu với kết quả XSMB 27 giải và báo cáo trúng/trượt chuẩn xác.</p>
+          </div>
+
+          <div class="notes-top-actions">
+            <button class="notes-btn btn-primary-gradient" id="btn-notes-auto-check" title="Tự động kiểm tra tất cả các con số với bảng KQ XSMB">
+              🔄 Dò kết quả tự động
+            </button>
+            <button class="notes-btn btn-secondary-outline" id="btn-notes-copy-report" title="Sao chép báo cáo chi tiết để gửi qua Zalo / Tin nhắn">
+              📋 Báo cáo Zalo
+            </button>
+            <button class="notes-btn btn-secondary-outline" id="btn-notes-settings-toggle" title="Cài đặt tỷ lệ cược (giá điểm lô, ăn đề, xiên, 3 càng)">
+              ⚙️ Tỷ lệ cược
+            </button>
+            <div class="notes-dropdown-wrapper">
+              <button class="notes-btn btn-secondary-outline" id="btn-notes-more" title="Thao tác khác">
+                ⋯ Thao tác
+              </button>
+              <div class="notes-dropdown-menu" id="notes-dropdown-menu">
+                <button class="dropdown-item" id="btn-export-json">💾 Xuất dữ liệu (Backup)</button>
+                <button class="dropdown-item" id="btn-import-json">📥 Nhập dữ liệu (Restore)</button>
+                <button class="dropdown-item" id="btn-export-csv">📊 Xuất file Excel (CSV)</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item text-danger" id="btn-clear-all-notes">🗑️ Xóa toàn bộ ghi chú</button>
+              </div>
+            </div>
+            <input type="file" id="file-import-input" accept=".json" style="display:none;">
+          </div>
+        </div>
+
+        <!-- Collapsible Odds Settings Panel -->
+        <div class="notes-settings-panel" id="notes-settings-panel" style="display:none;">
+          <div class="settings-header-flex">
+            <h3>⚙️ Cài Đặt Tỷ Lệ Cược & Trả Thưởng</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Tùy chỉnh tỷ lệ theo nơi bạn chơi (Truyền thống / Online)</span>
+          </div>
+          <div class="settings-grid">
+            <div class="settings-field">
+              <label for="cfg-lo-cost">Giá 1 điểm Lô (VNĐ)</label>
+              <input type="number" id="cfg-lo-cost" class="settings-input" value="23000">
+            </div>
+            <div class="settings-field">
+              <label for="cfg-lo-win">1 điểm Lô trúng ăn (VNĐ)</label>
+              <input type="number" id="cfg-lo-win" class="settings-input" value="80000">
+            </div>
+            <div class="settings-field">
+              <label for="cfg-de-multi">Đề Đặc Biệt (1 ăn ...)</label>
+              <input type="number" id="cfg-de-multi" class="settings-input" value="70">
+            </div>
+            <div class="settings-field">
+              <label for="cfg-cang3-multi">3 Càng (1 ăn ...)</label>
+              <input type="number" id="cfg-cang3-multi" class="settings-input" value="400">
+            </div>
+            <div class="settings-field">
+              <label for="cfg-xien2-multi">Xiên 2 (1 ăn ...)</label>
+              <input type="number" id="cfg-xien2-multi" class="settings-input" value="10">
+            </div>
+            <div class="settings-field">
+              <label for="cfg-xien3-multi">Xiên 3 (1 ăn ...)</label>
+              <input type="number" id="cfg-xien3-multi" class="settings-input" value="40">
+            </div>
+            <div class="settings-field">
+              <label for="cfg-xien4-multi">Xiên 4 (1 ăn ...)</label>
+              <input type="number" id="cfg-xien4-multi" class="settings-input" value="100">
+            </div>
+          </div>
+          <div class="settings-actions">
+            <button type="button" class="notes-btn btn-secondary-outline" id="btn-reset-settings">Khôi phục mặc định</button>
+            <button type="button" class="notes-btn btn-primary-gradient" id="btn-save-settings">Lưu tỷ lệ</button>
+          </div>
+        </div>
+
+        <!-- 2 Column Layout: Form Left, Table Right -->
+        <div class="notes-main-grid">
+
+          <!-- Left Column: Add / Edit Note Form -->
+          <aside class="notes-form-card">
+            <div class="card-header-styled">
+              <h3 id="form-card-title">➕ Ghi Số & Vào Tiền</h3>
+              <span class="header-badge" id="form-mode-badge">Thêm mới</span>
+            </div>
+
+            <form id="bet-note-form" onsubmit="return false;">
+              <input type="hidden" id="note-edit-id" value="">
+
+              <!-- Date Picker with Quick Date Chips -->
+              <div class="form-group">
+                <label for="note-input-date" class="form-label">
+                  📅 Ngày chơi / Ghi chú <span class="required">*</span>
+                </label>
+                <div class="date-input-row">
+                  <input type="date" id="note-input-date" class="form-input" required>
+                </div>
+                <div class="quick-chip-row">
+                  <button type="button" class="quick-chip active" data-date-chip="today">Hôm nay</button>
+                  <button type="button" class="quick-chip" data-date-chip="yesterday">Hôm qua</button>
+                  <button type="button" class="quick-chip" data-date-chip="tomorrow">Ngày mai</button>
+                  <button type="button" class="quick-chip" data-date-chip="current-board" title="Lấy ngày đang mở trên Bảng kết quả">Theo bảng KQ</button>
+                </div>
+              </div>
+
+              <!-- Bet Type (Radio / Button Pills) -->
+              <div class="form-group">
+                <label class="form-label">🎯 Loại hình cược <span class="required">*</span></label>
+                <div class="type-selector-grid">
+                  <label class="type-pill">
+                    <input type="radio" name="bet-type" value="lo" checked>
+                    <span class="pill-content"><strong class="type-code">LÔ</strong> Bao lô 27 giải</span>
+                  </label>
+                  <label class="type-pill">
+                    <input type="radio" name="bet-type" value="de">
+                    <span class="pill-content"><strong class="type-code">ĐỀ</strong> Đặc biệt (2 số)</span>
+                  </label>
+                  <label class="type-pill">
+                    <input type="radio" name="bet-type" value="xien2">
+                    <span class="pill-content"><strong class="type-code">XIÊN 2</strong> Cặp 2 số về cùng</span>
+                  </label>
+                  <label class="type-pill">
+                    <input type="radio" name="bet-type" value="xien3">
+                    <span class="pill-content"><strong class="type-code">XIÊN 3</strong> Bộ 3 số về cùng</span>
+                  </label>
+                  <label class="type-pill">
+                    <input type="radio" name="bet-type" value="cang3">
+                    <span class="pill-content"><strong class="type-code">3 CÀNG</strong> 3 số cuối ĐB</span>
+                  </label>
+                  <label class="type-pill">
+                    <input type="radio" name="bet-type" value="khac">
+                    <span class="pill-content"><strong class="type-code">KHÁC</strong> Ghi chú tùy chọn</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Numbers Input -->
+              <div class="form-group">
+                <label for="note-input-numbers" class="form-label">
+                  🔢 Các con số <span class="required">*</span>
+                  <span class="form-hint" id="numbers-format-hint">Gõ các số 2 chữ số (vd: 68, 86 hoặc 52)</span>
+                </label>
+                <div class="number-input-wrapper">
+                  <input type="text" id="note-input-numbers" class="form-input number-input-box" placeholder="Ví dụ: 68, 86 hoặc 52" autocomplete="off" required>
+                </div>
+                
+                <!-- Quick Number Helper Chips -->
+                <div class="number-helpers-row">
+                  <span class="helper-label">Gợi ý nhanh:</span>
+                  <button type="button" class="mini-chip" id="btn-helper-reverse" title="Đảo lộn các số đang nhập (ví dụ: 68 -> 68, 86)">🔄 Lộn cặp</button>
+                  <button type="button" class="mini-chip" id="btn-helper-kep" title="Thêm dàn kép bằng (00, 11, 22...)">🎯 Dàn Kép</button>
+                  <button type="button" class="mini-chip" id="btn-helper-clear">Xóa số</button>
+                </div>
+
+                <!-- Number preview tag badges -->
+                <div class="numbers-tags-preview" id="numbers-tags-preview"></div>
+              </div>
+
+              <!-- Amount / Points & Unit -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label for="note-input-amount" class="form-label">
+                    💰 Số tiền / Điểm cược <span class="required">*</span>
+                  </label>
+                  <div class="unit-toggle-group">
+                    <button type="button" class="unit-btn active" data-unit="vnd">VNĐ</button>
+                    <button type="button" class="unit-btn" data-unit="diem">Điểm</button>
+                  </div>
+                </div>
+
+                <div class="amount-input-wrapper">
+                  <input type="number" id="note-input-amount" class="form-input amount-input-box" placeholder="50000" min="1" step="any" required>
+                  <span class="amount-unit-suffix" id="amount-unit-suffix">VNĐ</span>
+                </div>
+
+                <!-- Quick Amount Increment Chips -->
+                <div class="quick-chip-row" id="quick-amount-chips"></div>
+                <div class="amount-verbal-text" id="amount-verbal-text"></div>
+              </div>
+
+              <!-- Note / Tag description -->
+              <div class="form-group">
+                <label for="note-input-desc" class="form-label">
+                  📌 Ghi chú thêm <span class="form-hint">(Tùy chọn)</span>
+                </label>
+                <input type="text" id="note-input-desc" class="form-input" placeholder="Ví dụ: Nuôi ngày 2/3, Cầu giải 7, Đánh theo giấc mơ...">
+              </div>
+
+              <!-- Submit & Cancel Buttons -->
+              <div class="form-actions-row">
+                <button type="button" class="btn-submit-note" id="btn-save-note">
+                  💾 Lưu Vào Sổ Ghi
+                </button>
+                <button type="button" class="btn-cancel-edit" id="btn-cancel-edit" style="display:none;">
+                  Hủy sửa
+                </button>
+              </div>
+            </form>
+          </aside>
+
+          <!-- Right Column: Dashboard Metrics + Filter Bar + Notes List -->
+          <section class="notes-content-area">
+
+            <!-- Summary Dashboard (4 Metric Cards) -->
+            <div class="notes-metrics-grid">
+              <div class="metric-card metric-cost">
+                <div class="metric-icon">💳</div>
+                <div class="metric-info">
+                  <span class="metric-label">Tổng Tiền Đã Vào</span>
+                  <strong class="metric-value" id="metric-total-cost">0 đ</strong>
+                  <span class="metric-sub" id="metric-total-points">0 điểm lô</span>
+                </div>
+              </div>
+
+              <div class="metric-card metric-win">
+                <div class="metric-icon">🏆</div>
+                <div class="metric-info">
+                  <span class="metric-label">Tiền Trúng Tạm Tính</span>
+                  <strong class="metric-value" id="metric-total-win">0 đ</strong>
+                  <span class="metric-sub" id="metric-win-hits">0 nháy / 0 lượt</span>
+                </div>
+              </div>
+
+              <div class="metric-card metric-pnl">
+                <div class="metric-icon">📈</div>
+                <div class="metric-info">
+                  <span class="metric-label">Lợi Nhuận (Thắng - Thua)</span>
+                  <strong class="metric-value" id="metric-pnl">0 đ</strong>
+                  <span class="metric-sub" id="metric-win-rate">Tỷ lệ thắng: 0%</span>
+                </div>
+              </div>
+
+              <div class="metric-card metric-count">
+                <div class="metric-icon">📝</div>
+                <div class="metric-info">
+                  <span class="metric-label">Số Lượt Ghi</span>
+                  <strong class="metric-value" id="metric-total-entries">0 mục</strong>
+                  <span class="metric-sub" id="metric-pending-count">0 mục chờ quay</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filter & Search Toolbar -->
+            <div class="notes-toolbar-card">
+              <div class="toolbar-left">
+                <!-- Date Filter -->
+                <div class="filter-control">
+                  <label for="filter-date-select">📅 Lọc ngày:</label>
+                  <select id="filter-date-select" class="toolbar-select">
+                    <option value="all">Tất cả các ngày</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="yesterday">Hôm qua</option>
+                    <option value="this-week">7 ngày qua</option>
+                    <option value="this-month">Tháng này</option>
+                    <option value="custom">Chọn ngày...</option>
+                  </select>
+                  <input type="date" id="filter-custom-date" class="toolbar-date-input" style="display:none;">
+                </div>
+
+                <!-- Type Filter -->
+                <div class="filter-control">
+                  <label for="filter-type-select">🎯 Thể loại:</label>
+                  <select id="filter-type-select" class="toolbar-select">
+                    <option value="all">Tất cả thể loại</option>
+                    <option value="lo">Lô</option>
+                    <option value="de">Đề</option>
+                    <option value="xien">Xiên (2/3/4)</option>
+                    <option value="cang3">3 Càng</option>
+                    <option value="khac">Khác</option>
+                  </select>
+                </div>
+
+                <!-- Result Filter -->
+                <div class="filter-control">
+                  <label for="filter-result-select">🏆 Kết quả:</label>
+                  <select id="filter-result-select" class="toolbar-select">
+                    <option value="all">Tất cả kết quả</option>
+                    <option value="win">Trúng thưởng 🌟</option>
+                    <option value="lose">Không về ❌</option>
+                    <option value="pending">Chờ mở thưởng ⏳</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="toolbar-right">
+                <!-- Search by number or note -->
+                <div class="notes-search-box">
+                  <input type="text" id="notes-search-input" placeholder="🔍 Tìm con số / ghi chú..." autocomplete="off">
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes List Table Card -->
+            <div class="notes-table-card">
+              <div class="table-responsive">
+                <table class="notes-table" id="notes-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 110px;">Ngày</th>
+                      <th style="width: 95px;">Thể loại</th>
+                      <th>Con số</th>
+                      <th style="width: 120px; text-align:right;">Tiền / Điểm</th>
+                      <th style="min-width: 170px;">Kết quả đối chiếu</th>
+                      <th style="width: 130px; text-align:right;">Tạm tính</th>
+                      <th>Ghi chú</th>
+                      <th style="width: 80px; text-align:center;">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="notes-table-body">
+                    <!-- Rendered dynamically by JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Empty state -->
+              <div class="notes-empty-state" id="notes-empty-state" style="display:none;">
+                <div class="empty-icon">📝</div>
+                <h4>Chưa có ghi chú nào</h4>
+                <p>Hãy thêm con số và số tiền cược vào form bên cạnh để bắt đầu theo dõi và tự động so sánh kết quả!</p>
+              </div>
+            </div>
+
+          </section>
+        </div>
+
       </div>
     </div>
 
@@ -614,15 +958,19 @@
     </div>
   </footer>
 
-  <!-- Fixed Mobile Bottom Navigation Bar (4 Core Tabs) -->
+  <!-- Fixed Mobile Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Navigation">
     <button class="mobile-nav-item active" data-tab="board" onclick="switchTab('board')">
       <span class="mobile-nav-icon">🎯</span>
       <span class="mobile-nav-label">Kết Quả</span>
     </button>
+    <button class="mobile-nav-item" data-tab="notes" onclick="switchTab('notes')">
+      <span class="mobile-nav-icon">📝</span>
+      <span class="mobile-nav-label">Sổ Ghi Số</span>
+    </button>
     <button class="mobile-nav-item" data-tab="simulator" onclick="switchTab('simulator')">
       <span class="mobile-nav-icon">🎰</span>
-      <span class="mobile-nav-label">Quay Mô Phỏng</span>
+      <span class="mobile-nav-label">Mô Phỏng</span>
     </button>
     <button class="mobile-nav-item" data-tab="stats" onclick="switchTab('stats')">
       <span class="mobile-nav-icon">📊</span>
@@ -638,5 +986,6 @@
   <script src="js/sound.js?v=20261007_clean"></script>
   <script src="js/lottery-data.js?v=20261007_clean"></script>
   <script src="js/app.js?v=20261007_clean"></script>
+  <script src="js/bet-notes.js?v=20261007_clean"></script>
 </body>
 </html>
