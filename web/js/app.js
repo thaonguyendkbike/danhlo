@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initClockAndCountdown();
   loadData();
   bindEvents();
+  initLiveDrawMonitor();
 });
 
 function cacheDOM() {
@@ -290,8 +291,14 @@ function renderCurrentRecord() {
   const dayOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'][dObj.getDay()];
   const formattedDate = formatDateVN(rec.date);
 
+  let liveBadge = '';
+  if (rec.status === 'drawing') {
+    const pCount = rec.prizes_count || (rec.loto ? rec.loto.length : 0);
+    liveBadge = ` • <span class="live-pulse-badge">🔴 ĐANG QUAY (${pCount}/27 giải)</span>`;
+  }
+
   if (dom.boardDateLabel) {
-    dom.boardDateLabel.innerHTML = `Kỳ quay: <strong>${formattedDate}</strong> (${dayOfWeek})`;
+    dom.boardDateLabel.innerHTML = `Kỳ quay: <strong>${formattedDate}</strong> (${dayOfWeek})${liveBadge}`;
   }
   if (dom.datePicker) {
     dom.datePicker.value = rec.date;
@@ -305,21 +312,27 @@ function renderCurrentRecord() {
   if (dom.specialDigits) {
     const sp = rec.special;
     let html = '';
-    for (let i = 0; i < sp.length; i++) {
-      const isLastTwo = i >= sp.length - 2;
-      html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''}">${sp[i]}</div>`;
+    if (sp && sp.length >= 5) {
+      for (let i = 0; i < sp.length; i++) {
+        const isLastTwo = i >= sp.length - 2;
+        html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''}">${sp[i]}</div>`;
+      }
+    } else {
+      for (let i = 0; i < 5; i++) {
+        html += `<div class="special-digit-ball pending-digit">-</div>`;
+      }
     }
     dom.specialDigits.innerHTML = html;
   }
 
-  // Render Other Prizes
-  renderPrizeRow(dom.prize1Container, [rec.p1], 'prize-1-num');
-  renderPrizeRow(dom.prize2Container, rec.p2, 'prize-2-num');
-  renderPrizeRow(dom.prize3Container, rec.p3, 'prize-3-num');
-  renderPrizeRow(dom.prize4Container, rec.p4, 'prize-4-num');
-  renderPrizeRow(dom.prize5Container, rec.p5, 'prize-5-num');
-  renderPrizeRow(dom.prize6Container, rec.p6, 'prize-6-num');
-  renderPrizeRow(dom.prize7Container, rec.p7, 'prize-7-num');
+  // Render Other Prizes (G1: 1 giải 5 số, G2: 2 giải 5 số, G3: 6 giải 5 số, G4: 4 giải 4 số, G5: 6 giải 4 số, G6: 3 giải 3 số, G7: 4 giải 2 số)
+  renderPrizeRow(dom.prize1Container, rec.p1, 1, 5, 'prize-1-num');
+  renderPrizeRow(dom.prize2Container, rec.p2, 2, 5, 'prize-2-num');
+  renderPrizeRow(dom.prize3Container, rec.p3, 6, 5, 'prize-3-num');
+  renderPrizeRow(dom.prize4Container, rec.p4, 4, 4, 'prize-4-num');
+  renderPrizeRow(dom.prize5Container, rec.p5, 6, 4, 'prize-5-num');
+  renderPrizeRow(dom.prize6Container, rec.p6, 3, 3, 'prize-6-num');
+  renderPrizeRow(dom.prize7Container, rec.p7, 4, 2, 'prize-7-num');
 
   // Render Loto 2-Digits Board
   renderLotoBoard(rec);
@@ -328,17 +341,25 @@ function renderCurrentRecord() {
   renderDailyPairs(rec);
 }
 
-function renderPrizeRow(container, numbers, cssClass) {
+function renderPrizeRow(container, numbers, expectedCount, digits, cssClass) {
   if (!container) return;
-  container.innerHTML = numbers
-    .map(n => `<span class="lottery-num ${cssClass}" data-num="${n}" data-loto="${n.slice(-2)}" onclick="highlightLotoNumber('${n.slice(-2)}')">${n}</span>`)
-    .join('');
+  const nums = Array.isArray(numbers) ? numbers.filter(Boolean) : (numbers ? [numbers] : []);
+  let html = '';
+  for (let i = 0; i < expectedCount; i++) {
+    if (i < nums.length && nums[i]) {
+      const n = String(nums[i]);
+      html += `<span class="lottery-num ${cssClass}" data-num="${n}" data-loto="${n.slice(-2)}" onclick="highlightLotoNumber('${n.slice(-2)}')">${n}</span>`;
+    } else {
+      html += `<span class="lottery-num ${cssClass} pending-num">${'-'.repeat(digits)}</span>`;
+    }
+  }
+  container.innerHTML = html;
 }
 
 function renderLotoBoard(rec) {
   if (!dom.lotoTableBody) return;
   const lotoList = rec.loto || [];
-  const special2D = rec.special.slice(-2);
+  const special2D = (rec.special && rec.special.length >= 2) ? rec.special.slice(-2) : '--';
 
   // Group by Head (0-9) or Tail (0-9)
   const isHead = state.lotoMode === 'head';
@@ -1482,16 +1503,139 @@ function finishSimulator() {
   }
 }
 
+// ===================================================================
+// Live Draw Realtime Engine (Tự Động Cập Nhật Từng Giải 18h14 - 18h36)
+// ===================================================================
+
+let liveMonitorInterval = null;
+let livePollInterval = null;
+
+function getVietnamNow() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + 7 * 3600000);
+}
+
+function isLiveDrawTime() {
+  const vn = getVietnamNow();
+  const mins = vn.getHours() * 60 + vn.getMinutes();
+  return mins >= 18 * 60 + 13 && mins <= 18 * 60 + 36;
+}
+
+function initLiveDrawMonitor() {
+  checkLiveDrawStatus();
+  if (!liveMonitorInterval) {
+    liveMonitorInterval = setInterval(checkLiveDrawStatus, 15000);
+  }
+}
+
+function checkLiveDrawStatus() {
+  const isTime = isLiveDrawTime();
+  const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
+  const isDrawing = latestRec && latestRec.status === 'drawing';
+
+  if (isTime || isDrawing) {
+    if (!livePollInterval) {
+      console.log('[Live XSMB] Đang trong khung giờ quay thưởng, kích hoạt cập nhật từng giải...');
+      pollLiveResults();
+      livePollInterval = setInterval(pollLiveResults, 4000);
+    }
+  } else {
+    if (livePollInterval) {
+      console.log('[Live XSMB] Kết thúc khung giờ mở thưởng.');
+      clearInterval(livePollInterval);
+      livePollInterval = null;
+    }
+  }
+}
+
+async function pollLiveResults(isManual = false) {
+  const endpoints = [
+    '/api/live?t=' + Date.now(),
+    'https://api.danhlo.xyz/api/live?t=' + Date.now(),
+    'data/latest.json?t=' + Date.now()
+  ];
+
+  let liveData = null;
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        liveData = await res.json();
+        if (liveData && (liveData.prizes_count !== undefined || liveData.status)) {
+          break;
+        }
+      }
+    } catch (e) {
+      // Bỏ qua thử endpoint tiếp theo
+    }
+  }
+
+  if (!liveData || !liveData.date) return false;
+
+  // Tính lô tô 2 số cuối nếu chưa có
+  if (!liveData.loto) {
+    const nums = [];
+    if (liveData.special) nums.push(liveData.special);
+    if (liveData.p1) nums.push(liveData.p1);
+    [liveData.p2, liveData.p3, liveData.p4, liveData.p5, liveData.p6, liveData.p7].forEach(sub => {
+      if (Array.isArray(sub)) {
+        sub.forEach(n => { if (n) nums.push(n); });
+      }
+    });
+    liveData.loto = nums.map(n => n.slice(-2));
+  }
+
+  let didUpdate = false;
+  if (!state.records || state.records.length === 0) {
+    state.records = [liveData];
+    didUpdate = true;
+  } else if (state.records[0].date === liveData.date) {
+    const oldPrizes = state.records[0].prizes_count || (state.records[0].loto ? state.records[0].loto.length : 0);
+    const newPrizes = liveData.prizes_count || (liveData.loto ? liveData.loto.length : 0);
+    
+    // Nếu có giải mới mở thưởng
+    if (newPrizes > oldPrizes || liveData.status !== state.records[0].status || liveData.special !== state.records[0].special) {
+      state.records[0] = { ...state.records[0], ...liveData };
+      didUpdate = true;
+      if (newPrizes > oldPrizes && state.currentIndex === 0) {
+        if (window.soundEngine) window.soundEngine.playReveal();
+      }
+    }
+  } else if (liveData.date > state.records[0].date) {
+    state.records.unshift(liveData);
+    state.currentIndex = 0;
+    didUpdate = true;
+  }
+
+  if (didUpdate && state.currentIndex === 0) {
+    renderCurrentRecord();
+    renderStatistics();
+  }
+
+  // Khi đã quay xong toàn bộ 27 giải
+  if (liveData.status === 'completed' && livePollInterval) {
+    clearInterval(livePollInterval);
+    livePollInterval = null;
+    if (window.soundEngine) window.soundEngine.playJackpot();
+    if (window.confetti) window.confetti.fire(90);
+  }
+
+  return didUpdate;
+}
+
 async function syncDataWithServer(isManual = false) {
   if (dom.syncIconSpin) dom.syncIconSpin.classList.add('rotating');
   try {
+    // 1. Thử lấy dữ liệu live trước (đang quay hoặc vừa quay xong)
+    const liveUpdated = await pollLiveResults(isManual);
+
     let data = null;
-    // 1. Try local server API
+    // 2. Thử gọi API sync
     try {
       const res = await fetch('/api/sync?t=' + Date.now());
       if (res.ok) data = await res.json();
     } catch (apiErr) {
-      // 2. Fallback to latest.json
       try {
         const fbRes = await fetch('data/latest.json?t=' + Date.now());
         if (fbRes.ok) data = await fbRes.json();
@@ -1505,21 +1649,18 @@ async function syncDataWithServer(isManual = false) {
 
       let didUpdate = false;
 
-      // Check if server date is newer than client's latest date
       if (serverDate && (!currentLatestDate || serverDate > currentLatestDate)) {
         if (serverRecord) {
           state.records.unshift(serverRecord);
           didUpdate = true;
         }
       } else if (serverDate && serverDate === currentLatestDate && serverRecord) {
-        // Compare and update if special prize differs
         if (state.records[0].special !== serverRecord.special) {
           state.records[0] = serverRecord;
           didUpdate = true;
         }
       }
 
-      // If server explicitly added rows or we need fresh CSV
       if (data.added && data.added.length > 0) {
         try {
           const csvRes = await fetch('data/xsmb.csv?t=' + Date.now());
@@ -1533,7 +1674,7 @@ async function syncDataWithServer(isManual = false) {
         }
       }
 
-      if (didUpdate) {
+      if (didUpdate || liveUpdated) {
         state.currentIndex = 0;
         if (dom.datePicker) {
           dom.datePicker.max = state.records[0].date;
@@ -1546,24 +1687,26 @@ async function syncDataWithServer(isManual = false) {
         if (window.confetti) window.confetti.fire(60);
 
         if (isManual) {
-          alert(`🎉 Cập nhật thành công! Đã có kết quả mới nhất ngày ${formatDateVN(state.records[0].date)} (Giải Đặc Biệt: ${state.records[0].special}).`);
+          alert(`🎉 Cập nhật thành công! Đã có kết quả mới nhất ngày ${formatDateVN(state.records[0].date)}.`);
         }
       } else {
         if (isManual) {
           const curDateStr = state.records[0] ? formatDateVN(state.records[0].date) : 'hôm nay';
-          const curSpecial = state.records[0] ? state.records[0].special : '--';
-          alert(`✅ Dữ liệu hiện tại đã là mới nhất: Kỳ quay ngày ${curDateStr} (Giải Đặc Biệt: ${curSpecial}). Hệ thống tự động đồng bộ theo thời gian thực!`);
+          const curStatus = state.records[0] && state.records[0].status === 'drawing' ? ' (Đang mở thưởng)' : '';
+          alert(`✅ Dữ liệu trên bảng đã đồng bộ mới nhất: Kỳ quay ngày ${curDateStr}${curStatus}.`);
         }
       }
     } else {
-      if (isManual) {
-        alert('ℹ️ Đang hoạt động ở chế độ trực tuyến. Dữ liệu trên bảng đã là kết quả gần nhất.');
+      if (liveUpdated) {
+        if (isManual) alert('🎉 Đã cập nhật thành công kết quả mới nhất!');
+      } else if (isManual) {
+        alert('ℹ️ Dữ liệu trên bảng đã là kết quả mới nhất.');
       }
     }
   } catch (err) {
-    console.warn('Auto-sync check (local/offline):', err);
+    console.warn('Sync check error:', err);
     if (isManual) {
-      alert('Không thể kết nối đến máy chủ cập nhật. Vui lòng kiểm tra lại kết nối mạng hoặc máy chủ.');
+      alert('Không thể kết nối đến máy chủ cập nhật. Vui lòng kiểm tra lại mạng.');
     }
   } finally {
     if (dom.syncIconSpin) {

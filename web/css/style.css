@@ -655,6 +655,29 @@ body {
   border-color: #ef4444;
 }
 
+.special-digit-ball.pending-digit {
+  color: var(--text-muted);
+  opacity: 0.4;
+  background: var(--bg-tertiary);
+}
+
+.lottery-num.pending-num {
+  color: var(--text-muted);
+  opacity: 0.35;
+  cursor: default;
+}
+
+.live-pulse-badge {
+  color: #dc2626;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
+
+[data-theme="dark"] .live-pulse-badge {
+  color: #f87171;
+}
+
 .special-meta {
   display: flex;
   align-items: center;
