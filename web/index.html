@@ -17,7 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20261007_1215">
 </head>
 <body>
 
@@ -31,8 +31,8 @@
         <a href="#" class="brand-wrapper" id="brand-link">
           <div class="brand-logo-ball">DK</div>
           <div class="brand-text">
-            <h1>Hội đam mê số học DK <span class="brand-badge">Trực Tiếp</span></h1>
-            <div class="brand-subtext">Cộng Đồng Số Học & Phân Tích XSMB Trực Tiếp</div>
+            <h1>Hội đam mê số học DK</h1>
+            <div class="brand-subtext">Cộng Đồng Số Học & Phân Tích XSMB</div>
           </div>
         </a>
 
@@ -45,32 +45,23 @@
           <button class="icon-btn" id="theme-toggle-btn" title="Đổi giao diện sáng/tối" aria-label="Toggle Theme">☀️</button>
         </div>
       </div>
-
-      <!-- Status & Clock -->
-      <div class="header-status" id="header-status-group">
-        <div class="live-clock-card" id="clock-card" title="Giờ chuẩn Việt Nam (GMT+7)">
-          <span class="pulse-dot"></span>
-          <span id="clock-time">--:--:--</span>
-          <span id="clock-date" style="opacity:0.75">--/--/----</span>
-        </div>
-
-        <div class="countdown-badge" id="countdown-card" title="Đếm ngược tới giờ mở thưởng 18:15">
-          <span>⏰ Mở thưởng:</span>
-          <span class="countdown-value" id="countdown-timer">--:--:--</span>
-        </div>
-      </div>
     </div>
   </header>
 
   <!-- Main Container -->
   <main class="app-container" id="main-content">
 
-    <!-- Navigation Tabs (Clean 3-Tab Focused Navigation) -->
+    <!-- Navigation Tabs -->
     <nav class="nav-tabs-wrapper" id="main-navigation" aria-label="Main Navigation">
       <ul class="nav-tabs" role="tablist">
         <li class="nav-tab-item" role="presentation">
           <button class="nav-tab-btn active" id="tab-btn-board" data-tab="board" role="tab" aria-selected="true">
-            🎯 Bảng Kết Quả & Trực Tiếp
+            🎯 Bảng Kết Quả
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-btn" id="tab-btn-simulator" data-tab="simulator" role="tab" aria-selected="false">
+            🎰 Quay Mô Phỏng
           </button>
         </li>
         <li class="nav-tab-item" role="presentation">
@@ -99,30 +90,6 @@
          TAB 1: BẢNG KẾT QUẢ & LÔ TÔ (MAIN BOARD)
          =================================================================== -->
     <div class="tab-content-panel" id="tab-board" role="tabpanel">
-      
-      <!-- Realtime Live Status Banner & Progressive Progress Bar -->
-      <div class="live-banner" id="live-status-banner">
-        <div class="live-banner-content">
-          <div class="live-badge-group">
-            <span class="live-radar-badge" id="live-badge">
-              <span class="radar-dot"></span>
-              <span id="live-badge-text">TRỰC TIẾP</span>
-            </span>
-            <span id="live-banner-message">Đang kết nối trạng thái quay thưởng thời gian thực...</span>
-          </div>
-
-          <!-- Live Draw Progressive Bar (Active during 18:14 - 18:35 or Live Demo) -->
-          <div class="live-draw-progress-wrap" id="live-progress-wrap">
-            <div class="live-progress-bar-bg">
-              <div class="live-progress-bar-fill" id="live-progress-fill" style="width: 100%"></div>
-            </div>
-            <div class="live-progress-info">
-              <span id="live-prize-counter" class="live-prize-counter">27/27 giải (100%)</span>
-              <span id="live-status-clock" class="live-status-clock">Tự động đồng bộ theo thời gian thực</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Date Control Bar -->
       <div class="date-bar" id="date-navigation-bar">
@@ -140,6 +107,9 @@
         </div>
 
         <div class="board-action-group">
+          <button class="board-action-btn" id="btn-quick-sim" onclick="switchTab('simulator')" title="Mở tính năng quay mô phỏng lồng cầu XSMB">
+            🎰 Quay mô phỏng
+          </button>
           <button class="board-action-btn" id="btn-copy-result" onclick="copyResultFormatted()" title="Sao chép kết quả gửi Zalo/Telegram">
             📋 Sao chép text
           </button>
@@ -294,10 +264,218 @@
       </div>
     </div>
 
+    <!-- ===================================================================
+         TAB 2: QUAY MÔ PHỎNG XSMB (LOTTERY DRAW SIMULATOR)
+         =================================================================== -->
+    <div class="tab-content-panel" id="tab-simulator" style="display:none;" role="tabpanel">
+      <section class="card-section simulator-container" id="section-simulator">
+        <div class="sim-header-flex">
+          <div>
+            <h2 class="section-title">🎰 Quay Mô Phỏng Xổ Số Miền Bắc</h2>
+            <p class="section-desc">Mô phỏng trường quay xổ số mở thưởng chuẩn XSMB: <strong>Giải Nhất ➔ Giải Nhì ➔ Giải Ba ➔ Giải Tư ➔ Giải Năm ➔ Giải Sáu ➔ Giải Bảy ➔ Giải Đặc Biệt</strong>.</p>
+          </div>
+        </div>
 
+        <!-- Controls Toolbar -->
+        <div class="sim-controls-bar">
+          <div class="sim-stage-badge" id="sim-stage-text">Sẵn sàng quay mô phỏng</div>
+          
+          <div class="sim-speed-selector">
+            <span>Tốc độ:</span>
+            <button class="sim-speed-btn active" data-speed="normal" id="speed-normal">Chuẩn (1x)</button>
+            <button class="sim-speed-btn" data-speed="fast" id="speed-fast">Nhanh (2.5x)</button>
+            <button class="sim-speed-btn" data-speed="instant" id="speed-instant">Siêu tốc</button>
+          </div>
+
+          <div class="sim-btn-group">
+            <button class="btn-primary" id="btn-start-sim">▶ Bắt Đầu Quay</button>
+            <button class="date-chip" id="btn-stop-sim" style="display:none;">⏹ Dừng</button>
+            <button class="date-chip" id="btn-reset-sim">🔄 Làm Mới</button>
+          </div>
+        </div>
+
+        <!-- Progress Bar for Simulation -->
+        <div class="sim-progress-wrap" id="sim-progress-wrap">
+          <div class="sim-progress-bar-bg">
+            <div class="sim-progress-bar-fill" id="sim-progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="sim-progress-info">
+            <span id="sim-prize-counter">Tiến độ: 0/27 giải (0%)</span>
+            <span id="sim-current-prize-name">Chưa bắt đầu</span>
+          </div>
+        </div>
+
+        <!-- Animated Rolling Balls Cage -->
+        <div class="rolling-cage" id="sim-cage">
+          <div class="sim-cage-label" id="sim-cage-label">LỒNG CẦU QUAY SỐ XSMB</div>
+          <div class="sim-balls-row" id="sim-balls-row">
+            <div class="sim-ball">-</div>
+            <div class="sim-ball">-</div>
+            <div class="sim-ball">-</div>
+            <div class="sim-ball">-</div>
+            <div class="sim-ball">-</div>
+          </div>
+        </div>
+
+        <!-- Simulation Grid: Prize Table + Loto Head/Tail -->
+        <div class="lottery-grid-layout sim-grid-layout">
+          <!-- Left: Official Prize Table for Simulator -->
+          <div class="prize-board-card">
+            <header class="board-header">
+              <div class="board-title-group">
+                <h3 style="font-size:1.1rem; font-weight:800; color:#fff;">🏆 Bảng Kết Quả Quay Mô Phỏng</h3>
+                <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">
+                  Trực quan hóa 27 giải mở thưởng: Giải Nhất ➔ Giải Bảy ➔ Giải Đặc Biệt
+                </div>
+              </div>
+            </header>
+
+            <table class="board-table" id="sim-board-table" aria-label="Bảng kết quả quay mô phỏng">
+              <tbody>
+                <!-- Giải Đặc Biệt (Quay cuối cùng sau Giải 7) -->
+                <tr class="board-row special-row">
+                  <td class="prize-name-col">ĐẶC BIỆT</td>
+                  <td class="prize-numbers-col">
+                    <div class="special-number-container" id="sim-special-digits">
+                      <div class="special-digit-ball">-</div>
+                      <div class="special-digit-ball">-</div>
+                      <div class="special-digit-ball">-</div>
+                      <div class="special-digit-ball last-two">-</div>
+                      <div class="special-digit-ball last-two">-</div>
+                    </div>
+                    <div class="special-meta">
+                      <span class="special-tag" id="sim-special-loto-tag">2 số cuối: --</span>
+                      <span>(Quay lượt thứ 27 - Lượt cuối cùng 👑)</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 1. Giải Nhất (Quay đầu tiên - 1 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Nhất</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p1-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p1-0">-----</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 2. Giải Nhì (Quay thứ 2 - 2 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Nhì</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p2-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p2-0">-----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p2-1">-----</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 3. Giải Ba (Quay thứ 3 - 6 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Ba</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p3-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p3-0">-----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p3-1">-----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p3-2">-----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p3-3">-----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p3-4">-----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p3-5">-----</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 4. Giải Tư (Quay thứ 4 - 4 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Tư</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p4-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p4-0">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p4-1">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p4-2">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p4-3">----</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 5. Giải Năm (Quay thứ 5 - 6 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Năm</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p5-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p5-0">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p5-1">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p5-2">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p5-3">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p5-4">----</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p5-5">----</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 6. Giải Sáu (Quay thứ 6 - 3 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Sáu</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p6-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p6-0">---</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p6-1">---</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p6-2">---</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 7. Giải Bảy (Quay thứ 7 - 4 giải) -->
+                <tr class="board-row">
+                  <td class="prize-name-col">Giải Bảy</td>
+                  <td class="prize-numbers-col">
+                    <div class="numbers-flex-wrap" id="sim-p7-container">
+                      <span class="lottery-num sim-slot" id="sim-slot-p7-0">--</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p7-1">--</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p7-2">--</span>
+                      <span class="lottery-num sim-slot" id="sim-slot-p7-3">--</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Loto 2-Digits (Đầu - Đuôi) for Simulator -->
+          <aside class="loto-board-card">
+            <header class="loto-header">
+              <div>
+                <h3 style="font-size:1.1rem; font-weight:800; color:#fff;">📊 Bảng Đầu - Đuôi Mô Phỏng</h3>
+                <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">Tự động cập nhật 2 số cuối khi mỗi giải được mở</div>
+              </div>
+            </header>
+
+            <div class="loto-table-wrapper">
+              <table class="loto-table" aria-label="Bảng đầu đuôi lô tô mô phỏng">
+                <thead>
+                  <tr style="font-size:0.8rem; color:var(--text-muted); text-align:left;">
+                    <th style="padding:0.4rem 0.85rem; text-align:center;">Đầu</th>
+                    <th style="padding:0.4rem 1rem;">Đuôi (Số về)</th>
+                  </tr>
+                </thead>
+                <tbody id="sim-loto-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Simulation Summary Insights -->
+            <div id="sim-summary-box" style="margin-top:1rem; padding:0.85rem; background:var(--bg-tertiary); border-radius:var(--radius-md); font-size:0.82rem; border:1px solid var(--border-subtle); display:none;">
+              <!-- Summary text filled on completion -->
+            </div>
+          </aside>
+        </div>
+      </section>
+    </div>
 
     <!-- ===================================================================
-         TAB 4: THỐNG KÊ & LÔ GAN (ANALYTICS & HEATMAP)
+         TAB 3: THỐNG KÊ & LÔ GAN (ANALYTICS & HEATMAP)
          =================================================================== -->
     <div class="tab-content-panel" id="tab-stats" style="display:none;" role="tabpanel">
       <!-- 2 Columns: Lô Gan & Top Lô Về Nhiều -->
@@ -444,11 +622,15 @@
     </div>
   </footer>
 
-  <!-- Fixed Mobile Bottom Navigation Bar (Streamlined 3 Core Tabs) -->
+  <!-- Fixed Mobile Bottom Navigation Bar (4 Core Tabs) -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Navigation">
     <button class="mobile-nav-item active" data-tab="board" onclick="switchTab('board')">
       <span class="mobile-nav-icon">🎯</span>
-      <span class="mobile-nav-label">Kết Quả & Trực Tiếp</span>
+      <span class="mobile-nav-label">Kết Quả</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="simulator" onclick="switchTab('simulator')">
+      <span class="mobile-nav-icon">🎰</span>
+      <span class="mobile-nav-label">Quay Mô Phỏng</span>
     </button>
     <button class="mobile-nav-item" data-tab="stats" onclick="switchTab('stats')">
       <span class="mobile-nav-icon">📊</span>
@@ -461,8 +643,8 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="js/sound.js?v=20261006_2125"></script>
-  <script src="js/lottery-data.js?v=20261006_2125"></script>
-  <script src="js/app.js?v=20261006_2125"></script>
+  <script src="js/sound.js?v=20261007_1215"></script>
+  <script src="js/lottery-data.js?v=20261007_1215"></script>
+  <script src="js/app.js?v=20261007_1215"></script>
 </body>
 </html>

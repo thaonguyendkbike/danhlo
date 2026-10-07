@@ -113,17 +113,24 @@ function cacheDOM() {
   dom.soundToggleBtn = document.getElementById('sound-toggle-btn');
   dom.confettiCanvas = document.getElementById('confetti-canvas');
 
-  // Live Stream & Realtime Controls
+  // Simulator Controls
+  dom.btnStartSim = document.getElementById('btn-start-sim');
+  dom.btnStopSim = document.getElementById('btn-stop-sim');
+  dom.btnResetSim = document.getElementById('btn-reset-sim');
+  dom.simStageText = document.getElementById('sim-stage-text');
+  dom.simCage = document.getElementById('sim-cage');
+  dom.simCageLabel = document.getElementById('sim-cage-label');
+  dom.simBallsRow = document.getElementById('sim-balls-row');
+  dom.simProgressFill = document.getElementById('sim-progress-fill');
+  dom.simPrizeCounter = document.getElementById('sim-prize-counter');
+  dom.simCurrentPrizeName = document.getElementById('sim-current-prize-name');
+  dom.simSpecialDigits = document.getElementById('sim-special-digits');
+  dom.simSpecialLotoTag = document.getElementById('sim-special-loto-tag');
+  dom.simBoardTable = document.getElementById('sim-board-table');
+  dom.simLotoTableBody = document.getElementById('sim-loto-table-body');
+  dom.simSummaryBox = document.getElementById('sim-summary-box');
   dom.btnSyncHeader = document.getElementById('btn-sync-header');
   dom.syncIconSpin = document.getElementById('sync-icon-spin');
-  dom.liveStatusBanner = document.getElementById('live-status-banner');
-  dom.liveBadge = document.getElementById('live-badge');
-  dom.liveBadgeText = document.getElementById('live-badge-text');
-  dom.liveBannerMessage = document.getElementById('live-banner-message');
-  dom.liveProgressWrap = document.getElementById('live-progress-wrap');
-  dom.liveProgressFill = document.getElementById('live-progress-fill');
-  dom.livePrizeCounter = document.getElementById('live-prize-counter');
-  dom.liveStatusClock = document.getElementById('live-status-clock');
 
   // Date controls
   dom.datePicker = document.getElementById('date-picker');
@@ -268,17 +275,7 @@ function onDataLoaded() {
   renderCurrentRecord();
   renderStatistics();
   renderHistoryTable();
-  updateLiveBannerStatus();
-
-  // Chỉ quét NẾU ĐANG TRONG KHUNG GIỜ QUAY THƯỞNG (18:14 - 18:35) và chưa có kết quả hôm nay
-  // Ngoài khung giờ: KHÔNG QUÉT (Zero network traffic)
-  const todayStr = getTodayVnStr();
-  const isTodayCompleted = latestRec && latestRec.date === todayStr;
-  if (isLiveDrawTimeWindow() && !isTodayCompleted) {
-    startLivePolling();
-  } else {
-    stopLivePolling();
-  }
+  initSimulator();
 }
 
 /* ===================================================================
@@ -853,9 +850,9 @@ function updateThemeIcon(theme) {
 }
 
 function initClockAndCountdown() {
+  if (!dom.clockTime && !dom.countdownTimer) return;
   function updateTime() {
     const now = new Date();
-    // UTC+7 (Hanoi)
     const utc = now.getTime() + now.getTimezoneOffset() * 60000;
     const vnTime = new Date(utc + 7 * 3600000);
 
@@ -864,48 +861,6 @@ function initClockAndCountdown() {
 
     if (dom.clockTime) dom.clockTime.textContent = timeStr;
     if (dom.clockDate) dom.clockDate.textContent = dateStr;
-
-    // Draw time status
-    const hour = vnTime.getHours();
-    const min = vnTime.getMinutes();
-    const isDrawingNow = (hour === 18 && min >= 14 && min <= 35);
-
-    // Target 18:15
-    const target = new Date(vnTime);
-    target.setHours(18, 15, 0, 0);
-
-    if (vnTime.getTime() > target.getTime()) {
-      target.setDate(target.getDate() + 1); // Next day's draw
-    }
-
-    const diff = target.getTime() - vnTime.getTime();
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-
-    if (dom.countdownTimer) {
-      if (isDrawingNow) {
-        dom.countdownTimer.textContent = '🔴 ĐANG MỞ THƯỞNG!';
-      } else {
-        dom.countdownTimer.textContent = `${padZero(h)}:${padZero(m)}:${padZero(s)}`;
-      }
-    }
-
-    // Tự động kích hoạt quét đúng lúc 18:14 và dừng hẳn khi hết giờ hoặc đã có kết quả
-    const inDrawWindow = isLiveDrawTimeWindow();
-    const todayStr = getTodayVnStr();
-    const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
-    const isTodayCompleted = latestRec && latestRec.date === todayStr;
-
-    if (inDrawWindow && !isTodayCompleted) {
-      if (!isLivePollingRunning) {
-        startLivePolling();
-      }
-    } else {
-      if (isLivePollingRunning) {
-        stopLivePolling();
-      }
-    }
   }
 
   updateTime();
@@ -1047,6 +1002,17 @@ function bindEvents() {
 
 
 
+  // Simulator Controls
+  if (dom.btnStartSim) dom.btnStartSim.addEventListener('click', startSimulator);
+  if (dom.btnStopSim) dom.btnStopSim.addEventListener('click', stopSimulator);
+  if (dom.btnResetSim) dom.btnResetSim.addEventListener('click', resetSimulatorUI);
+
+  document.querySelectorAll('.sim-speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setSimSpeed(btn.getAttribute('data-speed'));
+    });
+  });
+
   // Sync Button
   if (dom.btnSyncHeader) {
     dom.btnSyncHeader.addEventListener('click', () => syncDataWithServer(true));
@@ -1115,211 +1081,416 @@ function bindEvents() {
 }
 
 /* ===================================================================
-   Auto-Sync & Real-time Live Draw Engine (Thời Gian Thực)
+   XSMB VIP DRAW SIMULATOR ENGINE (QUAY MÔ PHỎNG XSMB CHUẨN)
+   Thứ tự quay thưởng chuẩn:
+   Giải Nhất ➔ Giải Nhì ➔ Giải Ba ➔ Giải Tư ➔ Giải Năm ➔ Giải Sáu ➔ Giải Bảy ➔ Giải Đặc Biệt
    =================================================================== */
 
-let livePollTimeoutId = null;
-let isLivePollingRunning = false;
+// Định nghĩa chuẩn thứ tự 27 lượt quay mở thưởng XSMB (G1 -> G7 -> GĐB)
+const SIM_XSMB_SEQUENCE = [
+  // 1. Giải Nhất (Quay đầu tiên - 1 giải × 5 chữ số)
+  { step: 1, name: 'Giải Nhất', count: 1, index: 0, digits: 5, key: 'p1', slotId: 'sim-slot-p1-0' },
 
-// Vietnam Timezone Helper (UTC+7)
-function getVnNow() {
-  const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utc + 7 * 3600000);
+  // 2. Giải Nhì (Quay thứ hai - 2 giải × 5 chữ số)
+  { step: 2, name: 'Giải Nhì (1/2)', count: 2, index: 0, digits: 5, key: 'p2', slotId: 'sim-slot-p2-0' },
+  { step: 3, name: 'Giải Nhì (2/2)', count: 2, index: 1, digits: 5, key: 'p2', slotId: 'sim-slot-p2-1' },
+
+  // 3. Giải Ba (Quay thứ ba - 6 giải × 5 chữ số)
+  { step: 4, name: 'Giải Ba (1/6)', count: 6, index: 0, digits: 5, key: 'p3', slotId: 'sim-slot-p3-0' },
+  { step: 5, name: 'Giải Ba (2/6)', count: 6, index: 1, digits: 5, key: 'p3', slotId: 'sim-slot-p3-1' },
+  { step: 6, name: 'Giải Ba (3/6)', count: 6, index: 2, digits: 5, key: 'p3', slotId: 'sim-slot-p3-2' },
+  { step: 7, name: 'Giải Ba (4/6)', count: 6, index: 3, digits: 5, key: 'p3', slotId: 'sim-slot-p3-3' },
+  { step: 8, name: 'Giải Ba (5/6)', count: 6, index: 4, digits: 5, key: 'p3', slotId: 'sim-slot-p3-4' },
+  { step: 9, name: 'Giải Ba (6/6)', count: 6, index: 5, digits: 5, key: 'p3', slotId: 'sim-slot-p3-5' },
+
+  // 4. Giải Tư (Quay thứ tư - 4 giải × 4 chữ số)
+  { step: 10, name: 'Giải Tư (1/4)', count: 4, index: 0, digits: 4, key: 'p4', slotId: 'sim-slot-p4-0' },
+  { step: 11, name: 'Giải Tư (2/4)', count: 4, index: 1, digits: 4, key: 'p4', slotId: 'sim-slot-p4-1' },
+  { step: 12, name: 'Giải Tư (3/4)', count: 4, index: 2, digits: 4, key: 'p4', slotId: 'sim-slot-p4-2' },
+  { step: 13, name: 'Giải Tư (4/4)', count: 4, index: 3, digits: 4, key: 'p4', slotId: 'sim-slot-p4-3' },
+
+  // 5. Giải Năm (Quay thứ năm - 6 giải × 4 chữ số)
+  { step: 14, name: 'Giải Năm (1/6)', count: 6, index: 0, digits: 4, key: 'p5', slotId: 'sim-slot-p5-0' },
+  { step: 15, name: 'Giải Năm (2/6)', count: 6, index: 1, digits: 4, key: 'p5', slotId: 'sim-slot-p5-1' },
+  { step: 16, name: 'Giải Năm (3/6)', count: 6, index: 2, digits: 4, key: 'p5', slotId: 'sim-slot-p5-2' },
+  { step: 17, name: 'Giải Năm (4/6)', count: 6, index: 3, digits: 4, key: 'p5', slotId: 'sim-slot-p5-3' },
+  { step: 18, name: 'Giải Năm (5/6)', count: 6, index: 4, digits: 4, key: 'p5', slotId: 'sim-slot-p5-4' },
+  { step: 19, name: 'Giải Năm (6/6)', count: 6, index: 5, digits: 4, key: 'p5', slotId: 'sim-slot-p5-5' },
+
+  // 6. Giải Sáu (Quay thứ sáu - 3 giải × 3 chữ số)
+  { step: 20, name: 'Giải Sáu (1/3)', count: 3, index: 0, digits: 3, key: 'p6', slotId: 'sim-slot-p6-0' },
+  { step: 21, name: 'Giải Sáu (2/3)', count: 3, index: 1, digits: 3, key: 'p6', slotId: 'sim-slot-p6-1' },
+  { step: 22, name: 'Giải Sáu (3/3)', count: 3, index: 2, digits: 3, key: 'p6', slotId: 'sim-slot-p6-2' },
+
+  // 7. Giải Bảy (Quay thứ bảy - 4 giải × 2 chữ số)
+  { step: 23, name: 'Giải Bảy (1/4)', count: 4, index: 0, digits: 2, key: 'p7', slotId: 'sim-slot-p7-0' },
+  { step: 24, name: 'Giải Bảy (2/4)', count: 4, index: 1, digits: 2, key: 'p7', slotId: 'sim-slot-p7-1' },
+  { step: 25, name: 'Giải Bảy (3/4)', count: 4, index: 2, digits: 2, key: 'p7', slotId: 'sim-slot-p7-2' },
+  { step: 26, name: 'Giải Bảy (4/4)', count: 4, index: 3, digits: 2, key: 'p7', slotId: 'sim-slot-p7-3' },
+
+  // 8. Giải Đặc Biệt (Quay cuối cùng sau Giải Bảy - 1 giải × 5 chữ số 👑)
+  { step: 27, name: 'GIẢI ĐẶC BIỆT 👑', count: 1, index: 0, digits: 5, key: 'special', isSpecial: true }
+];
+
+const simState = {
+  isRunning: false,
+  speed: 'normal', // 'normal' | 'fast' | 'instant'
+  stepIndex: 0,
+  drawData: null,
+  timerId: null,
+  rollIntervalId: null,
+  revealedLoto: [],
+};
+
+// Sinh chuỗi ngẫu nhiên có độ dài len
+function generateRandomDigits(len) {
+  let s = '';
+  for (let i = 0; i < len; i++) {
+    s += Math.floor(Math.random() * 10).toString();
+  }
+  return s;
 }
 
-function getTodayVnStr() {
-  const vnTime = getVnNow();
-  const y = vnTime.getFullYear();
-  const m = String(vnTime.getMonth() + 1).padStart(2, '0');
-  const d = String(vnTime.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+// Sinh kết quả XSMB đầy đủ ngẫu nhiên 27 giải
+function generateFullSimRecord() {
+  return {
+    p1: generateRandomDigits(5),
+    p2: [generateRandomDigits(5), generateRandomDigits(5)],
+    p3: [generateRandomDigits(5), generateRandomDigits(5), generateRandomDigits(5), generateRandomDigits(5), generateRandomDigits(5), generateRandomDigits(5)],
+    p4: [generateRandomDigits(4), generateRandomDigits(4), generateRandomDigits(4), generateRandomDigits(4)],
+    p5: [generateRandomDigits(4), generateRandomDigits(4), generateRandomDigits(4), generateRandomDigits(4), generateRandomDigits(4), generateRandomDigits(4)],
+    p6: [generateRandomDigits(3), generateRandomDigits(3), generateRandomDigits(3)],
+    p7: [generateRandomDigits(2), generateRandomDigits(2), generateRandomDigits(2), generateRandomDigits(2)],
+    special: generateRandomDigits(5)
+  };
 }
 
-// Khung giờ quay thưởng trực tiếp: 18:14 đến 18:35 hàng ngày (giờ Việt Nam)
-function isLiveDrawTimeWindow() {
-  const vnTime = getVnNow();
-  const hour = vnTime.getHours();
-  const min = vnTime.getMinutes();
-  return (hour === 18 && min >= 14 && min <= 35);
+function initSimulator() {
+  resetSimulatorUI();
+  renderSimLotoBoard();
 }
 
-// Bắt đầu quét trực tiếp (CHỈ KÍCH HOẠT TRONG KHUNG GIỜ 18:14 - 18:35)
-function startLivePolling() {
-  if (isLivePollingRunning) return;
-  isLivePollingRunning = true;
-  console.log('🔴 [Live Engine] Khung giờ quay thưởng (18:14 - 18:35). Bắt đầu quét kết quả trực tiếp!');
-  runLivePollStep();
+function resetSimulatorUI() {
+  stopSimulator();
+  simState.stepIndex = 0;
+  simState.drawData = null;
+  simState.revealedLoto = [];
+
+  if (dom.btnStartSim) {
+    dom.btnStartSim.style.display = 'inline-flex';
+    dom.btnStartSim.innerHTML = '▶ Bắt Đầu Quay';
+  }
+  if (dom.btnStopSim) dom.btnStopSim.style.display = 'none';
+
+  if (dom.simStageText) dom.simStageText.textContent = 'Sẵn sàng quay mô phỏng';
+  if (dom.simCageLabel) dom.simCageLabel.textContent = 'LỒNG CẦU QUAY SỐ XSMB';
+  if (dom.simProgressFill) dom.simProgressFill.style.width = '0%';
+  if (dom.simPrizeCounter) dom.simPrizeCounter.textContent = 'Tiến độ: 0/27 giải (0%)';
+  if (dom.simCurrentPrizeName) dom.simCurrentPrizeName.textContent = 'Chưa bắt đầu';
+
+  // Khởi tạo lại 5 quả bóng trên lồng cầu
+  if (dom.simBallsRow) {
+    dom.simBallsRow.innerHTML = `
+      <div class="sim-ball">-</div>
+      <div class="sim-ball">-</div>
+      <div class="sim-ball">-</div>
+      <div class="sim-ball">-</div>
+      <div class="sim-ball">-</div>
+    `;
+  }
+
+  // Khởi tạo lại các ô trên bảng giải mô phỏng
+  SIM_XSMB_SEQUENCE.forEach(item => {
+    if (item.isSpecial) {
+      if (dom.simSpecialDigits) {
+        dom.simSpecialDigits.innerHTML = `
+          <div class="special-digit-ball">-</div>
+          <div class="special-digit-ball">-</div>
+          <div class="special-digit-ball">-</div>
+          <div class="special-digit-ball last-two">-</div>
+          <div class="special-digit-ball last-two">-</div>
+        `;
+      }
+      if (dom.simSpecialLotoTag) dom.simSpecialLotoTag.textContent = '2 số cuối: --';
+    } else {
+      const el = document.getElementById(item.slotId);
+      if (el) {
+        el.textContent = '-'.repeat(item.digits);
+        el.className = 'lottery-num sim-slot';
+      }
+    }
+  });
+
+  if (dom.simSummaryBox) {
+    dom.simSummaryBox.style.display = 'none';
+    dom.simSummaryBox.innerHTML = '';
+  }
+
+  renderSimLotoBoard();
 }
 
-// Dừng quét hoàn toàn (Ngoài khung giờ hoặc khi đã có đủ 27/27 giải)
-function stopLivePolling() {
-  isLivePollingRunning = false;
-  if (livePollTimeoutId) {
-    clearTimeout(livePollTimeoutId);
-    livePollTimeoutId = null;
+function startSimulator() {
+  if (simState.isRunning) return;
+  if (window.soundEngine) window.soundEngine.init();
+
+  if (!simState.drawData || simState.stepIndex >= SIM_XSMB_SEQUENCE.length) {
+    simState.drawData = generateFullSimRecord();
+    simState.stepIndex = 0;
+    simState.revealedLoto = [];
+    resetSimulatorUI();
+    simState.drawData = generateFullSimRecord();
+  }
+
+  simState.isRunning = true;
+  if (dom.btnStartSim) dom.btnStartSim.style.display = 'none';
+  if (dom.btnStopSim) dom.btnStopSim.style.display = 'inline-flex';
+
+  runNextSimStep();
+}
+
+function stopSimulator() {
+  simState.isRunning = false;
+  if (simState.timerId) {
+    clearTimeout(simState.timerId);
+    simState.timerId = null;
+  }
+  if (simState.rollIntervalId) {
+    clearInterval(simState.rollIntervalId);
+    simState.rollIntervalId = null;
+  }
+  if (dom.btnStartSim) {
+    dom.btnStartSim.style.display = 'inline-flex';
+    dom.btnStartSim.innerHTML = '▶ Tiếp Tục';
+  }
+  if (dom.btnStopSim) dom.btnStopSim.style.display = 'none';
+  if (dom.simStageText && simState.stepIndex < SIM_XSMB_SEQUENCE.length) {
+    dom.simStageText.textContent = `Đã tạm dừng (${simState.stepIndex}/27 giải)`;
   }
 }
 
-// Vòng lặp quét thời gian thực: chỉ chạy khi isLivePollingRunning = true và trong khung giờ 18:14 - 18:35
-async function runLivePollStep() {
-  if (!isLivePollingRunning) return;
+function setSimSpeed(speed) {
+  simState.speed = speed;
+  document.querySelectorAll('.sim-speed-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-speed') === speed);
+  });
+}
 
-  // Nếu đã ngoài khung giờ quay (sau 18:35 hoặc trước 18:14): dừng quét ngay lập tức
-  if (!isLiveDrawTimeWindow()) {
-    stopLivePolling();
-    updateLiveBannerStatus();
+function runNextSimStep() {
+  if (!simState.isRunning) return;
+
+  if (simState.stepIndex >= SIM_XSMB_SEQUENCE.length) {
+    finishSimulator();
     return;
   }
 
-  try {
-    const isStillDrawing = await checkAndUpdateLiveDraw();
-    // Nếu kết quả đã đủ 27/27 giải hoặc đã hoàn tất: DỪNG QUÉT NGAY!
-    if (!isStillDrawing) {
-      stopLivePolling();
-      return;
-    }
-  } catch (err) {
-    console.warn('[Live Engine] Lỗi khi quét:', err);
-  }
+  const stepItem = SIM_XSMB_SEQUENCE[simState.stepIndex];
+  const stepNum = simState.stepIndex + 1;
+  const pct = Math.round((stepNum / 27) * 100);
 
-  // Nếu vẫn đang quay dở trong khung giờ 18:14 - 18:35: tiếp tục quét sau 2.5s
-  if (isLivePollingRunning && isLiveDrawTimeWindow()) {
-    livePollTimeoutId = setTimeout(runLivePollStep, 2500);
+  // Lấy giá trị trúng thưởng định sẵn cho giải hiện tại
+  let finalVal = '';
+  if (stepItem.isSpecial) {
+    finalVal = simState.drawData.special;
+  } else if (stepItem.count === 1) {
+    finalVal = simState.drawData[stepItem.key];
   } else {
-    stopLivePolling();
-  }
-}
-
-// Hàm lấy dữ liệu trực tiếp và cập nhật bảng giải (CHỈ GỌI KHI ĐANG TRONG KHUNG GIỜ QUAY)
-async function checkAndUpdateLiveDraw() {
-  let liveApi = null;
-  try {
-    const res = await fetch('/api/live?t=' + Date.now());
-    if (res.ok) liveApi = await res.json();
-  } catch (e) {
-    try {
-      const fbRes = await fetch('data/latest.json?t=' + Date.now());
-      if (fbRes.ok) liveApi = await fbRes.json();
-    } catch (fbErr) {}
+    finalVal = simState.drawData[stepItem.key][stepItem.index];
   }
 
-  if (!liveApi) return true;
-
-  const count = liveApi.prizes_count || 0;
-  const isCompleted = (liveApi.status === 'completed' || count >= 27);
-  const todayVnStr = getTodayVnStr();
-
-  // 1. KỲ QUAY ĐÃ HOÀN TẤT ĐỦ 27 GIẢI
-  if (isCompleted) {
-    if (state.lastLivePrizesCount > 0 && state.lastLivePrizesCount < 27) {
-      if (window.soundEngine) window.soundEngine.playJackpot();
-      if (window.confetti) window.confetti.fire(150);
-    }
-    state.lastLivePrizesCount = 27;
-
-    const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
-    if (!latestRec || latestRec.date !== liveApi.date) {
-      state.records.unshift(liveApi);
-      state.currentIndex = 0;
-      renderCurrentRecord();
-      renderStatistics();
-      renderHistoryTable();
-    }
-
-    renderCompletedBanner(liveApi, todayVnStr);
-    return false; // Báo hiệu đã xong -> dừng quét
+  // Cập nhật trạng thái
+  if (dom.simStageText) {
+    dom.simStageText.innerHTML = stepItem.isSpecial ?
+      '👑 <strong>ĐANG QUAY: GIẢI ĐẶC BIỆT!</strong>' :
+      `Đang quay: <strong>${stepItem.name}</strong> (${stepNum}/27)`;
+  }
+  if (dom.simProgressFill) dom.simProgressFill.style.width = `${pct}%`;
+  if (dom.simPrizeCounter) dom.simPrizeCounter.textContent = `Tiến độ: ${stepNum}/27 giải (${pct}%)`;
+  if (dom.simCurrentPrizeName) dom.simCurrentPrizeName.textContent = `Lượt: ${stepItem.name}`;
+  if (dom.simCageLabel) {
+    dom.simCageLabel.textContent = `LỒNG CẦU QUAY SỐ: ${stepItem.name.toUpperCase()} (${stepItem.digits} CHỮ SỐ)`;
   }
 
-  // 2. ĐANG QUAY DỞ TRỰC TIẾP (0 < count < 27)
-  dom.liveStatusBanner.className = 'live-banner';
-  dom.liveStatusBanner.style.background = '';
-  dom.liveStatusBanner.style.borderColor = '';
-
-  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '🔴 ĐANG QUAY TRỰC TIẾP';
-
-  const pct = Math.min(100, Math.round((count / 27) * 100));
-
-  if (dom.liveProgressFill) dom.liveProgressFill.style.width = `${pct}%`;
-  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = `Tiến độ: ${count}/27 giải (${pct}%)`;
-  if (dom.liveStatusClock) {
-    dom.liveStatusClock.textContent = `Trực tiếp lúc ${getVnNow().toLocaleTimeString('vi-VN')} (Tự động 2.5s/lần)`;
-  }
-
-  if (dom.liveBannerMessage) {
-    dom.liveBannerMessage.innerHTML = `Đang mở thưởng trực tiếp XSMB hôm nay <strong>${formatDateVN(todayVnStr)}</strong>! Đã mở <strong style="color:var(--gold-400)">${count}/27</strong> giải. Các giải đang tiếp tục quay số thời gian thực...`;
-  }
-
-  if (state.activeTab === 'board' && (state.currentIndex === 0 || dom.datePicker?.value === todayVnStr)) {
-    const isNewArrival = count > state.lastLivePrizesCount;
-    renderLiveDrawingBoard(liveApi, isNewArrival);
-    if (isNewArrival) {
-      if (window.soundEngine) window.soundEngine.playReveal();
-      state.lastLivePrizesCount = count;
-    }
-  }
-
-  return true; // Vẫn đang quay tiếp
-}
-
-// Cập nhật trạng thái Banner giao diện (KHÔNG GỌI QUÉT NGẦM NGOÀI GIỜ)
-function updateLiveBannerStatus() {
-  if (!dom.liveStatusBanner) return;
-
-  const vnTime = getVnNow();
-  const todayVnStr = getTodayVnStr();
-  const latestRec = state.records && state.records.length > 0 ? state.records[0] : null;
-  const isTodayDrawn = latestRec && latestRec.date === todayVnStr;
-
-  // Trường hợp 1: Đã có kết quả ngày hôm nay
-  if (isTodayDrawn) {
-    stopLivePolling();
-    renderCompletedBanner(latestRec, todayVnStr);
-    return;
-  }
-
-  // Trường hợp 2: Đang đúng khung giờ quay trực tiếp (18:14 - 18:35)
-  if (isLiveDrawTimeWindow()) {
-    if (!isLivePollingRunning) {
-      startLivePolling();
+  // Chế độ Siêu Tốc (Instant)
+  if (simState.speed === 'instant') {
+    revealSimStepResult(stepItem, finalVal);
+    simState.stepIndex++;
+    if (simState.stepIndex < SIM_XSMB_SEQUENCE.length) {
+      runNextSimStep();
+    } else {
+      finishSimulator();
     }
     return;
   }
 
-  // Trường hợp 3: Ngoài khung giờ trực tiếp -> KHÔNG QUÉT, hiển thị giao diện chờ
-  stopLivePolling();
+  // Chế độ Chuẩn (normal) hoặc Nhanh (fast)
+  const isFast = simState.speed === 'fast';
+  const totalTicks = isFast ? 5 : 8;
+  const tickInterval = isFast ? 40 : 60;
+  const delayAfterReveal = isFast ? 180 : 450;
 
-  dom.liveStatusBanner.className = 'live-banner idle';
-  dom.liveStatusBanner.style.background = '';
-  dom.liveStatusBanner.style.borderColor = '';
+  let ticks = 0;
+  const targetSlot = stepItem.isSpecial ? null : document.getElementById(stepItem.slotId);
+  if (targetSlot) targetSlot.classList.add('rolling-now');
 
-  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '⏰ CHỜ QUAY (18:15)';
-  if (dom.liveProgressFill) dom.liveProgressFill.style.width = '0%';
-  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = 'Chờ mở thưởng: 0/27 giải';
-  if (dom.liveStatusClock) dom.liveStatusClock.textContent = 'Mở thưởng lúc 18h15 hàng ngày';
+  simState.rollIntervalId = setInterval(() => {
+    ticks++;
+    if (window.soundEngine) window.soundEngine.playTick();
 
-  if (dom.liveBannerMessage) {
-    dom.liveBannerMessage.innerHTML = `Hôm nay là <strong>${formatDateVN(todayVnStr)}</strong> (mở thưởng lúc <strong>18h15</strong>). Kết quả gần nhất là ngày <strong>${latestRec ? formatDateVN(latestRec.date) : '--'}</strong> (GĐB: <strong style="color:var(--ruby-400)">${latestRec ? latestRec.special : '--'}</strong>).`;
-  }
+    const dummyStr = generateRandomDigits(stepItem.digits);
+
+    // Cập nhật bóng lồng cầu
+    if (dom.simBallsRow) {
+      let ballsHtml = '';
+      for (let i = 0; i < 5; i++) {
+        if (i < 5 - stepItem.digits) {
+          ballsHtml += `<div class="sim-ball" style="opacity:0.25">-</div>`;
+        } else {
+          const char = dummyStr[i - (5 - stepItem.digits)] || '0';
+          ballsHtml += `<div class="sim-ball rolling ${stepItem.isSpecial ? 'special' : ''}">${char}</div>`;
+        }
+      }
+      dom.simBallsRow.innerHTML = ballsHtml;
+    }
+
+    // Cập nhật ô số trên bảng
+    if (targetSlot) targetSlot.textContent = dummyStr;
+
+    if (ticks >= totalTicks) {
+      clearInterval(simState.rollIntervalId);
+      simState.rollIntervalId = null;
+
+      revealSimStepResult(stepItem, finalVal);
+      simState.stepIndex++;
+
+      simState.timerId = setTimeout(() => {
+        runNextSimStep();
+      }, delayAfterReveal);
+    }
+  }, tickInterval);
 }
 
-// Render banner hoàn tất khi đã có đủ kết quả
-function renderCompletedBanner(record, todayVnStr) {
-  if (!dom.liveStatusBanner) return;
-  dom.liveStatusBanner.className = 'live-banner';
-  dom.liveStatusBanner.style.background = 'linear-gradient(90deg, rgba(16, 185, 129, 0.18) 0%, rgba(245, 158, 11, 0.15) 100%)';
-  dom.liveStatusBanner.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+function revealSimStepResult(stepItem, finalVal) {
+  if (stepItem.isSpecial) {
+    if (window.soundEngine) window.soundEngine.playJackpot();
+  } else {
+    if (window.soundEngine) window.soundEngine.playReveal();
+  }
 
-  if (dom.liveBadgeText) dom.liveBadgeText.textContent = '✅ ĐÃ CÓ KẾT QUẢ';
-  if (dom.liveProgressFill) dom.liveProgressFill.style.width = '100%';
-  if (dom.livePrizeCounter) dom.livePrizeCounter.textContent = '27/27 giải (100% Hoàn tất)';
-  if (dom.liveStatusClock) dom.liveStatusClock.textContent = 'Kỳ quay hôm nay đã kết thúc';
+  // 1. Cập nhật lồng cầu
+  if (dom.simBallsRow) {
+    let ballsHtml = '';
+    for (let i = 0; i < 5; i++) {
+      if (i < 5 - stepItem.digits) {
+        ballsHtml += `<div class="sim-ball" style="opacity:0.2">-</div>`;
+      } else {
+        const char = finalVal[i - (5 - stepItem.digits)] || '0';
+        ballsHtml += `<div class="sim-ball revealed ${stepItem.isSpecial ? 'special' : ''}">${char}</div>`;
+      }
+    }
+    dom.simBallsRow.innerHTML = ballsHtml;
+  }
 
-  const specialNum = record ? record.special : '--';
-  const loto2D = (specialNum && specialNum !== '--') ? specialNum.slice(-2) : '--';
+  // 2. Cập nhật bảng kết quả mô phỏng
+  if (stepItem.isSpecial) {
+    if (dom.simSpecialDigits) {
+      let html = '';
+      for (let i = 0; i < finalVal.length; i++) {
+        const isLastTwo = i >= finalVal.length - 2;
+        html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''} reveal-bounce newly-revealed">${finalVal[i]}</div>`;
+      }
+      dom.simSpecialDigits.innerHTML = html;
+    }
+    if (dom.simSpecialLotoTag) {
+      const s2d = finalVal.slice(-2);
+      dom.simSpecialLotoTag.innerHTML = `2 số cuối (Bạch thủ đề): <strong style="color:var(--gold-400);font-size:1.05rem;">${s2d}</strong> (Đầu ${s2d[0]} - Đuôi ${s2d[1]})`;
+    }
+  } else {
+    const el = document.getElementById(stepItem.slotId);
+    if (el) {
+      el.textContent = finalVal;
+      el.className = 'lottery-num sim-slot newly-revealed';
+    }
+  }
 
-  if (dom.liveBannerMessage) {
-    dom.liveBannerMessage.innerHTML = `Đã có đầy đủ kết quả kỳ quay hôm nay <strong>${formatDateVN(todayVnStr)}</strong>. Giải Đặc Biệt: <strong style="color:var(--ruby-400)">${specialNum}</strong> (Lô 2 số: <strong style="color:var(--amber-400)">${loto2D}</strong>). Chúc anh em số học đại thắng!`;
+  // 3. Cập nhật 2 số cuối vào bảng Đầu - Đuôi Lô tô mô phỏng
+  const loto2D = finalVal.slice(-2);
+  simState.revealedLoto.push(loto2D);
+  renderSimLotoBoard(loto2D);
+}
+
+function renderSimLotoBoard(justAddedNumber = null) {
+  if (!dom.simLotoTableBody) return;
+
+  const heads = Array.from({ length: 10 }, () => []);
+  simState.revealedLoto.forEach(num => {
+    const headDigit = parseInt(num[0], 10);
+    if (!isNaN(headDigit) && headDigit >= 0 && headDigit <= 9) {
+      heads[headDigit].push(num);
+    }
+  });
+
+  let html = '';
+  for (let d = 0; d < 10; d++) {
+    const list = heads[d].sort();
+    const tagsHtml = list.length > 0 ?
+      list.map(n => {
+        const isNew = n === justAddedNumber;
+        return `<span class="loto-tail-badge ${isNew ? 'reveal-bounce' : ''}" style="${isNew ? 'background:var(--gold-gradient);color:#000;font-weight:800;' : ''}">${n}</span>`;
+      }).join(' ') :
+      '<span style="color:var(--text-muted);font-size:0.8rem;">-</span>';
+
+    html += `
+      <tr class="loto-row">
+        <td class="loto-head-cell" style="width:50px; text-align:center; font-weight:800; color:var(--gold-400);">${d}</td>
+        <td class="loto-tail-cell" style="padding:0.4rem 0.75rem;">${tagsHtml}</td>
+      </tr>
+    `;
+  }
+
+  dom.simLotoTableBody.innerHTML = html;
+}
+
+function finishSimulator() {
+  stopSimulator();
+  if (window.soundEngine) window.soundEngine.playJackpot();
+  if (window.confetti) window.confetti.fire(180);
+
+  if (dom.btnStartSim) {
+    dom.btnStartSim.style.display = 'inline-flex';
+    dom.btnStartSim.innerHTML = '🔄 Quay Lại Từ Đầu';
+  }
+  if (dom.btnStopSim) dom.btnStopSim.style.display = 'none';
+
+  if (dom.simStageText) {
+    dom.simStageText.innerHTML = '🎉 <strong>HOÀN TẤT KỲ QUAY MÔ PHỎNG XSMB!</strong>';
+  }
+  if (dom.simProgressFill) dom.simProgressFill.style.width = '100%';
+  if (dom.simPrizeCounter) dom.simPrizeCounter.textContent = '27/27 giải (100% Hoàn tất)';
+
+  // Render tổng kết kết quả
+  if (dom.simSummaryBox && simState.drawData) {
+    const specialVal = simState.drawData.special;
+    const deVal = specialVal.slice(-2);
+
+    // Tính tần suất xuất hiện lô tô
+    const freq = {};
+    simState.revealedLoto.forEach(n => freq[n] = (freq[n] || 0) + 1);
+
+    const multiHits = Object.entries(freq).filter(([n, c]) => c >= 2).map(([n, c]) => `<strong>${n}</strong> (${c} nháy)`);
+    const doubles = simState.revealedLoto.filter(n => n[0] === n[1]);
+    const uniqueDoubles = [...new Set(doubles)];
+
+    dom.simSummaryBox.style.display = 'block';
+    dom.simSummaryBox.innerHTML = `
+      <div style="font-weight:800; font-size:0.95rem; color:var(--gold-400); margin-bottom:0.4rem;">
+        📊 Tổng Kết Kỳ Quay Mô Phỏng
+      </div>
+      <div style="line-height:1.6;">
+        👑 Giải Đặc Biệt: <strong style="color:var(--ruby-400); font-size:1.05rem;">${specialVal}</strong> | Đề về: <strong style="color:var(--gold-400); font-size:1.05rem;">${deVal}</strong><br>
+        🍀 Lô về 2 nháy trở lên: ${multiHits.length > 0 ? multiHits.join(', ') : 'Không có'}<br>
+        💎 Lô kép xuất hiện: ${uniqueDoubles.length > 0 ? uniqueDoubles.map(d => `<strong style="color:var(--cyan-400)">${d}</strong>`).join(', ') : 'Không có'}
+      </div>
+    `;
   }
 }
 
@@ -1410,83 +1581,7 @@ async function syncDataWithServer(isManual = false) {
     if (dom.syncIconSpin) {
       setTimeout(() => dom.syncIconSpin.classList.remove('rotating'), 600);
     }
-    updateLiveBannerStatus();
   }
-}
-
-// Render progressive draw state directly onto the main lottery board
-function renderLiveDrawingBoard(liveData, isNewArrival = false) {
-  if (!liveData) return;
-
-  const dObj = new Date(liveData.date);
-  const dayOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'][dObj.getDay()];
-  const formattedDate = formatDateVN(liveData.date);
-
-  if (dom.boardDateLabel) {
-    dom.boardDateLabel.innerHTML = `Kỳ quay: <strong>${formattedDate}</strong> (${dayOfWeek}) <span class="live-radar-badge" style="font-size:0.7rem;padding:0.15rem 0.5rem;margin-left:0.4rem">ĐANG QUAY</span>`;
-  }
-  if (dom.datePicker) dom.datePicker.value = liveData.date;
-
-  // Render Special Prize
-  if (dom.specialDigits) {
-    if (liveData.special && liveData.special.length === 5) {
-      let html = '';
-      for (let i = 0; i < liveData.special.length; i++) {
-        const isLastTwo = i >= liveData.special.length - 2;
-        html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''} ${isNewArrival ? 'reveal-bounce newly-revealed' : ''}">${liveData.special[i]}</div>`;
-      }
-      dom.specialDigits.innerHTML = html;
-      if (dom.specialLotoTag) {
-        const s2d = liveData.special.slice(-2);
-        dom.specialLotoTag.innerHTML = `2 số cuối: <strong>${s2d}</strong> (Đầu ${s2d[0]} - Đuôi ${s2d[1]})`;
-      }
-    } else {
-      dom.specialDigits.innerHTML = `
-        <div class="special-digit-ball">-</div>
-        <div class="special-digit-ball">-</div>
-        <div class="special-digit-ball">-</div>
-        <div class="special-digit-ball last-two">-</div>
-        <div class="special-digit-ball last-two">-</div>
-      `;
-      if (dom.specialLotoTag) dom.specialLotoTag.innerHTML = '2 số cuối: -- <span style="opacity:0.75">(Đang chờ mở thưởng)</span>';
-    }
-  }
-
-  // Render Helper for other prize rows
-  function renderPartialSlot(container, drawnList, expectedCount, digits, cssClass) {
-    if (!container) return;
-    const nums = drawnList || [];
-    let html = '';
-    for (let i = 0; i < expectedCount; i++) {
-      if (i < nums.length && nums[i]) {
-        const n = nums[i];
-        html += `<span class="lottery-num ${cssClass} ${isNewArrival ? 'reveal-bounce newly-revealed' : ''}" data-num="${n}" data-loto="${n.slice(-2)}" onclick="highlightLotoNumber('${n.slice(-2)}')">${n}</span>`;
-      } else {
-        html += `<span class="lottery-num ${cssClass}" style="opacity:0.35;letter-spacing:2px;user-select:none;">${'•'.repeat(digits)}</span>`;
-      }
-    }
-    container.innerHTML = html;
-  }
-
-  renderPartialSlot(dom.prize1Container, liveData.p1 ? [liveData.p1] : [], 1, 5, 'prize-1-num');
-  renderPartialSlot(dom.prize2Container, liveData.p2, 2, 5, 'prize-2-num');
-  renderPartialSlot(dom.prize3Container, liveData.p3, 6, 5, 'prize-3-num');
-  renderPartialSlot(dom.prize4Container, liveData.p4, 4, 4, 'prize-4-num');
-  renderPartialSlot(dom.prize5Container, liveData.p5, 6, 4, 'prize-5-num');
-  renderPartialSlot(dom.prize6Container, liveData.p6, 3, 3, 'prize-6-num');
-  renderPartialSlot(dom.prize7Container, liveData.p7, 4, 2, 'prize-7-num');
-
-  // Real-time Loto 2-Digits Board update
-  renderLotoBoard({
-    special: liveData.special || '00000',
-    loto: liveData.loto || []
-  });
-
-  // Daily pairs & kép update
-  renderDailyPairs({
-    special: liveData.special || '00000',
-    loto: liveData.loto || []
-  });
 }
 
 

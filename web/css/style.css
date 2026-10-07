@@ -1010,63 +1010,212 @@ body {
 }
 
 /* ===================================================================
-   Live Draw Realtime Highlighting & Keyframes
+   Simulator Styles (Quay Mô Phỏng XSMB: G1 -> G7 -> GĐB)
    =================================================================== */
 
-.live-banner-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  flex: 1;
+.simulator-container {
+  background: radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 65%), var(--bg-card);
+  border: 1px solid var(--border-highlight);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
 }
 
-.live-draw-progress-wrap {
+.sim-header-flex {
+  margin-bottom: 1.25rem;
+}
+
+.sim-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.sim-stage-badge {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-highlight);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold-400);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sim-speed-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.sim-speed-btn {
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.sim-speed-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-highlight);
+}
+
+.sim-speed-btn.active {
+  background: var(--brand-gradient);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px var(--brand-glow);
+}
+
+.sim-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Simulation Progress Bar */
+.sim-progress-wrap {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  max-width: 580px;
+  margin-bottom: 1.25rem;
 }
 
-.live-progress-bar-bg {
+.sim-progress-bar-bg {
   width: 100%;
-  height: 9px;
+  height: 8px;
   background: rgba(0, 0, 0, 0.45);
   border-radius: var(--radius-full);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.live-progress-bar-fill {
+.sim-progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+  background: linear-gradient(90deg, #3b82f6 0%, #fbbf24 60%, #ef4444 100%);
   border-radius: var(--radius-full);
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
-.live-progress-info {
+.sim-progress-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 0.78rem;
-  font-weight: 700;
-  gap: 1rem;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
-.live-prize-counter {
+#sim-prize-counter {
   color: var(--gold-400);
   font-family: var(--font-mono);
-  letter-spacing: 0.02em;
+  font-weight: 700;
 }
 
-.live-status-clock {
-  color: var(--text-secondary);
-  font-size: 0.74rem;
-  opacity: 0.85;
+/* Animated Rolling Balls Cage */
+.rolling-cage {
+  background: linear-gradient(180deg, rgba(8, 23, 92, 0.6) 0%, rgba(2, 7, 31, 0.85) 100%);
+  border: 1px solid var(--border-highlight);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
+.sim-cage-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--gold-400);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
 
+.sim-balls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.sim-ball {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fbbf24 35%, #d97706 85%, #92400e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #1e1b4b;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4), inset -2px -4px 6px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.8);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sim-ball.rolling {
+  animation: rollBallJiggle 0.1s infinite linear;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #60a5fa 35%, #2563eb 85%, #1e3a8a 100%);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5);
+}
+
+.sim-ball.special {
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #f87171 35%, #dc2626 85%, #7f1d1d 100%);
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.6), inset 2px 2px 5px rgba(255, 255, 255, 0.9);
+}
+
+@keyframes rollBallJiggle {
+  0% { transform: translateY(-3px) rotate(-4deg); }
+  50% { transform: translateY(3px) rotate(4deg); }
+  100% { transform: translateY(-3px) rotate(-4deg); }
+}
+
+.sim-slot {
+  transition: all 0.25s ease;
+}
+
+.sim-slot.rolling-now {
+  color: var(--cyan-400) !important;
+  border-color: var(--cyan-400) !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5) !important;
+  animation: pulseDot 0.6s infinite;
+}
+
+.sim-slot.newly-revealed {
+  color: #ffffff !important;
+  border-color: var(--gold-400) !important;
+  box-shadow: 0 0 16px var(--gold-glow) !important;
+  animation: revealBounce 0.4s ease forwards;
+}
+
+.sim-slot.revealed-special {
+  color: #ffffff !important;
+  border-color: var(--ruby-400) !important;
+  box-shadow: 0 0 20px var(--ruby-glow) !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+}
 
 @keyframes revealBounce {
   0% { transform: scale(0.7); opacity: 0.5; }
