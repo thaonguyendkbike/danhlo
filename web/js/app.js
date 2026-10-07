@@ -830,13 +830,13 @@ function switchTab(tabId) {
 }
 
 function initTheme() {
-  const saved = localStorage.getItem('xsmb-theme') || 'dark';
+  const saved = localStorage.getItem('xsmb-theme') || 'light';
   document.documentElement.setAttribute('data-theme', saved);
   updateThemeIcon(saved);
 }
 
 function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('xsmb-theme', next);

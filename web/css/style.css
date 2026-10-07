@@ -1,105 +1,130 @@
 /* ===================================================================
-   XSMB VIP - Vietnam Lottery Analysis & Live Dashboard
-   Design System & Styling
+   Hội Đam Mê Số Học DK - Kết Quả Xổ Số Miền Bắc (XSMB)
+   Phong cách thiết kế: Đơn giản, rõ ràng, truyền thống chuẩn mực,
+   tối ưu tra cứu nhanh, không lạm dụng hiệu ứng đồ họa hay neon AI.
    =================================================================== */
 
 :root {
-  /* Primary Theme Brand (#0213b0) */
-  --brand-primary: #0213b0;
-  --brand-primary-light: #2563eb;
-  --brand-primary-dark: #010a5e;
-  --brand-gradient: linear-gradient(135deg, #1d4ed8 0%, #0213b0 55%, #010a5e 100%);
-  --brand-glow: rgba(2, 19, 176, 0.45);
+  /* Bảng màu chính (Theme Sáng - Mặc định cho trang xổ số Việt Nam) */
+  --brand-red: #c8102e;          /* Đỏ truyền thống xổ số kiến thiết */
+  --brand-red-hover: #a50b24;
+  --brand-navy: #1e3a8a;         /* Xanh navy trang trọng */
+  --brand-navy-light: #2563eb;
 
-  /* Color Palette - Deep Royal Sapphire Dark Luxe */
-  --bg-primary: #02071f;
-  --bg-secondary: #040e3d;
-  --bg-tertiary: #08175c;
-  --bg-card: rgba(4, 14, 61, 0.85);
-  --bg-card-hover: rgba(8, 23, 92, 0.95);
-  --bg-glass: rgba(255, 255, 255, 0.04);
-  --border-subtle: rgba(59, 130, 246, 0.22);
-  --border-highlight: rgba(59, 130, 246, 0.6);
+  /* Nền & Thẻ */
+  --bg-primary: #f1f5f9;         /* Slate 100 - nền dịu mắt */
+  --bg-secondary: #ffffff;       /* Trắng tinh khôi */
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-tertiary: #f8fafc;        /* Slate 50 */
+  --bg-muted: #e2e8f0;
 
-  /* Lottery Accents */
-  --gold-300: #fde68a;
-  --gold-400: #fbbf24;
-  --gold-500: #f59e0b;
-  --gold-600: #d97706;
-  --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-  --gold-glow: rgba(245, 158, 11, 0.35);
+  /* Đường kẻ & Viền */
+  --border-subtle: #e2e8f0;       /* Viền thanh lịch */
+  --border-highlight: #cbd5e1;
+  --border-strong: #94a3b8;
 
-  --ruby-400: #f87171;
-  --ruby-500: #ef4444;
-  --ruby-600: #dc2626;
-  --ruby-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
-  --ruby-glow: rgba(239, 68, 68, 0.35);
-
-  --emerald-400: #34d399;
-  --emerald-500: #10b981;
-  --emerald-600: #059669;
-
-  --cyan-400: #38bdf8;
-  --cyan-500: #0ea5e9;
-  --cyan-600: #0284c7;
-
-  --purple-400: #c084fc;
-  --purple-500: #a855f7;
-
-  /* Text Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #93c5fd;
-  --text-muted: #60a5fa;
-  --text-inverse: #02071f;
-
-  /* Typography */
-  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Space Grotesk', 'Fira Code', monospace;
-
-  /* Shadows & Elevations */
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.7);
-  --shadow-brand: 0 0 25px rgba(2, 19, 176, 0.5);
-  --shadow-gold: 0 0 25px rgba(245, 158, 11, 0.25);
-  --shadow-ruby: 0 0 25px rgba(239, 68, 68, 0.3);
-
-  /* Layout */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-full: 9999px;
-  --header-height: 72px;
-  --max-width: 1440px;
-  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-normal: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Light Theme Variables */
-[data-theme="light"] {
-  --bg-primary: #f0f4ff;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #dbeafe;
-  --bg-card: rgba(255, 255, 255, 0.9);
-  --bg-card-hover: #ffffff;
-  --bg-glass: rgba(2, 19, 176, 0.04);
-  --border-subtle: rgba(2, 19, 176, 0.15);
-  --border-highlight: rgba(2, 19, 176, 0.5);
-
-  --text-primary: #020f66;
-  --text-secondary: #1e3a8a;
-  --text-muted: #3b82f6;
+  /* Màu chữ */
+  --text-primary: #0f172a;        /* Đen than Slate 900 - nét, rõ */
+  --text-secondary: #334155;      /* Slate 700 */
+  --text-muted: #64748b;          /* Slate 500 */
   --text-inverse: #ffffff;
 
-  --shadow-sm: 0 2px 6px rgba(2, 19, 176, 0.08);
-  --shadow-md: 0 6px 18px rgba(2, 19, 176, 0.12);
-  --shadow-lg: 0 14px 36px rgba(2, 19, 176, 0.16);
-  --shadow-brand: 0 0 20px rgba(2, 19, 176, 0.25);
-  --shadow-gold: 0 0 20px rgba(217, 119, 6, 0.2);
-  --shadow-ruby: 0 0 20px rgba(220, 38, 38, 0.2);
+  /* Màu giải thưởng */
+  --prize-special: #dc2626;       /* Đỏ nổi bật giải đặc biệt */
+  --prize-special-bg: #fef2f2;    /* Nền đỏ nhạt giải đặc biệt */
+  --prize-special-border: #fecaca;
+  --prize-first: #1e3a8a;         /* Xanh navy giải nhất */
+  --prize-seventh: #b91c1c;       /* Đỏ sẫm giải 7 */
+  --highlight-bg: #fef08a;        /* Vàng highlight khi tra cứu */
+  --highlight-text: #854d0e;
+  --highlight-border: #eab308;
+
+  /* Trạng thái */
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+
+  /* Aliases tương thích ngược */
+  --gold-400: #d97706;
+  --gold-500: #b45309;
+  --gold-gradient: #fef08a;
+  --ruby-400: #dc2626;
+  --ruby-500: #b91c1c;
+  --ruby-gradient: #dc2626;
+  --cyan-400: #2563eb;
+  --emerald-400: #16a34a;
+
+  /* Kiểu chữ */
+  --font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'Roboto Mono', 'SF Pro Display', Consolas, Menlo, monospace;
+
+  /* Bo góc & Đổ bóng nhẹ nhàng, thực tế */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  --max-width: 1320px;
+  --transition-fast: 0.15s ease-in-out;
 }
 
-/* Reset & Base */
+/* ===================================================================
+   Chế độ tối (Dark Mode - Slate Tối Giản, Dịu Mắt, Không Neon)
+   =================================================================== */
+[data-theme="dark"] {
+  --brand-red: #ef4444;
+  --brand-red-hover: #dc2626;
+  --brand-navy: #3b82f6;
+  --brand-navy-light: #60a5fa;
+
+  --bg-primary: #0f172a;         /* Slate 900 */
+  --bg-secondary: #1e293b;       /* Slate 800 */
+  --bg-card: #1e293b;
+  --bg-card-hover: #273549;
+  --bg-tertiary: #162032;
+  --bg-muted: #334155;
+
+  --border-subtle: #334155;       /* Slate 700 */
+  --border-highlight: #475569;
+  --border-strong: #64748b;
+
+  --text-primary: #f8fafc;        /* Slate 50 */
+  --text-secondary: #cbd5e1;      /* Slate 300 */
+  --text-muted: #94a3b8;          /* Slate 400 */
+  --text-inverse: #0f172a;
+
+  --prize-special: #f87171;
+  --prize-special-bg: #450a0a;
+  --prize-special-border: #991b1b;
+  --prize-first: #93c5fd;
+  --prize-seventh: #fca5a5;
+  --highlight-bg: #854d0e;
+  --highlight-text: #fef08a;
+  --highlight-border: #ca8a04;
+
+  --gold-400: #fbbf24;
+  --gold-500: #f59e0b;
+  --gold-gradient: #854d0e;
+  --ruby-400: #f87171;
+  --ruby-500: #ef4444;
+  --ruby-gradient: #dc2626;
+  --cyan-400: #60a5fa;
+  --emerald-400: #34d399;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* ===================================================================
+   Reset & Thiết lập nền tảng
+   =================================================================== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -109,11 +134,11 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
-[data-theme="light"] html {
-  color-scheme: light;
+[data-theme="dark"] html {
+  color-scheme: dark;
 }
 
 body {
@@ -122,265 +147,162 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.5;
-  overflow-x: hidden;
-  background-image:
-    radial-gradient(circle at 15% 10%, rgba(2, 19, 176, 0.45) 0%, transparent 50%),
-    radial-gradient(circle at 85% 20%, rgba(37, 99, 235, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(2, 19, 176, 0.3) 0%, transparent 55%);
-  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
+/* Thanh cuộn tối giản */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
+  background: var(--border-highlight);
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-500);
+  background: var(--text-muted);
 }
 
-/* App Container */
 .app-container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 1.25rem 3rem 1.25rem;
+  padding: 0 1rem 3rem 1rem;
 }
 
 /* ===================================================================
-   Header & Navigation
+   Header & Điều hướng Đầu Trang (Site Header)
    =================================================================== */
-
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  background: var(--bg-card);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 1.5rem;
-  transition: var(--transition-fast);
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
 }
 
 .header-top-row {
-  display: contents;
-}
-
-.mobile-bottom-nav {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .brand-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
   text-decoration: none;
   color: inherit;
 }
 
 .brand-logo-ball {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--brand-gradient);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-red);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
   font-weight: 800;
   font-size: 1.15rem;
-  color: #ffffff;
-  box-shadow: 0 0 20px var(--brand-glow), inset 0 2px 4px rgba(255, 255, 255, 0.6);
-  position: relative;
-  overflow: hidden;
-  animation: floatBall 3.5s ease-in-out infinite;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.brand-logo-ball::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 6px;
-  width: 14px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  transform: rotate(-30deg);
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-sm);
 }
 
 .brand-text h1 {
   font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  background: linear-gradient(to right, #ffffff, #93c5fd, #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-[data-theme="light"] .brand-text h1 {
-  background: linear-gradient(to right, #0213b0, #1d4ed8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.brand-badge {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: var(--radius-full);
-  background: var(--brand-gradient);
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 10px var(--brand-glow);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .brand-subtext {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 1px;
 }
 
-/* Header Live Status */
-.header-status {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-}
-
-.live-clock-card {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.85rem;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--emerald-500);
-  box-shadow: 0 0 8px var(--emerald-500);
-  animation: pulseDot 1.8s infinite;
-}
-
-.countdown-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.85rem;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  border-radius: var(--radius-full);
-  font-size: 0.82rem;
-  color: var(--gold-400);
-  font-weight: 600;
-}
-
-.countdown-value {
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-
-/* Header Controls */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
+.btn-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-sync:hover {
+  background: var(--bg-muted);
+  border-color: var(--border-highlight);
+}
+
 .icon-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-md);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-size: 1rem;
   transition: var(--transition-fast);
-  font-size: 1.1rem;
 }
 
 .icon-btn:hover {
-  background: var(--gold-500);
-  color: #000;
-  border-color: var(--gold-500);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-gold);
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1.1rem;
-  background: var(--brand-gradient);
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: var(--transition-fast);
-  box-shadow: 0 4px 14px var(--brand-glow);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(2, 19, 176, 0.7);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: var(--bg-muted);
+  border-color: var(--border-highlight);
 }
 
 /* ===================================================================
-   Navigation Tabs
+   Thanh Tabs Điều Hướng (Main Navigation Tabs)
    =================================================================== */
-
 .nav-tabs-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: var(--bg-secondary);
-  padding: 0.35rem;
-  border-radius: var(--radius-full);
+  padding: 0.35rem 0.5rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
-  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  gap: 1rem;
 }
 
 .nav-tabs {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
   list-style: none;
   flex-wrap: nowrap;
 }
@@ -392,12 +314,12 @@ body {
 .nav-tab-btn {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 1rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
   background: transparent;
   color: var(--text-secondary);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   font-family: var(--font-family);
   font-size: 0.88rem;
   font-weight: 600;
@@ -412,22 +334,28 @@ body {
 }
 
 .nav-tab-btn.active {
-  background: var(--brand-gradient);
+  background: var(--brand-navy);
   color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 2px 12px var(--brand-glow);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .nav-tab-btn.active {
+  background: var(--brand-navy);
+  color: #ffffff;
 }
 
 .quick-search-box {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.85rem;
-  background: var(--bg-primary);
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .quick-search-box input {
@@ -436,59 +364,74 @@ body {
   outline: none;
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  width: 90px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  width: 85px;
 }
 
 .quick-search-box input::placeholder {
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-weight: normal;
+}
+
+.search-alert-bar {
+  margin: 0 0 1rem 0;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+}
+
+[data-theme="dark"] .search-alert-bar {
+  background: #064e3b;
+  border-color: #047857;
+  color: #6ee7b7;
 }
 
 /* ===================================================================
-   Date Control Bar
+   Thanh Chọn Ngày & Tiện Ích (Date Navigation Bar)
    =================================================================== */
-
 .date-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
+  gap: 0.75rem;
+  background: var(--bg-secondary);
+  padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
-  padding: 0.85rem 1.25rem;
-  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 1.25rem;
   box-shadow: var(--shadow-sm);
 }
 
 .date-selector-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .date-nav-btn {
-  padding: 0.45rem 0.8rem;
+  padding: 0.45rem 0.75rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
   border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-fast);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
 }
 
 .date-nav-btn:hover:not(:disabled) {
-  border-color: var(--gold-500);
-  color: var(--gold-400);
-  transform: translateY(-1px);
+  background: var(--bg-muted);
+  border-color: var(--border-highlight);
 }
 
 .date-nav-btn:disabled {
@@ -502,28 +445,26 @@ body {
   color: var(--text-primary);
   font-family: var(--font-family);
   font-weight: 700;
-  font-size: 0.95rem;
-  padding: 0.45rem 0.85rem;
+  font-size: 0.9rem;
+  padding: 0.42rem 0.75rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   outline: none;
-  transition: var(--transition-fast);
 }
 
 .date-picker-input:focus {
-  border-color: var(--gold-500);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  border-color: var(--brand-navy);
 }
 
 .date-shortcuts {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .date-chip {
-  padding: 0.3rem 0.7rem;
-  border-radius: var(--radius-full);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
@@ -534,47 +475,46 @@ body {
 }
 
 .date-chip:hover, .date-chip.active {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: var(--gold-500);
-  color: var(--gold-400);
+  background: var(--brand-navy);
+  border-color: var(--brand-navy);
+  color: #ffffff;
 }
 
 .board-action-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .board-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.85rem;
+  gap: 0.3rem;
+  padding: 0.45rem 0.75rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-fast);
 }
 
 .board-action-btn:hover {
-  background: var(--bg-card-hover);
-  color: var(--text-primary);
-  border-color: var(--text-muted);
+  background: var(--bg-muted);
+  border-color: var(--border-highlight);
 }
 
 /* ===================================================================
-   Lottery Layout (Main Board + Loto Head/Tail Grid)
+   Bố Cục Kết Quả (Bảng Giải Thưởng + Bảng Đầu Đuôi Lô Tô)
    =================================================================== */
-
 .lottery-grid-layout {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  align-items: start;
 }
 
 @media (max-width: 1024px) {
@@ -583,56 +523,40 @@ body {
   }
 }
 
-/* Main Prize Board */
+/* ===================================================================
+   Bảng Kết Quả Xổ Số Miền Bắc (Main Prize Table Card)
+   =================================================================== */
 .prize-board-card {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  position: relative;
-}
-
-.prize-board-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--brand-gradient);
-  box-shadow: 0 0 12px var(--brand-glow);
 }
 
 .board-header {
-  padding: 1.25rem 1.5rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--brand-red);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .board-title-group h2 {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--brand-red);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-[data-theme="light"] .board-title-group h2 {
-  color: #0f172a;
+  gap: 0.4rem;
 }
 
 .board-date-label {
   font-size: 0.85rem;
-  color: var(--gold-400);
+  color: var(--text-secondary);
   font-weight: 600;
-  margin-top: 0.2rem;
+  margin-top: 2px;
 }
 
 .board-table {
@@ -642,11 +566,11 @@ body {
 
 .board-row {
   border-bottom: 1px solid var(--border-subtle);
-  transition: var(--transition-fast);
+  transition: background-color var(--transition-fast);
 }
 
 .board-row:hover {
-  background: var(--bg-glass);
+  background-color: var(--bg-tertiary);
 }
 
 .board-row:last-child {
@@ -662,368 +586,356 @@ body {
   border-right: 1px solid var(--border-subtle);
   text-align: center;
   vertical-align: middle;
-  background: rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="light"] .prize-name-col {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--bg-tertiary);
+  user-select: none;
 }
 
 .prize-numbers-col {
-  padding: 0.85rem 1.25rem;
+  padding: 0.75rem 1rem;
   vertical-align: middle;
 }
 
-/* ===================================================================
-   Special Prize (Giải Đặc Biệt) Hero Display
-   =================================================================== */
-
+/* Giải Đặc Biệt (Hero Row) */
 .board-row.special-row {
-  background: linear-gradient(90deg, rgba(239, 68, 68, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);
-  border-bottom: 2px solid rgba(239, 68, 68, 0.3);
+  background: var(--prize-special-bg);
+  border-bottom: 2px solid var(--prize-special-border);
+}
+
+.board-row.special-row:hover {
+  background: var(--prize-special-bg);
 }
 
 .board-row.special-row .prize-name-col {
-  color: var(--ruby-400);
+  color: var(--prize-special);
   font-weight: 800;
-  font-size: 0.92rem;
-  background: rgba(239, 68, 68, 0.15);
+  font-size: 0.95rem;
+  background: rgba(220, 38, 38, 0.06);
+  border-right-color: var(--prize-special-border);
 }
 
 .special-number-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
+  gap: 0.45rem;
+  padding: 0.35rem 0;
 }
 
 .special-digit-ball {
-  width: 52px;
-  height: 58px;
-  border-radius: var(--radius-md);
-  background: var(--ruby-gradient);
+  width: 46px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  border: 1px solid var(--border-highlight);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 2.1rem;
   font-weight: 900;
-  color: #ffffff;
-  box-shadow: 0 8px 20px var(--ruby-glow), inset 0 2px 4px rgba(255, 255, 255, 0.4);
-  position: relative;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  animation: pulseSpecial 2.5s infinite;
+  color: var(--prize-special);
+  box-shadow: var(--shadow-sm);
+  user-select: all;
+}
+
+[data-theme="dark"] .special-digit-ball {
+  background: #1e293b;
+  border-color: #475569;
 }
 
 .special-digit-ball.last-two {
-  background: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%);
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.5);
-  animation: pulseGold 2.5s infinite 0.2s;
+  background: var(--prize-special);
+  color: #ffffff;
+  border-color: var(--prize-special);
+}
+
+[data-theme="dark"] .special-digit-ball.last-two {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #ef4444;
 }
 
 .special-meta {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.85rem;
   margin-top: 0.45rem;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
 }
 
 .special-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
-  background: rgba(245, 158, 11, 0.12);
-  color: var(--gold-400);
+  border-radius: var(--radius-xs);
+  background: #ffffff;
+  border: 1px solid var(--prize-special-border);
+  color: var(--prize-special);
   font-weight: 700;
+  font-size: 0.82rem;
 }
 
-/* Standard Numbers Formatting */
+[data-theme="dark"] .special-tag {
+  background: #1e293b;
+  border-color: #991b1b;
+}
+
+/* Dãy Số Các Giải Còn Lại (Chuẩn Bản In, Sạch Sẽ) */
 .numbers-flex-wrap {
   display: flex;
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.75rem 1.25rem;
 }
 
 .lottery-num {
   font-family: var(--font-mono);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius-sm);
-  background: var(--bg-glass);
-  border: 1px solid var(--border-subtle);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
   transition: var(--transition-fast);
   cursor: pointer;
-  position: relative;
   user-select: all;
 }
 
 .lottery-num:hover {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: var(--gold-500);
-  color: var(--gold-400);
-  transform: scale(1.06);
+  background: var(--bg-tertiary);
+  border-color: var(--border-subtle);
+  color: var(--brand-navy-light);
 }
 
+/* Tô sáng khi bấm tìm kiếm hoặc bấm lô tô */
 .lottery-num.highlighted {
-  background: var(--gold-gradient) !important;
-  color: #000 !important;
-  border-color: #fff !important;
-  box-shadow: 0 0 15px var(--gold-glow);
-  transform: scale(1.08);
-  font-weight: 900;
+  background: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+  border-color: var(--highlight-border) !important;
+  font-weight: 900 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .prize-1-num {
-  font-size: 1.55rem;
-  color: var(--gold-400);
-  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--prize-first);
 }
 
 .prize-2-num {
   font-size: 1.35rem;
-  color: #ffffff;
+  font-weight: 700;
 }
 
 .prize-3-num {
   font-size: 1.25rem;
-  color: #ffffff;
+  font-weight: 700;
 }
 
 .prize-4-num, .prize-5-num {
-  font-size: 1.15rem;
-  color: var(--cyan-400);
+  font-size: 1.18rem;
+  font-weight: 700;
 }
 
 .prize-6-num {
-  font-size: 1.2rem;
-  color: var(--purple-400);
+  font-size: 1.22rem;
+  font-weight: 700;
 }
 
 .prize-7-num {
   font-size: 1.35rem;
-  color: var(--emerald-400);
-  font-weight: 900;
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-[data-theme="light"] .prize-2-num,
-[data-theme="light"] .prize-3-num {
-  color: #0f172a;
+  font-weight: 800;
+  color: var(--prize-seventh);
 }
 
 /* ===================================================================
-   Loto 2-Digits (Đầu - Đuôi) Board
+   Bảng Đầu - Đuôi Lô Tô (Loto 2-Digits Card)
    =================================================================== */
-
 .loto-board-card {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .loto-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.85rem 1.25rem;
+  border-bottom: 2px solid var(--brand-navy);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: var(--bg-secondary);
+}
+
+.loto-header h2, .loto-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
 }
 
 .loto-mode-toggle {
   display: flex;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  padding: 2px;
 }
 
 .mode-toggle-btn {
-  padding: 0.35rem 0.85rem;
+  padding: 0.3rem 0.75rem;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   font-size: 0.8rem;
-  font-weight: 700;
-  border-radius: var(--radius-full);
+  font-weight: 600;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: var(--transition-fast);
 }
 
 .mode-toggle-btn.active {
-  background: var(--gold-gradient);
-  color: #000;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  background: var(--bg-secondary);
+  color: var(--brand-navy);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .mode-toggle-btn.active {
+  background: var(--brand-navy);
+  color: #ffffff;
 }
 
 .loto-table-wrapper {
-  padding: 0.75rem 1.25rem;
-  flex: 1;
+  padding: 0.5rem;
 }
 
 .loto-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 6px;
+  border-collapse: collapse;
 }
 
 .loto-row {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: var(--radius-sm);
-  transition: var(--transition-fast);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color var(--transition-fast);
 }
 
 .loto-row:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background-color: var(--bg-tertiary);
 }
 
-.loto-head-col {
-  width: 70px;
-  padding: 0.65rem 0.85rem;
+.loto-row:last-child {
+  border-bottom: none;
+}
+
+.loto-head-col, .loto-head-cell {
+  width: 60px;
+  padding: 0.55rem 0.5rem;
   text-align: center;
   font-family: var(--font-mono);
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--gold-400);
-  border-top-left-radius: var(--radius-sm);
-  border-bottom-left-radius: var(--radius-sm);
-  background: rgba(245, 158, 11, 0.1);
+  color: var(--brand-navy);
+  background: var(--bg-tertiary);
+  border-right: 1px solid var(--border-subtle);
+  user-select: none;
 }
 
 .loto-head-col.cam {
-  color: var(--ruby-400);
-  background: rgba(239, 68, 68, 0.15);
+  color: var(--brand-red);
+  background: rgba(220, 38, 38, 0.05);
 }
 
-.loto-tail-col {
-  padding: 0.65rem 1rem;
-  border-top-right-radius: var(--radius-sm);
-  border-bottom-right-radius: var(--radius-sm);
+.loto-tail-col, .loto-tail-cell {
+  padding: 0.5rem 0.85rem;
+  vertical-align: middle;
 }
 
 .loto-tags-flex {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.4rem;
 }
 
 .loto-pill {
   font-family: var(--font-mono);
   font-size: 0.95rem;
   font-weight: 700;
-  padding: 0.25rem 0.55rem;
+  padding: 0.2rem 0.55rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   color: var(--text-primary);
   cursor: pointer;
   transition: var(--transition-fast);
-  position: relative;
+  user-select: none;
 }
 
 .loto-pill:hover {
-  background: var(--gold-500);
-  color: #000;
-  transform: translateY(-2px);
+  background: var(--bg-muted);
+  border-color: var(--border-highlight);
+  color: var(--brand-navy-light);
 }
 
 .loto-pill.is-special {
-  background: var(--ruby-gradient);
-  color: #fff;
-  border-color: #ef4444;
-  box-shadow: 0 0 10px var(--ruby-glow);
+  background: var(--prize-special);
+  color: #ffffff;
+  border-color: var(--prize-special);
+  font-weight: 900;
 }
 
 .loto-pill.multi-hit::after {
   content: 'x' attr(data-count);
-  font-size: 0.65rem;
-  font-weight: 900;
-  color: var(--gold-400);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-warning);
   margin-left: 0.2rem;
 }
 
-.cam-badge {
-  font-size: 0.8rem;
-  color: var(--ruby-400);
-  font-weight: 600;
-  font-style: italic;
+.loto-pill.is-special.multi-hit::after {
+  color: #fef08a;
 }
 
-/* Quick search result alert */
-.search-alert-bar {
-  margin: 0.75rem 1.25rem 1.25rem 1.25rem;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--emerald-400);
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: none;
-  align-items: center;
-  justify-content: space-between;
+.cam-badge {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: 500;
 }
 
 /* ===================================================================
-   Card Sections & Containers
+   Tab Quay Mô Phỏng (Draw Simulator - G1 -> G7 -> GĐB)
    =================================================================== */
-
-.card-section {
+.simulator-container {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-lg);
+}
+
+.sim-header-flex {
+  margin-bottom: 1.25rem;
 }
 
 .section-title {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.4rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
 }
 
 .section-desc {
   font-size: 0.88rem;
   color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-}
-
-/* ===================================================================
-   Simulator Styles (Quay Mô Phỏng XSMB: G1 -> G7 -> GĐB)
-   =================================================================== */
-
-.simulator-container {
-  background: radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 65%), var(--bg-card);
-  border: 1px solid var(--border-highlight);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--shadow-lg);
-}
-
-.sim-header-flex {
-  margin-bottom: 1.25rem;
+  line-height: 1.5;
 }
 
 .sim-controls-bar {
@@ -1031,40 +943,38 @@ body {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  background: var(--bg-secondary);
+  gap: 0.85rem;
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
   margin-bottom: 1.25rem;
 }
 
 .sim-stage-badge {
-  padding: 0.45rem 1rem;
-  border-radius: var(--radius-full);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-highlight);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-xs);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--gold-400);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  color: var(--brand-navy);
 }
 
 .sim-speed-selector {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   font-size: 0.82rem;
   color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .sim-speed-btn {
-  padding: 0.35rem 0.75rem;
-  background: var(--bg-tertiary);
+  padding: 0.3rem 0.65rem;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-xs);
   color: var(--text-secondary);
   font-size: 0.78rem;
   font-weight: 600;
@@ -1073,24 +983,43 @@ body {
 }
 
 .sim-speed-btn:hover {
-  color: var(--text-primary);
   border-color: var(--border-highlight);
+  color: var(--text-primary);
 }
 
 .sim-speed-btn.active {
-  background: var(--brand-gradient);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 10px var(--brand-glow);
+  background: var(--brand-navy);
+  color: #ffffff;
+  border-color: var(--brand-navy);
 }
 
 .sim-btn-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
-/* Simulation Progress Bar */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  background: var(--brand-red);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--brand-red-hover);
+}
+
+/* Tiến độ quay */
 .sim-progress-wrap {
   display: flex;
   flex-direction: column;
@@ -1100,148 +1029,136 @@ body {
 
 .sim-progress-bar-bg {
   width: 100%;
-  height: 8px;
-  background: rgba(0, 0, 0, 0.45);
+  height: 6px;
+  background: var(--bg-muted);
   border-radius: var(--radius-full);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sim-progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #fbbf24 60%, #ef4444 100%);
+  background: var(--brand-navy);
   border-radius: var(--radius-full);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  transition: width 0.25s ease;
 }
 
 .sim-progress-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   font-weight: 600;
 }
 
-#sim-prize-counter {
-  color: var(--gold-400);
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-
-/* Animated Rolling Balls Cage */
+/* Khung hiển thị bóng số mô phỏng */
 .rolling-cage {
-  background: linear-gradient(180deg, rgba(8, 23, 92, 0.6) 0%, rgba(2, 7, 31, 0.85) 100%);
-  border: 1px solid var(--border-highlight);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .sim-cage-label {
   font-size: 0.85rem;
   font-weight: 800;
-  color: var(--gold-400);
-  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .sim-balls-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .sim-ball {
-  width: 62px;
-  height: 62px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #fbbf24 35%, #d97706 85%, #92400e 100%);
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-highlight);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 1.9rem;
-  font-weight: 900;
-  color: #1e1b4b;
-  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4), inset -2px -4px 6px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.8);
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
 }
 
 .sim-ball.rolling {
-  animation: rollBallJiggle 0.1s infinite linear;
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #60a5fa 35%, #2563eb 85%, #1e3a8a 100%);
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5);
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  transform: translateY(-2px);
 }
 
 .sim-ball.special {
-  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #f87171 35%, #dc2626 85%, #7f1d1d 100%);
-  color: #fff;
-  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.6), inset 2px 2px 5px rgba(255, 255, 255, 0.9);
-}
-
-@keyframes rollBallJiggle {
-  0% { transform: translateY(-3px) rotate(-4deg); }
-  50% { transform: translateY(3px) rotate(4deg); }
-  100% { transform: translateY(-3px) rotate(-4deg); }
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
 }
 
 .sim-slot {
-  transition: all 0.25s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .sim-slot.rolling-now {
-  color: var(--cyan-400) !important;
-  border-color: var(--cyan-400) !important;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5) !important;
-  animation: pulseDot 0.6s infinite;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #3b82f6 !important;
 }
 
 .sim-slot.newly-revealed {
-  color: #ffffff !important;
-  border-color: var(--gold-400) !important;
-  box-shadow: 0 0 16px var(--gold-glow) !important;
-  animation: revealBounce 0.4s ease forwards;
+  background: var(--highlight-bg) !important;
+  color: var(--highlight-text) !important;
+  border-color: var(--highlight-border) !important;
+  font-weight: 900 !important;
 }
 
 .sim-slot.revealed-special {
-  color: #ffffff !important;
-  border-color: var(--ruby-400) !important;
-  box-shadow: 0 0 20px var(--ruby-glow) !important;
-  background: rgba(239, 68, 68, 0.2) !important;
+  background: var(--prize-special-bg) !important;
+  color: var(--prize-special) !important;
+  border-color: var(--prize-special-border) !important;
 }
 
-@keyframes revealBounce {
-  0% { transform: scale(0.7); opacity: 0.5; }
-  50% { transform: scale(1.18); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.reveal-bounce {
-  animation: revealBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
-}
-
-.newly-revealed {
-  border-color: var(--gold-400) !important;
-  box-shadow: 0 0 18px var(--gold-glow), inset 0 0 8px rgba(245, 158, 11, 0.3) !important;
-  color: #fff !important;
+.loto-tail-badge {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  display: inline-block;
+  margin: 2px;
 }
 
 /* ===================================================================
-   Statistics & Insights (Thống Kê Chuyên Sâu)
+   Tab Thống Kê & Lô Gan (Analytics)
    =================================================================== */
+.card-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
 
 .stats-grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 @media (max-width: 900px) {
@@ -1252,17 +1169,16 @@ body {
 
 .stat-box {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-box-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1274,61 +1190,54 @@ body {
 }
 
 .stat-table th {
-  padding: 0.6rem 0.75rem;
+  padding: 0.55rem 0.75rem;
   text-align: left;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
 }
 
 .stat-table td {
-  padding: 0.65rem 0.75rem;
+  padding: 0.6rem 0.75rem;
   font-size: 0.88rem;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .progress-bar-container {
   width: 100%;
-  height: 8px;
-  background: var(--bg-tertiary);
+  height: 6px;
+  background: var(--bg-muted);
   border-radius: var(--radius-full);
   overflow: hidden;
-  position: relative;
 }
 
 .progress-bar-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  transition: width 0.8s ease;
 }
 
 .fill-ruby {
-  background: var(--ruby-gradient);
+  background: var(--brand-red);
 }
 
 .fill-gold {
-  background: var(--gold-gradient);
+  background: var(--brand-navy);
 }
 
-/* 10x10 Matrix Heatmap Grid */
+/* Ma trận 100 số (00 - 99 Heatmap) */
 .matrix-grid-100 {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 6px;
+  gap: 5px;
   margin-top: 1rem;
-}
-
-@media (max-width: 600px) {
-  .matrix-grid-100 {
-    gap: 3px;
-  }
 }
 
 .matrix-cell {
   aspect-ratio: 1;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   display: flex;
@@ -1341,10 +1250,8 @@ body {
 }
 
 .matrix-cell:hover {
-  transform: scale(1.18);
-  z-index: 10;
-  border-color: var(--gold-500);
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+  background: var(--bg-muted);
+  border-color: var(--border-highlight);
 }
 
 .matrix-cell .cell-num {
@@ -1360,35 +1267,33 @@ body {
 }
 
 .matrix-cell.hit-today {
-  background: rgba(245, 158, 11, 0.25);
-  border-color: var(--gold-500);
+  background: #fef08a;
+  border-color: #facc15;
 }
 
 .matrix-cell.hit-today .cell-num {
-  color: var(--gold-400);
+  color: #854d0e;
 }
 
 .matrix-cell.special-today {
-  background: var(--ruby-gradient);
-  border-color: #fff;
-  box-shadow: 0 0 10px var(--ruby-glow);
+  background: var(--brand-red);
+  border-color: var(--brand-red);
 }
 
 .matrix-cell.special-today .cell-num,
 .matrix-cell.special-today .cell-hits {
-  color: #fff;
+  color: #ffffff;
 }
 
 /* ===================================================================
-   History Browser, Cards & Table View
+   Tab Lịch Sử Kỳ Quay (Historical Browser)
    =================================================================== */
-
 .history-header-flex {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.85rem;
   margin-bottom: 1.25rem;
 }
 
@@ -1403,16 +1308,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 0.4rem 0.85rem;
-  transition: var(--transition-fast);
-}
-
-.history-search-input-wrap:focus-within {
-  border-color: var(--gold-500);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.75rem;
 }
 
 .history-search-input-wrap input {
@@ -1422,7 +1321,7 @@ body {
   color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 0.88rem;
-  width: 200px;
+  width: 180px;
 }
 
 .btn-clear-search {
@@ -1431,57 +1330,39 @@ body {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.85rem;
-  padding: 0 2px;
-}
-
-.btn-clear-search:hover {
-  color: var(--ruby-400);
 }
 
 .history-view-mode-toggle {
   display: flex;
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  padding: 2px;
 }
 
-/* History Cards View (Default & Mobile Native UX) */
+/* Thẻ Lịch Sử */
 .history-cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1rem;
   margin-top: 0.5rem;
 }
 
 .history-card {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.1rem;
+  padding: 1rem;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition-fast);
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.history-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--ruby-500), var(--gold-500));
+  gap: 0.75rem;
+  transition: var(--transition-fast);
 }
 
 .history-card:hover {
   border-color: var(--border-highlight);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .history-card-header {
@@ -1495,7 +1376,7 @@ body {
 .history-card-date {
   display: flex;
   align-items: baseline;
-  gap: 0.45rem;
+  gap: 0.4rem;
 }
 
 .history-card-day {
@@ -1511,38 +1392,30 @@ body {
 }
 
 .history-card-action-btn {
-  padding: 0.35rem 0.8rem;
-  background: var(--brand-gradient);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-full);
+  padding: 0.3rem 0.65rem;
+  background: var(--bg-tertiary);
+  color: var(--brand-navy);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px var(--brand-glow);
   transition: var(--transition-fast);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
 }
 
 .history-card-action-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--brand-glow);
+  background: var(--brand-navy);
+  color: #ffffff;
 }
 
 .history-card-prizes {
   display: grid;
   grid-template-columns: 1.3fr 1fr 0.9fr;
   gap: 0.5rem;
-  background: rgba(0, 0, 0, 0.18);
-  padding: 0.65rem 0.75rem;
-  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--border-subtle);
-}
-
-[data-theme="light"] .history-card-prizes {
-  background: rgba(2, 19, 176, 0.04);
 }
 
 .history-prize-item {
@@ -1553,52 +1426,31 @@ body {
 }
 
 .history-prize-label {
-  font-size: 0.65rem;
-  font-weight: 800;
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
   margin-bottom: 2px;
 }
 
 .history-prize-value {
   font-family: var(--font-mono);
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .history-prize-item.special .history-prize-value {
   font-size: 1.25rem;
-  color: var(--ruby-400);
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  color: var(--brand-red);
 }
 
 .history-prize-item.p1 .history-prize-value {
   font-size: 1.1rem;
-  color: var(--gold-400);
+  color: var(--brand-navy);
 }
 
 .history-prize-item.head-tail .history-prize-value {
   font-size: 1.05rem;
-  color: var(--cyan-400);
-}
-
-.history-loto-tag {
-  font-size: 0.72rem;
-  color: var(--gold-400);
-  margin-top: 2px;
-  font-weight: 700;
-}
-
-.history-card-loto-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.history-loto-label {
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .history-loto-badges {
@@ -1607,78 +1459,6 @@ body {
   gap: 4px;
 }
 
-.loto-pill {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.2rem 0.42rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: var(--transition-fast);
-  user-select: none;
-}
-
-.loto-pill:hover {
-  transform: scale(1.12);
-  border-color: var(--gold-500);
-  color: var(--gold-400);
-}
-
-.loto-pill.is-special {
-  background: var(--ruby-gradient);
-  color: #fff;
-  border-color: #f87171;
-  font-weight: 900;
-  box-shadow: 0 0 8px var(--ruby-glow);
-}
-
-.loto-pill.is-double {
-  background: rgba(245, 158, 11, 0.18);
-  border-color: var(--gold-500);
-  color: var(--gold-400);
-}
-
-.loto-pill.is-match {
-  background: var(--gold-gradient) !important;
-  color: #000 !important;
-  border-color: #fff !important;
-  font-weight: 900;
-  transform: scale(1.18);
-  box-shadow: 0 0 12px var(--gold-glow);
-}
-
-.history-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 0.5rem;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.history-card-copy-btn {
-  padding: 0.28rem 0.65rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.history-card-copy-btn:hover {
-  color: var(--text-primary);
-  border-color: var(--gold-500);
-  background: rgba(245, 158, 11, 0.1);
-}
-
-/* History Table View (Desktop) */
 .history-table-wrapper {
   overflow-x: auto;
   margin-top: 1rem;
@@ -1692,26 +1472,21 @@ body {
 }
 
 .history-table th {
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.85rem;
   background: var(--bg-tertiary);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-subtle);
   text-align: left;
-  white-space: nowrap;
 }
 
 .history-table td {
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 0.85rem;
   font-size: 0.88rem;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
-}
-
-.history-table tr:hover td {
-  background: var(--bg-glass);
 }
 
 .pagination-bar {
@@ -1719,7 +1494,7 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-top: 1.25rem;
-  padding-top: 1rem;
+  padding-top: 0.85rem;
   border-top: 1px solid var(--border-subtle);
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -1727,13 +1502,15 @@ body {
 
 .pagination-btns {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
-/* Footer */
+/* ===================================================================
+   Chân Trang (Site Footer)
+   =================================================================== */
 .site-footer {
-  margin-top: 3rem;
-  padding-top: 2rem;
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
   border-top: 1px solid var(--border-subtle);
   text-align: center;
   color: var(--text-muted);
@@ -1744,405 +1521,105 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
-  margin-top: 0.5rem;
+  gap: 1rem;
+  margin-top: 0.45rem;
 }
 
 .footer-links a {
-  color: var(--text-secondary);
+  color: var(--brand-navy);
   text-decoration: none;
-  transition: var(--transition-fast);
+  font-weight: 500;
 }
 
 .footer-links a:hover {
-  color: var(--gold-400);
+  text-decoration: underline;
 }
 
 /* ===================================================================
-   Keyframe Animations
+   Mobile Bottom Navigation
    =================================================================== */
-
-@keyframes floatBall {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+.mobile-bottom-nav {
+  display: none;
 }
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
-}
-
-@keyframes pulseSpecial {
-  0%, 100% { box-shadow: 0 8px 20px var(--ruby-glow); }
-  50% { box-shadow: 0 10px 30px rgba(239, 68, 68, 0.65); }
-}
-
-@keyframes pulseGold {
-  0%, 100% { box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45); }
-  50% { box-shadow: 0 12px 35px rgba(245, 158, 11, 0.75); }
-}
-
-@keyframes rollNumbers {
-  0% { transform: translateY(-3px); }
-  50% { transform: translateY(3px); }
-  100% { transform: translateY(-3px); }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===================================================================
-   Live Stream & Realtime Draw Enhancements
-   =================================================================== */
-
-.live-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.12) 100%);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  border-radius: var(--radius-md);
-  margin-bottom: 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.15);
-  animation: fadeInUp 0.35s ease;
-}
-
-.live-banner.idle {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: var(--border-subtle);
-  color: var(--text-secondary);
-  box-shadow: none;
-}
-
-.live-badge-group {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.live-radar-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.65rem;
-  background: var(--ruby-gradient);
-  border-radius: var(--radius-full);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 12px var(--ruby-glow);
-}
-
-.radar-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 rgba(255, 255, 255, 0.8);
-  animation: radarPulse 1.4s infinite;
-}
-
-@keyframes radarPulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8); }
-  70% { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-}
-
-.btn-sync {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.9rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  color: var(--text-primary);
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.btn-sync:hover {
-  border-color: var(--gold-500);
-  color: var(--gold-400);
-  background: rgba(245, 158, 11, 0.1);
-}
-
-
-
-.rotating {
-  display: inline-block;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.lottery-num.rolling-now {
-  background: var(--gold-gradient) !important;
-  color: #000 !important;
-  font-weight: 900 !important;
-  animation: rollNumbers 0.1s infinite linear, pulseGold 1.5s infinite;
-  box-shadow: 0 0 20px var(--gold-glow);
-}
-
-.special-digit-ball.rolling-now {
-  background: var(--ruby-gradient) !important;
-  color: #fff !important;
-  animation: rollNumbers 0.1s infinite linear, pulseSpecial 1.5s infinite;
-  box-shadow: 0 0 25px var(--ruby-glow);
-}
-
-/* ===================================================================
-   Mobile Optimization & Smartphone Touch Experience (@media <= 768px and <= 380px)
-   =================================================================== */
 
 @media (max-width: 768px) {
   html {
     font-size: 15px;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  button, a, input, select {
-    touch-action: manipulation;
   }
 
   .app-container {
-    padding: 0 0.65rem calc(5.2rem + env(safe-area-inset-bottom)) 0.65rem;
-  }
-
-  /* Live Banner Mobile Layout */
-  .live-banner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    padding: 0.85rem;
-  }
-
-  .live-badge-group {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.45rem;
-  }
-
-  .live-radar-badge {
-    white-space: nowrap;
-    font-size: 0.72rem;
-    padding: 0.2rem 0.6rem;
-  }
-
-  .live-draw-progress-wrap {
-    max-width: 100%;
-  }
-
-
-
-  /* Header Mobile Layout */
-  .site-header {
-    margin-bottom: 0.75rem;
-    padding: 0;
+    padding: 0 0.5rem calc(4.5rem + env(safe-area-inset-bottom)) 0.5rem;
   }
 
   .header-inner {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0.55rem 0.75rem;
-    gap: 0.5rem;
-  }
-
-  .header-top-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .brand-wrapper {
-    gap: 0.55rem;
+    padding: 0.65rem 0.75rem;
   }
 
   .brand-logo-ball {
-    width: 38px;
-    height: 38px;
-    font-size: 0.95rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
   }
 
   .brand-text h1 {
     font-size: 1.05rem;
-    gap: 0.3rem;
   }
 
   .brand-subtext {
     display: none;
   }
 
-  .brand-badge {
-    font-size: 0.58rem;
-    padding: 0.1rem 0.35rem;
-  }
-
-  .header-actions {
-    gap: 0.35rem;
-  }
-
-  .btn-sync {
-    padding: 0.35rem 0.65rem;
-    font-size: 0.78rem;
-    border-radius: var(--radius-full);
-  }
-
-  .icon-btn {
-    width: 34px;
-    height: 34px;
-    font-size: 0.95rem;
-    border-radius: var(--radius-sm);
-  }
-
-  #btn-quick-sim {
-    display: none;
-  }
-
-  .header-status {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.4rem;
-  }
-
-  .live-clock-card,
-  .countdown-badge {
-    flex: 1;
-    justify-content: center;
-    padding: 0.32rem 0.45rem;
-    font-size: 0.74rem;
-    border-radius: var(--radius-full);
-  }
-
-  /* Navigation Tabs on Mobile */
   .nav-tabs-wrapper {
     flex-direction: column;
     align-items: stretch;
     padding: 0.35rem;
-    border-radius: var(--radius-md);
-    margin-bottom: 0.75rem;
     gap: 0.5rem;
   }
 
   .nav-tabs {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
     width: 100%;
+    scrollbar-width: none;
   }
-
   .nav-tabs::-webkit-scrollbar {
     display: none;
   }
 
-  .nav-tab-btn {
-    padding: 0.45rem 0.75rem;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-  }
-
   .quick-search-box {
     width: 100%;
-    padding: 0.4rem 0.75rem;
-    justify-content: space-between;
   }
-
   .quick-search-box input {
     flex: 1;
     width: auto;
-    font-size: 1rem;
   }
 
-  /* Live Banner on Mobile */
-  .live-banner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.65rem;
-    padding: 0.7rem 0.85rem;
-    font-size: 0.82rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .live-banner .btn-live-stream {
-    width: 100%;
-    justify-content: center;
-    padding: 0.55rem 0.85rem;
-    font-size: 0.82rem;
-  }
-
-  /* Date Bar on Mobile */
   .date-bar {
     padding: 0.65rem 0.75rem;
-    gap: 0.65rem;
-    margin-bottom: 0.85rem;
-    border-radius: var(--radius-md);
+    gap: 0.5rem;
   }
 
   .date-selector-group {
     width: 100%;
-    display: flex;
-    gap: 0.4rem;
   }
 
   .date-nav-btn {
     flex: 1;
-    justify-content: center;
-    padding: 0.45rem 0.35rem;
-    font-size: 0.8rem;
+    text-align: center;
   }
 
   .date-picker-input {
     flex: 2;
     min-width: 0;
     text-align: center;
-    padding: 0.45rem 0.3rem;
-    font-size: 0.88rem;
   }
 
   .date-shortcuts {
     width: 100%;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 2px;
   }
-
   .date-shortcuts::-webkit-scrollbar {
     display: none;
-  }
-
-  .date-chip {
-    flex-shrink: 0;
-    padding: 0.32rem 0.65rem;
-    font-size: 0.74rem;
-    white-space: nowrap;
   }
 
   .board-action-group {
@@ -2152,266 +1629,45 @@ body {
   .board-action-btn {
     flex: 1;
     justify-content: center;
-    padding: 0.55rem;
-    font-size: 0.82rem;
   }
 
-  #btn-print-result {
+  #btn-print-result, #btn-quick-sim {
     display: none;
   }
 
-  /* Main Prize Board */
-  .prize-board-card {
-    border-radius: var(--radius-md);
-  }
-
-  .board-header {
-    padding: 0.75rem 0.85rem;
-  }
-
-  .board-title-group h2 {
-    font-size: 1.05rem;
-  }
-
-  .board-date-label {
-    font-size: 0.78rem;
-  }
-
   .prize-name-col {
-    width: 72px;
-    padding: 0.45rem 0.25rem;
-    font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    width: 75px;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.78rem;
   }
 
   .prize-numbers-col {
-    padding: 0.45rem 0.35rem;
-  }
-
-  /* Special Prize Hero on Mobile */
-  .special-number-container {
-    gap: 0.3rem;
-    padding: 0.3rem 0;
-    justify-content: center;
+    padding: 0.5rem 0.4rem;
   }
 
   .special-digit-ball {
-    width: 38px;
-    height: 46px;
-    font-size: 1.55rem;
-    border-radius: 8px;
+    width: 36px;
+    height: 44px;
+    font-size: 1.6rem;
   }
 
-  .special-meta {
-    flex-direction: column;
-    gap: 0.2rem;
-    font-size: 0.7rem;
-    margin-top: 0.3rem;
-  }
-
-  .special-tag {
-    padding: 0.15rem 0.45rem;
-    font-size: 0.74rem;
-  }
-
-  /* Numbers Grid in Prizes */
-  .numbers-flex-wrap {
-    gap: 0.3rem;
-    justify-content: center;
-  }
-
-  .lottery-num {
-    padding: 0.22rem 0.35rem;
-    border-radius: 4px;
-  }
-
-  .prize-1-num {
-    font-size: 1.25rem;
-    font-weight: 900;
-  }
-
-  .prize-2-num {
-    font-size: 1.05rem;
-  }
-
-  .prize-3-num {
-    font-size: 0.92rem;
-    letter-spacing: 0.02em;
-  }
-
-  .prize-4-num,
-  .prize-5-num {
-    font-size: 0.88rem;
-    letter-spacing: 0.02em;
-  }
-
-  .prize-6-num {
-    font-size: 0.94rem;
-  }
-
-  .prize-7-num {
-    font-size: 1.15rem;
-    font-weight: 900;
-  }
-
-  /* Loto Board on Mobile */
-  .loto-board-card {
-    border-radius: var(--radius-md);
-  }
-
-  .loto-header {
-    padding: 0.75rem 0.85rem;
-  }
-
-  .loto-table-wrapper {
-    padding: 0.4rem 0.5rem;
-  }
+  .prize-1-num { font-size: 1.3rem; }
+  .prize-2-num { font-size: 1.1rem; }
+  .prize-3-num { font-size: 0.95rem; }
+  .prize-4-num, .prize-5-num { font-size: 0.92rem; }
+  .prize-6-num { font-size: 0.95rem; }
+  .prize-7-num { font-size: 1.15rem; }
 
   .loto-head-col {
-    width: 44px;
-    padding: 0.35rem 0.2rem;
-    font-size: 0.95rem;
+    width: 48px;
+    font-size: 1rem;
+    padding: 0.4rem 0.2rem;
   }
 
-  .loto-numbers-col {
-    padding: 0.35rem 0.4rem;
-  }
-
-  .loto-chip {
-    font-size: 0.9rem;
-    padding: 0.2rem 0.45rem;
-    margin: 2px;
-  }
-
-
-
-  /* Statistics on Mobile */
-  .stats-grid-2col {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .stat-box {
-    padding: 1rem 0.85rem;
-    border-radius: var(--radius-md);
-  }
-
-  .stat-table th,
-  .stat-table td {
-    padding: 0.5rem 0.4rem;
-    font-size: 0.8rem;
-  }
-
-  /* History on Mobile */
-  .history-header-flex {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.65rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .history-controls-toolbar {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .history-search-input-wrap {
-    width: 100%;
-    padding: 0.45rem 0.8rem;
-  }
-
-  .history-search-input-wrap input {
-    flex: 1;
-    width: auto;
-    font-size: 1rem; /* prevent iOS auto zoom */
-  }
-
-  .history-view-mode-toggle {
-    width: 100%;
-  }
-
-  .history-view-mode-toggle button {
-    flex: 1;
-    justify-content: center;
+  .loto-tail-col {
     padding: 0.4rem 0.5rem;
-    font-size: 0.82rem;
   }
 
-  .history-cards-container {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .history-card {
-    padding: 0.9rem;
-    gap: 0.65rem;
-  }
-
-  .history-card-date-str {
-    font-size: 1rem;
-  }
-
-  .history-card-prizes {
-    grid-template-columns: 1.25fr 1fr 0.85fr;
-    padding: 0.55rem;
-    gap: 0.35rem;
-  }
-
-  .history-prize-item.special .history-prize-value {
-    font-size: 1.15rem;
-  }
-
-  .history-prize-item.p1 .history-prize-value {
-    font-size: 1rem;
-  }
-
-  .history-prize-item.head-tail .history-prize-value {
-    font-size: 0.95rem;
-  }
-
-  .loto-pill {
-    font-size: 0.82rem;
-    padding: 0.2rem 0.4rem;
-  }
-
-  .history-table th,
-  .history-table td {
-    padding: 0.45rem 0.5rem;
-    font-size: 0.78rem;
-  }
-
-  .pagination-bar {
-    flex-direction: column;
-    gap: 0.65rem;
-    align-items: center;
-  }
-
-  .pagination-btns {
-    width: 100%;
-  }
-
-  .pagination-btns button {
-    flex: 1;
-    justify-content: center;
-  }
-
-  /* Footer on Mobile */
-  .site-footer {
-    margin-top: 1.5rem;
-    padding-top: 1.25rem;
-    font-size: 0.76rem;
-  }
-
-  .footer-links {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  /* Fixed Mobile Bottom Navigation Bar */
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
@@ -2419,20 +1675,12 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(2, 7, 31, 0.94);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border-highlight);
-    padding: 0.35rem 0.35rem calc(0.35rem + env(safe-area-inset-bottom)) 0.35rem;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-subtle);
+    padding: 0.35rem 0.25rem calc(0.35rem + env(safe-area-inset-bottom)) 0.25rem;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.45);
-  }
-
-  [data-theme="light"] .mobile-bottom-nav {
-    background: rgba(255, 255, 255, 0.96);
-    border-top-color: rgba(2, 19, 176, 0.2);
-    box-shadow: 0 -4px 15px rgba(2, 19, 176, 0.08);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   }
 
   .mobile-nav-item {
@@ -2446,87 +1694,24 @@ body {
     font-family: var(--font-family);
     font-size: 0.68rem;
     font-weight: 700;
-    padding: 0.25rem 0.35rem;
-    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.3rem;
     cursor: pointer;
-    transition: var(--transition-fast);
     flex: 1;
-    touch-action: manipulation;
   }
 
   .mobile-nav-icon {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     margin-bottom: 2px;
-    transition: var(--transition-fast);
   }
 
   .mobile-nav-item.active {
-    color: var(--gold-400);
-  }
-
-  [data-theme="light"] .mobile-nav-item.active {
-    color: #0213b0;
-  }
-
-  .mobile-nav-item.active .mobile-nav-icon {
-    transform: scale(1.15) translateY(-2px);
-    filter: drop-shadow(0 0 6px var(--gold-glow));
-  }
-}
-
-/* Extra small mobile screens (iPhone SE, Galaxy Fold <= 380px) */
-@media (max-width: 380px) {
-  html {
-    font-size: 14px;
-  }
-
-  .prize-name-col {
-    width: 62px;
-    font-size: 0.72rem;
-    padding: 0.4rem 0.15rem;
-  }
-
-  .special-digit-ball {
-    width: 33px;
-    height: 42px;
-    font-size: 1.35rem;
-    border-radius: 6px;
-  }
-
-  .special-number-container {
-    gap: 0.2rem;
-  }
-
-  .prize-1-num {
-    font-size: 1.15rem;
-  }
-
-  .prize-2-num,
-  .prize-3-num,
-  .prize-4-num,
-  .prize-5-num {
-    font-size: 0.85rem;
-  }
-
-  .sim-ball {
-    width: 38px;
-    height: 38px;
-    font-size: 1.15rem;
-  }
-
-  .matrix-grid-100 {
-    gap: 2px;
-  }
-
-  .matrix-cell .cell-num {
-    font-size: 0.65rem;
+    color: var(--brand-red);
   }
 }
 
 /* ===================================================================
-   Print Optimization (@media print)
+   In Ấn (Print Optimization)
    =================================================================== */
-
 @media print {
   body {
     background: #fff !important;
@@ -2534,7 +1719,7 @@ body {
   }
   .site-header, .date-bar, .nav-tabs-wrapper, .site-footer,
   .board-action-group, .card-section:not(#section-board),
-  .loto-board-card, .live-banner {
+  .loto-board-card, .mobile-bottom-nav {
     display: none !important;
   }
   .app-container {
@@ -2548,16 +1733,14 @@ body {
     box-shadow: none !important;
     border: 1px solid #000 !important;
   }
-  .board-row.special-row {
-    background: #fef2f2 !important;
-  }
-  .special-digit-ball {
-    background: #dc2626 !important;
-    color: #fff !important;
-  }
-  .lottery-num {
-    border: none !important;
-    color: #000 !important;
-  }
 }
 
+.rotating {
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
