@@ -125,7 +125,6 @@ function cacheDOM() {
   dom.simPrizeCounter = document.getElementById('sim-prize-counter');
   dom.simCurrentPrizeName = document.getElementById('sim-current-prize-name');
   dom.simSpecialDigits = document.getElementById('sim-special-digits');
-  dom.simSpecialLotoTag = document.getElementById('sim-special-loto-tag');
   dom.simBoardTable = document.getElementById('sim-board-table');
   dom.simLotoTableBody = document.getElementById('sim-loto-table-body');
   dom.simSummaryBox = document.getElementById('sim-summary-box');
@@ -142,7 +141,6 @@ function cacheDOM() {
 
   // Board
   dom.specialDigits = document.getElementById('special-digits');
-  dom.specialLotoTag = document.getElementById('special-loto-tag');
   dom.prize1Container = document.getElementById('prize-1-container');
   dom.prize2Container = document.getElementById('prize-2-container');
   dom.prize3Container = document.getElementById('prize-3-container');
@@ -312,11 +310,6 @@ function renderCurrentRecord() {
       html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''}">${sp[i]}</div>`;
     }
     dom.specialDigits.innerHTML = html;
-  }
-
-  const special2D = rec.special.slice(-2);
-  if (dom.specialLotoTag) {
-    dom.specialLotoTag.innerHTML = `2 số cuối: <strong>${special2D}</strong> (Đầu ${special2D[0]} - Đuôi ${special2D[1]})`;
   }
 
   // Render Other Prizes
@@ -1211,7 +1204,6 @@ function resetSimulatorUI() {
           <div class="special-digit-ball last-two">-</div>
         `;
       }
-      if (dom.simSpecialLotoTag) dom.simSpecialLotoTag.textContent = '2 số cuối: --';
     } else {
       const el = document.getElementById(item.slotId);
       if (el) {
@@ -1399,10 +1391,6 @@ function revealSimStepResult(stepItem, finalVal) {
         html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''} reveal-bounce newly-revealed">${finalVal[i]}</div>`;
       }
       dom.simSpecialDigits.innerHTML = html;
-    }
-    if (dom.simSpecialLotoTag) {
-      const s2d = finalVal.slice(-2);
-      dom.simSpecialLotoTag.innerHTML = `2 số cuối (Bạch thủ đề): <strong style="color:var(--gold-400);font-size:1.05rem;">${s2d}</strong> (Đầu ${s2d[0]} - Đuôi ${s2d[1]})`;
     }
   } else {
     const el = document.getElementById(stepItem.slotId);
