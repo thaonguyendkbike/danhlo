@@ -80,8 +80,8 @@ class LotteryHttpHandler(http.server.SimpleHTTPRequestHandler):
             now = datetime.now(tz)
             today = now.date()
 
-            # Check live draw window (18:14 to 18:35 VN time)
-            is_draw_time = time(18, 14) <= now.time() <= time(18, 35)
+            # Check live draw window (18:10 to 18:40 VN time)
+            is_draw_time = time(18, 10) <= now.time() <= time(18, 40)
 
             last_date = sync_lottery.get_last_csv_date()
             latest_rec = sync_lottery.get_latest_record()
@@ -99,8 +99,8 @@ class LotteryHttpHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json(resp)
                 return
 
-            # 2. If before live draw window (before 18:14): return waiting status (no external scraping)
-            if now.time() < time(18, 14):
+            # 2. If before live draw window (before 18:10): return waiting status (no external scraping)
+            if now.time() < time(18, 10):
                 resp = {
                     'date': today.strftime('%Y-%m-%d'),
                     'status': 'waiting',

@@ -14,8 +14,105 @@ CSV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'xsmb.csv')
 JSON_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'xsmb.json')
 WEB_DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'js', 'lottery-data.js')
 
+def fetch_live_daiphat(target_date: date):
+    """Fetch realtime live results from Xo So Dai Phat live stream JSON"""
+    try:
+        from datetime import timezone
+        d = datetime.now(timezone.utc)
+        time15s = f"{d.year}{d.month:02d}{d.day:02d}{d.hour:02d}{d.minute:02d}{d.second // 15}"
+        url = f"https://live.xosodaiphat.com/lotteryLive/1/{time15s}"
+        req = urllib.request.Request(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Referer': 'https://xosodaiphat.com/xsmb-xo-so-mien-bac.html'
+        })
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            if not isinstance(data, list) or len(data) == 0:
+                return None
+            item = data[0]
+            lot_prizes = item.get('LotPrizes', [])
+
+            # Check date match if CrDateTime is present
+            cr_dt = item.get('CrDateTime', '')
+            date_iso = target_date.strftime('%Y-%m-%d')
+            if cr_dt:
+                m = re.search(r'(\d{1,2})/(\d{1,2})/(\d{4})', cr_dt)
+                if m:
+                    date_iso = f"{m.group(3)}-{int(m.group(2)):02d}-{int(m.group(1)):02d}"
+
+            # If live stream has not updated to target_date yet
+            if date_iso != target_date.strftime('%Y-%m-%d'):
+                return None
+
+            def parse_range(r_str):
+                if not r_str: return []
+                return [s.strip() for s in r_str.split('-') if s.strip()]
+
+            special = None
+            p1 = None
+            p2, p3, p4, p5, p6, p7 = [], [], [], [], [], []
+
+            for lp in lot_prizes:
+                p_name = lp.get('Prize', '').upper()
+                parts = parse_range(lp.get('Range', ''))
+                if p_name in ('DB', 'G.DB', 'ĐB'):
+                    if parts and parts[0] != '...' and '.' not in parts[0]:
+                        special = parts[0]
+                elif p_name in ('G.1', '1'):
+                    if parts and parts[0] != '...' and '.' not in parts[0]:
+                        p1 = parts[0]
+                elif p_name in ('G.2', '2'):
+                    p2 = [x for x in parts if x != '...' and '.' not in x]
+                elif p_name in ('G.3', '3'):
+                    p3 = [x for x in parts if x != '...' and '.' not in x]
+                elif p_name in ('G.4', '4'):
+                    p4 = [x for x in parts if x != '...' and '.' not in x]
+                elif p_name in ('G.5', '5'):
+                    p5 = [x for x in parts if x != '...' and '.' not in x]
+                elif p_name in ('G.6', '6'):
+                    p6 = [x for x in parts if x != '...' and '.' not in x]
+                elif p_name in ('G.7', '7'):
+                    p7 = [x for x in parts if x != '...' and '.' not in x]
+
+            all_nums = []
+            if special: all_nums.append(special)
+            if p1: all_nums.append(p1)
+            for sub in [p2, p3, p4, p5, p6, p7]:
+                all_nums.extend(sub)
+
+            total_prizes = len(all_nums)
+            status = 'completed' if total_prizes == 27 else ('drawing' if total_prizes > 0 else 'waiting')
+            loto = [n[-2:] for n in all_nums]
+
+            return {
+                'date': target_date.strftime('%Y-%m-%d'),
+                'status': status,
+                'prizes_count': total_prizes,
+                'special': special,
+                'p1': p1,
+                'p2': p2,
+                'p3': p3,
+                'p4': p4,
+                'p5': p5,
+                'p6': p6,
+                'p7': p7,
+                'loto': loto
+            }
+    except Exception as e:
+        print(f"fetch_live_daiphat warning: {e}")
+        return None
+
 def fetch_date_results(target_date: date):
-    """Fetch results from xoso.com.vn for a specific date"""
+    """Fetch results from realtime stream or xoso.com.vn for a specific date"""
+    tz = ZoneInfo('Asia/Ho_Chi_Minh')
+    today = datetime.now(tz).date()
+
+    # If asking for today, try realtime stream first
+    if target_date == today:
+        live_res = fetch_live_daiphat(target_date)
+        if live_res and (live_res.get('status') in ('drawing', 'completed') or live_res.get('prizes_count', 0) > 0):
+            return live_res
+
     dt_str = target_date.strftime('%d-%m-%Y')
     url = f"https://xoso.com.vn/xsmb-{dt_str}.html"
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})

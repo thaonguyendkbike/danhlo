@@ -678,6 +678,223 @@ body {
   color: #f87171;
 }
 
+/* ===================================================================
+   Live Draw Real-Time Banner & Rolling Animations
+   =================================================================== */
+.live-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border-bottom: 2px solid rgba(220, 38, 38, 0.35);
+  border-top: 1px solid rgba(220, 38, 38, 0.15);
+  transition: all var(--transition-fast);
+}
+
+.live-status-banner.hidden {
+  display: none !important;
+}
+
+.live-status-banner.completed {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.08) 0%, rgba(13, 148, 136, 0.08) 100%);
+  border-bottom-color: rgba(22, 163, 74, 0.35);
+}
+
+.live-status-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.live-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: liveDotPulse 1.4s infinite cubic-bezier(0.66, 0, 0, 1);
+  flex-shrink: 0;
+}
+
+.live-status-banner.completed .live-pulse-dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  animation: liveDotPulseGreen 2s infinite;
+}
+
+@keyframes liveDotPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes liveDotPulseGreen {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.live-status-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.live-status-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #dc2626;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .live-status-badge {
+  color: #f87171;
+}
+
+.live-status-banner.completed .live-status-badge {
+  color: #16a34a;
+}
+
+[data-theme="dark"] .live-status-banner.completed .live-status-badge {
+  color: #4ade80;
+}
+
+.live-status-sub {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.live-status-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.live-progress-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-xs);
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  font-family: var(--font-mono);
+}
+
+[data-theme="dark"] .live-progress-badge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.live-status-banner.completed .live-progress-badge {
+  background: rgba(22, 163, 74, 0.15);
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.3);
+}
+
+.live-realtime-indicator {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--radius-xs);
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+[data-theme="dark"] .live-realtime-indicator {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* Rolling Number Animations (Hiệu Ứng Nhảy Số Tức Thì) */
+.lottery-num.rolling-num {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #d97706 !important;
+  border: 1.5px dashed #f59e0b !important;
+  font-weight: 900 !important;
+  animation: rollingNumGlow 0.8s infinite alternate ease-in-out;
+  cursor: wait;
+}
+
+[data-theme="dark"] .lottery-num.rolling-num {
+  background: rgba(245, 158, 11, 0.22) !important;
+  color: #fbbf24 !important;
+  border-color: #f59e0b !important;
+}
+
+.special-digit-ball.rolling-ball {
+  background: rgba(220, 38, 38, 0.12) !important;
+  color: #ef4444 !important;
+  border: 2px dashed #dc2626 !important;
+  animation: rollingBallGlow 0.7s infinite alternate ease-in-out;
+  cursor: wait;
+}
+
+@keyframes rollingNumGlow {
+  0% { transform: scale(0.98); box-shadow: 0 0 4px rgba(245, 158, 11, 0.2); }
+  100% { transform: scale(1.05); box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+}
+
+@keyframes rollingBallGlow {
+  0% { transform: scale(0.97); box-shadow: 0 0 5px rgba(220, 38, 38, 0.2); }
+  100% { transform: scale(1.06); box-shadow: 0 0 12px rgba(220, 38, 38, 0.7); }
+}
+
+/* Newly Revealed Number (Bung Số & Lóe Sáng) */
+.lottery-num.newly-revealed,
+.special-digit-ball.newly-revealed {
+  animation: revealBounceGlow 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes revealBounceGlow {
+  0% {
+    transform: scale(0.6);
+    background-color: #fef08a !important;
+    color: #854d0e !important;
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.9);
+  }
+  30% {
+    transform: scale(1.22);
+    background-color: #fef08a !important;
+    box-shadow: 0 0 25px rgba(234, 179, 8, 0.8);
+  }
+  60% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Loto Pill newly added flash */
+.loto-pill.newly-added {
+  animation: lotoPillFlash 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes lotoPillFlash {
+  0% {
+    transform: scale(0.5);
+    background-color: #fef08a !important;
+    color: #854d0e !important;
+    box-shadow: 0 0 16px rgba(234, 179, 8, 0.9);
+  }
+  35% {
+    transform: scale(1.25);
+    box-shadow: 0 0 18px rgba(234, 179, 8, 0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .special-meta {
   display: flex;
   align-items: center;

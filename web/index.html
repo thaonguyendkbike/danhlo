@@ -143,6 +143,21 @@
             </div>
           </header>
 
+          <!-- Live Status Banner (Tự động hiển thị khi đang quay 18h10 - 18h40) -->
+          <div class="live-status-banner hidden" id="live-status-banner">
+            <div class="live-status-left">
+              <span class="live-pulse-dot"></span>
+              <div class="live-status-titles">
+                <span class="live-status-badge">TRỰC TIẾP QUAY THƯỞNG</span>
+                <span class="live-status-sub" id="live-status-text">Đang kết nối trường quay...</span>
+              </div>
+            </div>
+            <div class="live-status-right">
+              <span class="live-progress-badge" id="live-progress-badge">0/27 giải</span>
+              <span class="live-realtime-indicator" title="Cập nhật từng giây trực tiếp từ lồng cầu">⚡ Siêu Tốc</span>
+            </div>
+          </div>
+
           <table class="board-table" id="board-table" aria-label="Bảng kết quả xổ số miền bắc">
             <tbody>
               <!-- Giải Đặc Biệt -->

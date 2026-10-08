@@ -38,7 +38,7 @@ Trong mục **DNS** -> **Records** của Cloudflare cho `danhlo.xyz`:
 
 ## BƯỚC 3: Tạo Cloudflare Worker làm API Live Tức Thì
 
-Worker này có nhiệm vụ quét kết quả xổ số mỗi 3-4 giây trong khung giờ 18h14 - 18h36 và trả về cho người xem web mà không bao giờ bị lỗi CORS hay lag mạng:
+Worker này có nhiệm vụ kết nối luồng kết quả xổ số trực tiếp từng giây trong khung giờ 18h10 - 18h40 và trả về cho người xem web mà không bao giờ bị lỗi CORS hay lag mạng:
 
 1. Trong trang quản trị Cloudflare -> Menu bên trái chọn **Workers & Pages** -> Bấm **Create Application** -> Chọn **Create Worker**.
 2. Đặt tên worker: ví dụ `xsmb-live` -> Bấm **Deploy**.
@@ -60,6 +60,8 @@ Worker này có nhiệm vụ quét kết quả xổ số mỗi 3-4 giây trong k
 3. Bấm **Save**.
 
 👉 Giờ đây:
-- Người dùng truy cập: `https://danhlo.xyz`
-- Trình duyệt tự động gọi ngầm: `https://danhlo.xyz/api/live` cứ 4 giây/lần từ 18h14 đến 18h36.
-- Có giải nào mới ra (Giải Nhất -> Giải 7 -> Giải Đặc Biệt), bảng số và bảng lô tô tự động hiện lên tức thì!
+- Người dùng truy cập: `https://danhlo.xyz` (hoặc chạy qua GitHub Pages / localhost).
+- Hệ thống ưu tiên kết nối **Luồng Dữ Liệu Trực Tiếp Siêu Tốc (Real-time Stream)** với độ trễ < 150ms, cập nhật 1.5 giây/lần từ 18h10 đến 18h40.
+- Có giải nào đang quay: ô giải đó tự động **nhảy số liên tục (rolling animation)** sống động.
+- Khi bóng vừa rơi vào lồng cầu: số tự động bung lóe sáng (`newly-revealed`), phát âm thanh chúc mừng, và nhảy thẳng vào bảng Lô tô 2 số cuối ngay lập tức!
+- Kết thúc 27/27 giải: tự động phát nhạc Jackpot và pháo hoa rực rỡ!

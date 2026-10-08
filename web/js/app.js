@@ -141,6 +141,9 @@ function cacheDOM() {
   dom.searchAlert = document.getElementById('search-alert');
 
   // Board
+  dom.liveStatusBanner = document.getElementById('live-status-banner');
+  dom.liveStatusText = document.getElementById('live-status-text');
+  dom.liveProgressBadge = document.getElementById('live-progress-badge');
   dom.specialDigits = document.getElementById('special-digits');
   dom.prize1Container = document.getElementById('prize-1-container');
   dom.prize2Container = document.getElementById('prize-2-container');
@@ -294,8 +297,13 @@ function renderCurrentRecord() {
   const dayOfWeek = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'][dObj.getDay()];
   const formattedDate = formatDateVN(rec.date);
 
+  const isLiveTime = isLiveDrawTime();
+  const isDrawing = rec.status === 'drawing';
+  const isCompleted = rec.status === 'completed';
+  const isLatestDay = state.currentIndex === 0;
+
   let liveBadge = '';
-  if (rec.status === 'drawing') {
+  if (isDrawing) {
     const pCount = rec.prizes_count || (rec.loto ? rec.loto.length : 0);
     liveBadge = ` • <span class="live-pulse-badge">🔴 ĐANG QUAY (${pCount}/27 giải)</span>`;
   }
@@ -311,14 +319,50 @@ function renderCurrentRecord() {
   if (dom.btnNextDay) dom.btnNextDay.disabled = state.currentIndex <= 0;
   if (dom.btnPrevDay) dom.btnPrevDay.disabled = state.currentIndex >= state.records.length - 1;
 
+  // Live Status Banner
+  const activeSlot = (isDrawing && isLatestDay) ? getCurrentlyDrawingSlot(rec) : null;
+  if (dom.liveStatusBanner) {
+    if (isLatestDay && (isDrawing || isLiveTime)) {
+      dom.liveStatusBanner.classList.remove('hidden');
+      if (isCompleted) {
+        dom.liveStatusBanner.classList.add('completed');
+        if (dom.liveStatusText) dom.liveStatusText.textContent = 'Đã hoàn tất mở thưởng đầy đủ 27 giải!';
+        if (dom.liveProgressBadge) dom.liveProgressBadge.textContent = '27/27 giải';
+      } else if (isDrawing) {
+        dom.liveStatusBanner.classList.remove('completed');
+        const pCount = rec.prizes_count || (rec.loto ? rec.loto.length : 0);
+        if (dom.liveStatusText) dom.liveStatusText.textContent = `Đang quay: ${activeSlot ? activeSlot.name : 'Giải kế tiếp'}...`;
+        if (dom.liveProgressBadge) dom.liveProgressBadge.textContent = `${pCount}/27 giải`;
+      } else {
+        dom.liveStatusBanner.classList.remove('completed');
+        if (dom.liveStatusText) dom.liveStatusText.textContent = 'Chuẩn bị phát bóng mở thưởng trực tiếp (18h15)...';
+        if (dom.liveProgressBadge) dom.liveProgressBadge.textContent = '0/27 giải';
+      }
+    } else {
+      dom.liveStatusBanner.classList.add('hidden');
+    }
+  }
+
+  // Rolling animation timer control
+  if (activeSlot) {
+    startLiveRollingTimer();
+  } else {
+    stopLiveRollingTimer();
+  }
+
   // Render Special Prize
   if (dom.specialDigits) {
     const sp = rec.special;
     let html = '';
     if (sp && sp.length >= 5) {
+      const isNew = newlyRevealedNumbers.has(sp);
       for (let i = 0; i < sp.length; i++) {
         const isLastTwo = i >= sp.length - 2;
-        html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''}">${sp[i]}</div>`;
+        html += `<div class="special-digit-ball ${isLastTwo ? 'last-two' : ''} ${isNew ? 'newly-revealed' : ''}">${sp[i]}</div>`;
+      }
+    } else if (activeSlot && activeSlot.prize === 'special') {
+      for (let i = 0; i < 5; i++) {
+        html += `<div class="special-digit-ball rolling-ball live-rolling-digit">?</div>`;
       }
     } else {
       for (let i = 0; i < 5; i++) {
@@ -329,13 +373,13 @@ function renderCurrentRecord() {
   }
 
   // Render Other Prizes (G1: 1 giải 5 số, G2: 2 giải 5 số, G3: 6 giải 5 số, G4: 4 giải 4 số, G5: 6 giải 4 số, G6: 3 giải 3 số, G7: 4 giải 2 số)
-  renderPrizeRow(dom.prize1Container, rec.p1, 1, 5, 'prize-1-num');
-  renderPrizeRow(dom.prize2Container, rec.p2, 2, 5, 'prize-2-num');
-  renderPrizeRow(dom.prize3Container, rec.p3, 6, 5, 'prize-3-num');
-  renderPrizeRow(dom.prize4Container, rec.p4, 4, 4, 'prize-4-num');
-  renderPrizeRow(dom.prize5Container, rec.p5, 6, 4, 'prize-5-num');
-  renderPrizeRow(dom.prize6Container, rec.p6, 3, 3, 'prize-6-num');
-  renderPrizeRow(dom.prize7Container, rec.p7, 4, 2, 'prize-7-num');
+  renderPrizeRow(dom.prize1Container, rec.p1, 1, 5, 'prize-1-num', 'p1', activeSlot);
+  renderPrizeRow(dom.prize2Container, rec.p2, 2, 5, 'prize-2-num', 'p2', activeSlot);
+  renderPrizeRow(dom.prize3Container, rec.p3, 6, 5, 'prize-3-num', 'p3', activeSlot);
+  renderPrizeRow(dom.prize4Container, rec.p4, 4, 4, 'prize-4-num', 'p4', activeSlot);
+  renderPrizeRow(dom.prize5Container, rec.p5, 6, 4, 'prize-5-num', 'p5', activeSlot);
+  renderPrizeRow(dom.prize6Container, rec.p6, 3, 3, 'prize-6-num', 'p6', activeSlot);
+  renderPrizeRow(dom.prize7Container, rec.p7, 4, 2, 'prize-7-num', 'p7', activeSlot);
 
   // Render Loto 2-Digits Board
   renderLotoBoard(rec);
@@ -344,14 +388,17 @@ function renderCurrentRecord() {
   renderDailyPairs(rec);
 }
 
-function renderPrizeRow(container, numbers, expectedCount, digits, cssClass) {
+function renderPrizeRow(container, numbers, expectedCount, digits, cssClass, prizeKey, activeSlot) {
   if (!container) return;
   const nums = Array.isArray(numbers) ? numbers.filter(Boolean) : (numbers ? [numbers] : []);
   let html = '';
   for (let i = 0; i < expectedCount; i++) {
     if (i < nums.length && nums[i]) {
       const n = String(nums[i]);
-      html += `<span class="lottery-num ${cssClass}" data-num="${n}" data-loto="${n.slice(-2)}" onclick="highlightLotoNumber('${n.slice(-2)}')">${n}</span>`;
+      const isNew = newlyRevealedNumbers.has(n);
+      html += `<span class="lottery-num ${cssClass} ${isNew ? 'newly-revealed' : ''}" data-num="${n}" data-loto="${n.slice(-2)}" onclick="highlightLotoNumber('${n.slice(-2)}')">${n}</span>`;
+    } else if (i === nums.length && activeSlot && activeSlot.prize === prizeKey && activeSlot.index === i) {
+      html += `<span class="lottery-num ${cssClass} rolling-num live-rolling-slot" data-digits="${digits}">${'-'.repeat(digits)}</span>`;
     } else {
       html += `<span class="lottery-num ${cssClass} pending-num">${'-'.repeat(digits)}</span>`;
     }
@@ -401,7 +448,8 @@ function renderLotoBoard(rec) {
         const isSp = item.full === special2D;
         const count = freqMap[item.full];
         const isMulti = count > 1;
-        return `<span class="loto-pill ${isSp ? 'is-special' : ''} ${isMulti ? 'multi-hit' : ''}" 
+        const isNew = newlyRevealedNumbers.has(item.full) || Array.from(newlyRevealedNumbers).some(n => n.slice(-2) === item.full);
+        return `<span class="loto-pill ${isSp ? 'is-special' : ''} ${isMulti ? 'multi-hit' : ''} ${isNew ? 'newly-added' : ''}" 
                   data-num="${item.full}" 
                   data-count="${count}"
                   onclick="highlightLotoNumber('${item.full}')">
@@ -1511,11 +1559,14 @@ function finishSimulator() {
 }
 
 // ===================================================================
-// Live Draw Realtime Engine (Tự Động Cập Nhật Từng Giải 18h14 - 18h36)
+// Live Draw Realtime Engine (Cập Nhật Tức Thì Từng Giải 18h10 - 18h40)
 // ===================================================================
 
 let liveMonitorInterval = null;
 let livePollInterval = null;
+let liveRollingTimer = null;
+let newlyRevealedNumbers = new Set();
+let newlyRevealedTimer = null;
 
 function getVietnamNow() {
   const now = new Date();
@@ -1526,13 +1577,15 @@ function getVietnamNow() {
 function isLiveDrawTime() {
   const vn = getVietnamNow();
   const mins = vn.getHours() * 60 + vn.getMinutes();
-  return mins >= 18 * 60 + 13 && mins <= 18 * 60 + 36;
+  // Khung giờ mở thưởng XSMB thực tế: 18h10 đến 18h40
+  return mins >= 18 * 60 + 10 && mins <= 18 * 60 + 40;
 }
 
 function initLiveDrawMonitor() {
   checkLiveDrawStatus();
   if (!liveMonitorInterval) {
-    liveMonitorInterval = setInterval(checkLiveDrawStatus, 15000);
+    // Kiểm tra định kỳ mỗi 5 giây
+    liveMonitorInterval = setInterval(checkLiveDrawStatus, 5000);
   }
 }
 
@@ -1543,38 +1596,203 @@ function checkLiveDrawStatus() {
 
   if (isTime || isDrawing) {
     if (!livePollInterval) {
-      console.log('[Live XSMB] Đang trong khung giờ quay thưởng, kích hoạt cập nhật từng giải...');
+      console.log('[Live XSMB] Đang trong khung giờ quay thưởng (18h10 - 18h40), kích hoạt cập nhật từng giây...');
       pollLiveResults();
-      livePollInterval = setInterval(pollLiveResults, 4000);
+      // Chu kỳ cập nhật siêu tốc 1.5s để bắt trọn từng bóng mở thưởng
+      livePollInterval = setInterval(pollLiveResults, 1500);
     }
   } else {
     if (livePollInterval) {
       console.log('[Live XSMB] Kết thúc khung giờ mở thưởng.');
       clearInterval(livePollInterval);
       livePollInterval = null;
+      stopLiveRollingTimer();
     }
   }
 }
 
+function startLiveRollingTimer() {
+  if (liveRollingTimer) return;
+  liveRollingTimer = setInterval(() => {
+    const slots = document.querySelectorAll('.live-rolling-slot');
+    slots.forEach(el => {
+      const d = parseInt(el.dataset.digits || '2', 10);
+      const rand = Math.floor(Math.random() * Math.pow(10, d)).toString().padStart(d, '0');
+      el.textContent = rand;
+    });
+    const digits = document.querySelectorAll('.live-rolling-digit');
+    digits.forEach(el => {
+      el.textContent = Math.floor(Math.random() * 10);
+    });
+  }, 75);
+}
+
+function stopLiveRollingTimer() {
+  if (liveRollingTimer) {
+    clearInterval(liveRollingTimer);
+    liveRollingTimer = null;
+  }
+}
+
+function getCurrentlyDrawingSlot(rec) {
+  if (!rec || rec.status !== 'drawing') return null;
+
+  // Thứ tự quay thưởng XSMB chuẩn:
+  // Giải 7 -> Giải 6 -> Giải 5 -> Giải 4 -> Giải 3 -> Giải 2 -> Giải 1 -> Giải Đặc Biệt
+  const p7 = Array.isArray(rec.p7) ? rec.p7.filter(Boolean) : [];
+  if (p7.length < 4) return { prize: 'p7', index: p7.length, digits: 2, name: 'Giải Bảy' };
+
+  const p6 = Array.isArray(rec.p6) ? rec.p6.filter(Boolean) : [];
+  if (p6.length < 3) return { prize: 'p6', index: p6.length, digits: 3, name: 'Giải Sáu' };
+
+  const p5 = Array.isArray(rec.p5) ? rec.p5.filter(Boolean) : [];
+  if (p5.length < 6) return { prize: 'p5', index: p5.length, digits: 4, name: 'Giải Năm' };
+
+  const p4 = Array.isArray(rec.p4) ? rec.p4.filter(Boolean) : [];
+  if (p4.length < 4) return { prize: 'p4', index: p4.length, digits: 4, name: 'Giải Tư' };
+
+  const p3 = Array.isArray(rec.p3) ? rec.p3.filter(Boolean) : [];
+  if (p3.length < 6) return { prize: 'p3', index: p3.length, digits: 5, name: 'Giải Ba' };
+
+  const p2 = Array.isArray(rec.p2) ? rec.p2.filter(Boolean) : [];
+  if (p2.length < 2) return { prize: 'p2', index: p2.length, digits: 5, name: 'Giải Nhì' };
+
+  if (!rec.p1) return { prize: 'p1', index: 0, digits: 5, name: 'Giải Nhất' };
+
+  if (!rec.special) return { prize: 'special', index: 0, digits: 5, name: 'Giải Đặc Biệt' };
+
+  return null;
+}
+
+function markNewlyRevealed(newNumbers) {
+  if (!newNumbers || newNumbers.length === 0) return;
+  newNumbers.forEach(n => newlyRevealedNumbers.add(n));
+  if (newlyRevealedTimer) clearTimeout(newlyRevealedTimer);
+  newlyRevealedTimer = setTimeout(() => {
+    newlyRevealedNumbers.clear();
+    if (state.records && state.records.length > 0 && state.currentIndex === 0) {
+      renderCurrentRecord();
+    }
+  }, 2500);
+}
+
+function parseLotteryLive(data, targetDateIso) {
+  if (!Array.isArray(data) || data.length === 0) return null;
+  const item = data[0];
+  if (!item || !item.LotPrizes) return null;
+
+  let dateIso = targetDateIso;
+  if (item.CrDateTime) {
+    const m = item.CrDateTime.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) {
+      dateIso = `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    }
+  }
+
+  const parseRange = (rangeStr) => {
+    if (!rangeStr) return [];
+    return rangeStr.split('-').map(s => s.trim()).filter(Boolean);
+  };
+
+  let special = null;
+  let p1 = null;
+  let p2 = [], p3 = [], p4 = [], p5 = [], p6 = [], p7 = [];
+
+  item.LotPrizes.forEach(lp => {
+    const p = (lp.Prize || '').toUpperCase();
+    const parts = parseRange(lp.Range);
+    if (p === 'DB' || p === 'G.DB' || p === 'ĐB') {
+      const val = parts[0];
+      if (val && val !== '...' && !val.includes('.')) special = val;
+    } else if (p === 'G.1' || p === '1') {
+      const val = parts[0];
+      if (val && val !== '...' && !val.includes('.')) p1 = val;
+    } else if (p === 'G.2' || p === '2') {
+      p2 = parts.filter(v => v !== '...' && !v.includes('.'));
+    } else if (p === 'G.3' || p === '3') {
+      p3 = parts.filter(v => v !== '...' && !v.includes('.'));
+    } else if (p === 'G.4' || p === '4') {
+      p4 = parts.filter(v => v !== '...' && !v.includes('.'));
+    } else if (p === 'G.5' || p === '5') {
+      p5 = parts.filter(v => v !== '...' && !v.includes('.'));
+    } else if (p === 'G.6' || p === '6') {
+      p6 = parts.filter(v => v !== '...' && !v.includes('.'));
+    } else if (p === 'G.7' || p === '7') {
+      p7 = parts.filter(v => v !== '...' && !v.includes('.'));
+    }
+  });
+
+  const allNums = [];
+  if (special) allNums.push(special);
+  if (p1) allNums.push(p1);
+  [p2, p3, p4, p5, p6, p7].forEach(arr => {
+    arr.forEach(n => { if (n) allNums.push(n); });
+  });
+
+  const totalPrizes = allNums.length;
+  const loto = allNums.map(n => n.slice(-2));
+  const status = totalPrizes === 27 ? 'completed' : (totalPrizes > 0 ? 'drawing' : 'waiting');
+
+  return {
+    date: dateIso,
+    status,
+    prizes_count: totalPrizes,
+    special,
+    p1,
+    p2,
+    p3,
+    p4,
+    p5,
+    p6,
+    p7,
+    loto
+  };
+}
+
 async function pollLiveResults(isManual = false) {
-  const endpoints = [
-    '/api/live?t=' + Date.now(),
-    'https://api.danhlo.xyz/api/live?t=' + Date.now(),
-    'data/latest.json?t=' + Date.now()
-  ];
+  const vn = getVietnamNow();
+  const pad = (n) => String(n).padStart(2, '0');
+  const todayIso = `${vn.getFullYear()}-${pad(vn.getMonth() + 1)}-${pad(vn.getDate())}`;
 
   let liveData = null;
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url);
-      if (res.ok) {
-        liveData = await res.json();
-        if (liveData && (liveData.prizes_count !== undefined || liveData.status)) {
-          break;
-        }
+
+  // 1. ƯU TIÊN SỐ 1: Nguồn Realtime trực tiếp siêu tốc (Open CORS, độ trễ < 150ms)
+  try {
+    const dUtc = new Date();
+    const time15s = `${dUtc.getUTCFullYear()}${pad(dUtc.getUTCMonth() + 1)}${pad(dUtc.getUTCDate())}${pad(dUtc.getUTCHours())}${pad(dUtc.getUTCMinutes())}${Math.floor(dUtc.getUTCSeconds() / 15)}`;
+    const directUrl = `https://live.xosodaiphat.com/lotteryLive/1/${time15s}`;
+    const directRes = await fetch(directUrl, { cache: 'no-store' });
+    if (directRes.ok) {
+      const rawJson = await directRes.json();
+      const parsed = parseLotteryLive(rawJson, todayIso);
+      if (parsed && (parsed.date === todayIso || parsed.prizes_count > 0)) {
+        liveData = parsed;
       }
-    } catch (e) {
-      // Bỏ qua thử endpoint tiếp theo
+    }
+  } catch (errDirect) {
+    // Tiếp tục thử fallback bên dưới
+  }
+
+  // 2. ƯU TIÊN SỐ 2: Fallback qua API / Worker Cloudflare danhlo.xyz
+  if (!liveData) {
+    const endpoints = [
+      '/api/live?t=' + Date.now(),
+      'https://danhlo.xyz/api/live?t=' + Date.now(),
+      'data/latest.json?t=' + Date.now()
+    ];
+
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (res.ok) {
+          liveData = await res.json();
+          if (liveData && (liveData.prizes_count !== undefined || liveData.status)) {
+            break;
+          }
+        }
+      } catch (e) {
+        // Bỏ qua thử endpoint tiếp theo
+      }
     }
   }
 
@@ -1600,13 +1818,35 @@ async function pollLiveResults(isManual = false) {
   } else if (state.records[0].date === liveData.date) {
     const oldPrizes = state.records[0].prizes_count || (state.records[0].loto ? state.records[0].loto.length : 0);
     const newPrizes = liveData.prizes_count || (liveData.loto ? liveData.loto.length : 0);
-    
-    // Nếu có giải mới mở thưởng
-    if (newPrizes > oldPrizes || liveData.status !== state.records[0].status || liveData.special !== state.records[0].special) {
+
+    // Trích xuất danh sách số cũ để tìm số mới về
+    const oldPrizesList = [];
+    if (state.records[0].special) oldPrizesList.push(state.records[0].special);
+    if (state.records[0].p1) oldPrizesList.push(state.records[0].p1);
+    [state.records[0].p2, state.records[0].p3, state.records[0].p4, state.records[0].p5, state.records[0].p6, state.records[0].p7].forEach(sub => {
+      if (Array.isArray(sub)) sub.forEach(n => { if (n) oldPrizesList.push(n); });
+    });
+
+    const newPrizesList = [];
+    if (liveData.special) newPrizesList.push(liveData.special);
+    if (liveData.p1) newPrizesList.push(liveData.p1);
+    [liveData.p2, liveData.p3, liveData.p4, liveData.p5, liveData.p6, liveData.p7].forEach(sub => {
+      if (Array.isArray(sub)) sub.forEach(n => { if (n) newPrizesList.push(n); });
+    });
+
+    const oldSet = new Set(oldPrizesList);
+    const addedList = newPrizesList.filter(n => !oldSet.has(n));
+
+    // Nếu có giải mới mở thưởng hoặc cập nhật trạng thái
+    if (newPrizes > oldPrizes || liveData.status !== state.records[0].status || liveData.special !== state.records[0].special || addedList.length > 0) {
       state.records[0] = { ...state.records[0], ...liveData };
       didUpdate = true;
-      if (newPrizes > oldPrizes && state.currentIndex === 0) {
-        if (window.soundEngine) window.soundEngine.playReveal();
+
+      if (addedList.length > 0) {
+        markNewlyRevealed(addedList);
+        if (state.currentIndex === 0 && window.soundEngine) {
+          window.soundEngine.playReveal();
+        }
       }
     }
   } else if (liveData.date > state.records[0].date) {
@@ -1624,6 +1864,7 @@ async function pollLiveResults(isManual = false) {
   if (liveData.status === 'completed' && livePollInterval) {
     clearInterval(livePollInterval);
     livePollInterval = null;
+    stopLiveRollingTimer();
     if (window.soundEngine) window.soundEngine.playJackpot();
     if (window.confetti) window.confetti.fire(90);
   }
