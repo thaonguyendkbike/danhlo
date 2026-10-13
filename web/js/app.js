@@ -1587,6 +1587,12 @@ function initLiveDrawMonitor() {
     // Kiểm tra định kỳ mỗi 5 giây
     liveMonitorInterval = setInterval(checkLiveDrawStatus, 5000);
   }
+  // Khi quay lại tab (trình duyệt làm chậm timer ở tab nền) -> cập nhật ngay lập tức
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && livePollInterval) {
+      pollLiveResults();
+    }
+  });
 }
 
 function checkLiveDrawStatus() {
@@ -1598,8 +1604,8 @@ function checkLiveDrawStatus() {
     if (!livePollInterval) {
       console.log('[Live XSMB] Đang trong khung giờ quay thưởng (18h10 - 18h40), kích hoạt cập nhật từng giây...');
       pollLiveResults();
-      // Chu kỳ cập nhật siêu tốc 1.5s để bắt trọn từng bóng mở thưởng
-      livePollInterval = setInterval(pollLiveResults, 1500);
+      // Chu kỳ cập nhật siêu tốc 1s để bắt trọn từng bóng mở thưởng
+      livePollInterval = setInterval(pollLiveResults, 1000);
     }
   } else {
     if (livePollInterval) {
@@ -1749,7 +1755,26 @@ function parseLotteryLive(data, targetDateIso) {
   };
 }
 
+let livePollInFlight = false;
+
+function fetchWithTimeout(url, ms = 2500) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { cache: 'no-store', signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 async function pollLiveResults(isManual = false) {
+  // Chống chồng request: nếu lượt trước chưa xong thì bỏ qua lượt này
+  if (livePollInFlight && !isManual) return false;
+  livePollInFlight = true;
+  try {
+    return await pollLiveResultsInner(isManual);
+  } finally {
+    livePollInFlight = false;
+  }
+}
+
+async function pollLiveResultsInner(isManual = false) {
   const vn = getVietnamNow();
   const pad = (n) => String(n).padStart(2, '0');
   const todayIso = `${vn.getFullYear()}-${pad(vn.getMonth() + 1)}-${pad(vn.getDate())}`;
@@ -1760,8 +1785,9 @@ async function pollLiveResults(isManual = false) {
   try {
     const dUtc = new Date();
     const time15s = `${dUtc.getUTCFullYear()}${pad(dUtc.getUTCMonth() + 1)}${pad(dUtc.getUTCDate())}${pad(dUtc.getUTCHours())}${pad(dUtc.getUTCMinutes())}${Math.floor(dUtc.getUTCSeconds() / 15)}`;
-    const directUrl = `https://live.xosodaiphat.com/lotteryLive/1/${time15s}`;
-    const directRes = await fetch(directUrl, { cache: 'no-store' });
+    // Thêm ?t= để vượt cache CDN của nguồn (không có nó dữ liệu có thể cũ tới 1-2 phút)
+    const directUrl = `https://live.xosodaiphat.com/lotteryLive/1/${time15s}?t=${Date.now()}`;
+    const directRes = await fetchWithTimeout(directUrl, 2500);
     if (directRes.ok) {
       const rawJson = await directRes.json();
       const parsed = parseLotteryLive(rawJson, todayIso);
@@ -1783,7 +1809,7 @@ async function pollLiveResults(isManual = false) {
 
     for (const url of endpoints) {
       try {
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetchWithTimeout(url, 3000);
         if (res.ok) {
           liveData = await res.json();
           if (liveData && (liveData.prizes_count !== undefined || liveData.status)) {

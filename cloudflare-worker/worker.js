@@ -45,7 +45,8 @@ export default {
         const dUtc = new Date();
         const pad = (n) => String(n).padStart(2, "0");
         const time15s = `${dUtc.getUTCFullYear()}${pad(dUtc.getUTCMonth() + 1)}${pad(dUtc.getUTCDate())}${pad(dUtc.getUTCHours())}${pad(dUtc.getUTCMinutes())}${Math.floor(dUtc.getUTCSeconds() / 15)}`;
-        const liveApiUrl = `https://live.xosodaiphat.com/lotteryLive/1/${time15s}`;
+        // ?t= để vượt cache CDN của nguồn (URL 15s có thể trả dữ liệu cũ tới 1-2 phút)
+        const liveApiUrl = `https://live.xosodaiphat.com/lotteryLive/1/${time15s}?t=${Date.now()}`;
 
         const liveResp = await fetch(liveApiUrl, {
           headers: {

@@ -20,7 +20,7 @@ def fetch_live_daiphat(target_date: date):
         from datetime import timezone
         d = datetime.now(timezone.utc)
         time15s = f"{d.year}{d.month:02d}{d.day:02d}{d.hour:02d}{d.minute:02d}{d.second // 15}"
-        url = f"https://live.xosodaiphat.com/lotteryLive/1/{time15s}"
+        url = f"https://live.xosodaiphat.com/lotteryLive/1/{time15s}?t={int(d.timestamp() * 1000)}"
         req = urllib.request.Request(url, headers={
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Referer': 'https://xosodaiphat.com/xsmb-xo-so-mien-bac.html'
