@@ -9,6 +9,8 @@ jobs:
   update-data:
     if: github.repository_owner == 'thaonguyendkbike' || github.repository_owner == 'khiemdoan'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo content
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,4 +41,5 @@ jobs:
           git config --global user.name "GitHub Action"
           git add .
           git commit -m "Updated $(date +'%Y-%m-%d')"
+          git pull --rebase origin main
           git push origin main
